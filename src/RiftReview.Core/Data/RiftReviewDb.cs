@@ -188,6 +188,24 @@ CREATE INDEX IF NOT EXISTS ix_matches_queue ON matches(queue_id);";
         c.ExecuteNonQuery();
     }
 
+    public IReadOnlyList<string> MatchIdsMissingDerivedMetrics()
+    {
+        using var c = _conn.CreateCommand();
+        c.CommandText = "SELECT match_id FROM matches WHERE kill_participation IS NULL OR damage_share IS NULL OR deaths_pre15 IS NULL";
+        var list = new List<string>();
+        using var r = c.ExecuteReader();
+        while (r.Read()) list.Add(r.GetString(0));
+        return list;
+    }
+
+    public void UpdateDerivedMetrics(string matchId, double killParticipation, double damageShare, int deathsPre15)
+    {
+        using var c = _conn.CreateCommand();
+        c.CommandText = "UPDATE matches SET kill_participation=$kp, damage_share=$ds, deaths_pre15=$p WHERE match_id=$id";
+        Bind(c, "$kp", killParticipation); Bind(c, "$ds", damageShare); Bind(c, "$p", deathsPre15); Bind(c, "$id", matchId);
+        c.ExecuteNonQuery();
+    }
+
     public IReadOnlyList<LpSnapshot> GetLpSnapshots()
     {
         using var c = _conn.CreateCommand();
