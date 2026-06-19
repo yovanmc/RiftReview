@@ -36,6 +36,13 @@
                         <ui:SymbolIcon Symbol="Trophy20"/>
                     </ui:NavigationViewItem.Icon>
                 </ui:NavigationViewItem>
+
+                <ui:NavigationViewItem Content="Trends"
+                                       TargetPageType="{x:Type views:TrendsView}">
+                    <ui:NavigationViewItem.Icon>
+                        <ui:SymbolIcon Symbol="DataTrending24"/>
+                    </ui:NavigationViewItem.Icon>
+                </ui:NavigationViewItem>
             </ui:NavigationView.MenuItems>
 
             <ui:NavigationView.FooterMenuItems>

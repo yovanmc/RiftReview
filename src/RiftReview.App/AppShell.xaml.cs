@@ -27,7 +27,8 @@ public partial class AppShell : FluentWindow
         Type target = page.ToLowerInvariant() switch
         {
             "champions" => typeof(ChampPoolView),
-            "settings" => typeof(SettingsView),
+            "trends"    => typeof(TrendsView),
+            "settings"  => typeof(SettingsView),
             _ => typeof(ReviewView),
         };
         // Two-arg overload (Type, object?) — the single-arg Navigate(Type) does not exist on NavigationView.

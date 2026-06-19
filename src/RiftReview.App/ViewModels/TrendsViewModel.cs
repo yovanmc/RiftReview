@@ -1,5 +1,7 @@
+using System;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using RiftReview.Core.Analysis;
 using RiftReview.Core.Configuration;
@@ -17,6 +19,23 @@ public sealed partial class TrendsViewModel : ObservableObject
     public TrendsViewModel(RiftReviewDb db, DataDragonClient ddragon, SettingsStore settings)
     {
         _db = db; _ddragon = ddragon; _settings = settings;
+    }
+
+    [ObservableProperty] private bool   _isPreparing;
+    [ObservableProperty] private string _prepareStatus = "";
+
+    public async Task InitializeWithBackfillAsync()
+    {
+        try { await _ddragon.EnsureLoadedAsync(); } catch { }
+        if (_db.MatchIdsMissingDerivedMetrics().Count > 0)
+        {
+            IsPreparing   = true;
+            PrepareStatus = "Preparing trends data…";
+            await Task.Run(() => RiftReview.Core.Sync.DerivedMetricsBackfill.Run(_db,
+                new Progress<(int done, int total)>(p => PrepareStatus = $"Preparing trends data… {p.done}/{p.total}")));
+            IsPreparing = false;
+        }
+        Load();
     }
 
     public ObservableCollection<ChampChoice>         Champions { get; } = new();

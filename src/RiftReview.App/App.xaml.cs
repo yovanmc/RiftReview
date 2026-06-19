@@ -89,6 +89,8 @@ public partial class App : Application
                 s.AddTransient<ReviewView>();
                 s.AddTransient<ViewModels.ChampPoolViewModel>();
                 s.AddTransient<ChampPoolView>();
+                s.AddTransient<ViewModels.TrendsViewModel>();
+                s.AddTransient<TrendsView>();
                 s.AddTransient<ViewModels.SettingsViewModel>();
                 s.AddTransient<SettingsView>();
 
