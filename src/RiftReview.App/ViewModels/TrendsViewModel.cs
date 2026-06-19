@@ -27,14 +27,19 @@ public sealed partial class TrendsViewModel : ObservableObject
     public async Task InitializeWithBackfillAsync()
     {
         try { await _ddragon.EnsureLoadedAsync(); } catch { }
-        if (_db.MatchIdsMissingDerivedMetrics().Count > 0)
+        try
         {
-            IsPreparing   = true;
-            PrepareStatus = "Preparing trends data…";
-            await Task.Run(() => RiftReview.Core.Sync.DerivedMetricsBackfill.Run(_db,
-                new Progress<(int done, int total)>(p => PrepareStatus = $"Preparing trends data… {p.done}/{p.total}")));
-            IsPreparing = false;
+            if (_db.MatchIdsMissingDerivedMetrics().Count > 0)
+            {
+                IsPreparing = true;
+                PrepareStatus = "Preparing trends data…";
+                var progress = new Progress<(int done, int total)>(p =>
+                    PrepareStatus = $"Preparing trends data… {p.done}/{p.total}");
+                await Task.Run(() => RiftReview.Core.Sync.DerivedMetricsBackfill.Run(_db, progress));
+            }
         }
+        catch { /* a backfill failure must not hang the page; Load() shows whatever is already available */ }
+        finally { IsPreparing = false; }
         Load();
     }
 

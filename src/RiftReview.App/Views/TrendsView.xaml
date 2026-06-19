@@ -6,14 +6,6 @@
              xmlns:controls="clr-namespace:RiftReview.App.Controls">
 
     <UserControl.Resources>
-        <!-- Improving = green (WinBrush); default = muted -->
-        <conv:BoolToBrushConverter x:Key="GoodBrush"
-            TrueBrush="{StaticResource WinBrush}"
-            FalseBrush="{StaticResource TextMutedBrush}"/>
-        <!-- Declining = red (LossBrush); default = muted -->
-        <conv:BoolToBrushConverter x:Key="BadBrush"
-            TrueBrush="{StaticResource LossBrush}"
-            FalseBrush="{StaticResource TextMutedBrush}"/>
         <BooleanToVisibilityConverter x:Key="BoolToVis"/>
 
         <!-- Gold pill chip style for champ selector ListBox items -->
