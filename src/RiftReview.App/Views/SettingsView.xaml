@@ -43,6 +43,35 @@
                            FontSize="11"
                            Margin="0,0,0,24"/>
 
+                <!-- Trend Window section -->
+                <TextBlock Text="TREND WINDOW"
+                           Foreground="{StaticResource TextMutedBrush}"
+                           FontSize="11"
+                           FontWeight="SemiBold"
+                           Margin="0,0,0,8"/>
+
+                <StackPanel Orientation="Horizontal"
+                            Margin="0,0,0,4">
+                    <Slider Minimum="{Binding MinTrendWindow}"
+                            Maximum="{Binding MaxTrendWindow}"
+                            Value="{Binding TrendWindow, Mode=TwoWay}"
+                            Width="260"
+                            VerticalAlignment="Center"
+                            TickFrequency="1"
+                            IsSnapToTickEnabled="True"/>
+                    <TextBlock Text="{Binding TrendWindow}"
+                               Foreground="{StaticResource TextPrimaryBrush}"
+                               FontSize="14"
+                               FontWeight="SemiBold"
+                               VerticalAlignment="Center"
+                               Margin="12,0,0,0"/>
+                </StackPanel>
+
+                <TextBlock Text="Games per rolling window used for trend verdicts."
+                           Foreground="{StaticResource TextMutedBrush}"
+                           FontSize="11"
+                           Margin="0,0,0,24"/>
+
                 <!-- Default Filter section -->
                 <TextBlock Text="DEFAULT FILTER"
                            Foreground="{StaticResource TextMutedBrush}"
