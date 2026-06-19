@@ -18,6 +18,16 @@ public sealed class Sparkline : FrameworkElement
         set => SetValue(PointsProperty, value);
     }
 
+    public static readonly DependencyProperty ValuesProperty = DependencyProperty.Register(
+        nameof(Values), typeof(IReadOnlyList<double?>), typeof(Sparkline),
+        new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender));
+
+    public IReadOnlyList<double?>? Values
+    {
+        get => (IReadOnlyList<double?>?)GetValue(ValuesProperty);
+        set => SetValue(ValuesProperty, value);
+    }
+
     private static readonly Pen GoldPen = MakePen();
     private static Pen MakePen()
     {
@@ -28,7 +38,10 @@ public sealed class Sparkline : FrameworkElement
 
     protected override void OnRender(DrawingContext dc)
     {
-        var pts = Points?.Where(v => v.HasValue).Select(v => (double)v!.Value).ToList();
+        var pts = (Values is not null
+                ? Values.Where(v => v.HasValue).Select(v => v!.Value)
+                : Points?.Where(v => v.HasValue).Select(v => (double)v!.Value))
+            ?.ToList();
         if (pts is null || pts.Count < 2) return;
         double w = ActualWidth, h = ActualHeight;
         double min = pts.Min(), max = pts.Max(), range = max - min < 1e-6 ? 1 : max - min;
