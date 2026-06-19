@@ -100,4 +100,18 @@ public class SyncServiceTests
         await AccountResolver.EnsurePuuidAsync(db, fake, "Yovan#NA1");
         Assert.Equal("EXISTING", db.GetMeta("puuid"));
     }
+
+    [Fact]
+    public async Task Sync_returns_error_when_no_puuid_resolved()
+    {
+        using var db = RiftReviewDb.Open("Data Source=:memory:");
+        // intentionally no puuid set in meta
+        var fake = new FakeRiotClient(new() { "NA1_2" }, TestData.Match("NA1_2", "ME"), TestData.Timeline());
+        var svc = new SyncService(db, fake);
+
+        var res = await svc.SyncAsync(20, null);
+
+        Assert.Equal(0, res.NewMatches);
+        Assert.NotNull(res.Error); // returns a SyncResult, does not throw
+    }
 }

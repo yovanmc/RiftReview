@@ -17,6 +17,7 @@ public sealed class SyncService
             var puuid = _db.GetMeta("puuid") ?? throw new InvalidOperationException("No PUUID resolved.");
             var ids = await _client.GetMatchIdsAsync(puuid, 0, count, ct);
             var newIds = ids.Where(id => !_db.HasMatch(id)).ToList();
+            progress?.Report(new SyncProgress(0, newIds.Count, null));
             int done = 0;
             foreach (var id in newIds)
             {
@@ -38,6 +39,8 @@ public sealed class SyncService
         catch (RiotApiException ex) when (ex.IsKeyProblem)
         { return new SyncResult(0, 0, "Your Riot API key looks expired or invalid. Set a fresh dev key and try again."); }
         catch (RiotApiException ex)
+        { return new SyncResult(0, 0, ex.Message); }
+        catch (InvalidOperationException ex)
         { return new SyncResult(0, 0, ex.Message); }
     }
 }

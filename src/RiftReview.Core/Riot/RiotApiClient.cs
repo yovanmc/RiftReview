@@ -37,16 +37,6 @@ public sealed class RiotApiClient : IRiotApiClient
             $"{_regionalHost}/lol/match/v5/matches/by-puuid/{puuid}/ids?start={start}&count={count}",
             ct);
 
-    public Task<MatchDto> GetMatchAsync(string matchId, CancellationToken ct = default)
-        => GetAsync<MatchDto>(
-            $"{_regionalHost}/lol/match/v5/matches/{matchId}",
-            ct);
-
-    public Task<TimelineDto> GetMatchTimelineAsync(string matchId, CancellationToken ct = default)
-        => GetAsync<TimelineDto>(
-            $"{_regionalHost}/lol/match/v5/matches/{matchId}/timeline",
-            ct);
-
     public async Task<string> GetRawAsync(string url, CancellationToken ct = default)
     {
         await _rl.WaitForSlotAsync(ct);
