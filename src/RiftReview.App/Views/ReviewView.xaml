@@ -1,20 +1,11 @@
-<ui:FluentWindow x:Class="RiftReview.App.MainWindow"
-                 xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                 xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
-                 xmlns:views="clr-namespace:RiftReview.App.Views"
-                 xmlns:conv="clr-namespace:RiftReview.App.Converters"
-                 Title="RiftReview"
-                 Width="1120"
-                 Height="720"
-                 MinWidth="800"
-                 MinHeight="560"
-                 WindowBackdropType="None"
-                 ExtendsContentIntoTitleBar="True"
-                 Background="{StaticResource WindowBgBrush}"
-                 WindowStartupLocation="CenterScreen">
+<UserControl x:Class="RiftReview.App.Views.ReviewView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+             xmlns:views="clr-namespace:RiftReview.App.Views"
+             xmlns:conv="clr-namespace:RiftReview.App.Converters">
 
-    <ui:FluentWindow.Resources>
+    <UserControl.Resources>
         <conv:BoolToBrushConverter x:Key="WinDotBrush"
             TrueBrush="{StaticResource WinBrush}"
             FalseBrush="{StaticResource LossBrush}"/>
@@ -22,72 +13,63 @@
             TrueBrush="{StaticResource LossBrush}"
             FalseBrush="{StaticResource TextMutedBrush}"/>
         <BooleanToVisibilityConverter x:Key="BoolToVis"/>
-    </ui:FluentWindow.Resources>
+    </UserControl.Resources>
 
+    <!-- Main content: rail (300px) + right panel -->
     <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="44"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="300"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
 
-        <!-- Title bar -->
-        <ui:TitleBar Grid.Row="0" Title="RiftReview"/>
+        <!-- LEFT RAIL -->
+        <Border Grid.Column="0"
+                Background="{StaticResource PanelBgBrush}"
+                BorderBrush="{StaticResource HairlineBrush}"
+                BorderThickness="0,0,1,0">
+            <DockPanel>
 
-        <!-- Main content: rail (300px) + right panel -->
-        <Grid Grid.Row="1">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="300"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-
-            <!-- LEFT RAIL -->
-            <Border Grid.Column="0"
-                    Background="{StaticResource PanelBgBrush}"
-                    BorderBrush="{StaticResource HairlineBrush}"
-                    BorderThickness="0,0,1,0">
-                <DockPanel>
-
-                    <!-- Header: Sync + Ranked toggle -->
-                    <Border DockPanel.Dock="Top"
-                            Background="{StaticResource CardBgBrush}"
-                            BorderBrush="{StaticResource HairlineBrush}"
-                            BorderThickness="0,0,0,1"
-                            Padding="10,8">
-                        <StackPanel>
-                            <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
-                                <ui:Button Content="Sync"
-                                           Command="{Binding SyncCommand}"
-                                           Appearance="Primary"
-                                           Padding="12,5"
-                                           FontSize="13"/>
-                                <ToggleButton Content="Ranked only"
-                                              IsChecked="{Binding RankedOnly, Mode=TwoWay}"
-                                              Margin="8,0,0,0"
-                                              Padding="8,5"
-                                              Background="Transparent"
-                                              BorderBrush="{StaticResource HairlineBrush}"
-                                              Foreground="{StaticResource TextMutedBrush}"
-                                              FontSize="12"/>
-                            </StackPanel>
-                            <TextBlock Text="{Binding StatusMessage}"
-                                       Foreground="{Binding IsError, Converter={StaticResource IsErrorBrush}}"
-                                       FontSize="11"
-                                       TextWrapping="Wrap"/>
+                <!-- Header: Sync + Ranked toggle -->
+                <Border DockPanel.Dock="Top"
+                        Background="{StaticResource CardBgBrush}"
+                        BorderBrush="{StaticResource HairlineBrush}"
+                        BorderThickness="0,0,0,1"
+                        Padding="10,8">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                            <ui:Button Content="Sync"
+                                       Command="{Binding SyncCommand}"
+                                       Appearance="Primary"
+                                       Padding="12,5"
+                                       FontSize="13"/>
+                            <ToggleButton Content="Ranked only"
+                                          IsChecked="{Binding RankedOnly, Mode=TwoWay}"
+                                          Margin="8,0,0,0"
+                                          Padding="8,5"
+                                          Background="Transparent"
+                                          BorderBrush="{StaticResource HairlineBrush}"
+                                          Foreground="{StaticResource TextMutedBrush}"
+                                          FontSize="12"/>
                         </StackPanel>
-                    </Border>
+                        <TextBlock Text="{Binding StatusMessage}"
+                                   Foreground="{Binding IsError, Converter={StaticResource IsErrorBrush}}"
+                                   FontSize="11"
+                                   TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Border>
 
-                    <!-- Match list (with empty-state overlay) -->
-                    <Grid DockPanel.Dock="Bottom">
-                        <!-- Empty state hint — visible only when list is empty -->
-                        <TextBlock Text="No matches yet — set your Riot key and press Sync."
-                                   Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVis}}"
-                                   Foreground="{StaticResource TextMutedBrush}"
-                                   FontSize="12"
-                                   TextWrapping="Wrap"
-                                   HorizontalAlignment="Center"
-                                   VerticalAlignment="Center"
-                                   TextAlignment="Center"
-                                   Margin="16,24"/>
+                <!-- Match list (with empty-state overlay) -->
+                <Grid DockPanel.Dock="Bottom">
+                    <!-- Empty state hint — visible only when list is empty -->
+                    <TextBlock Text="No matches yet — set your Riot key and press Sync."
+                               Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVis}}"
+                               Foreground="{StaticResource TextMutedBrush}"
+                               FontSize="12"
+                               TextWrapping="Wrap"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               TextAlignment="Center"
+                               Margin="16,24"/>
                     <ListBox ItemsSource="{Binding Matches}"
                              SelectedItem="{Binding SelectedMatch}"
                              Background="Transparent"
@@ -155,23 +137,22 @@
                             </DataTemplate>
                         </ListBox.ItemTemplate>
                     </ListBox>
-                    </Grid>
-                </DockPanel>
-            </Border>
+                </Grid>
+            </DockPanel>
+        </Border>
 
-            <!-- RIGHT PANEL: trend strip (auto) + deep-dive (*) -->
-            <Grid Grid.Column="1">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
+        <!-- RIGHT PANEL: trend strip (auto) + deep-dive (*) -->
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
 
-                <views:TrendStripView Grid.Row="0"
-                                      DataContext="{Binding TrendStrip}"/>
+            <views:TrendStripView Grid.Row="0"
+                                  DataContext="{Binding TrendStrip}"/>
 
-                <views:DeepDiveView Grid.Row="1"
-                                    DataContext="{Binding DeepDive}"/>
-            </Grid>
+            <views:DeepDiveView Grid.Row="1"
+                                DataContext="{Binding DeepDive}"/>
         </Grid>
     </Grid>
-</ui:FluentWindow>
+</UserControl>

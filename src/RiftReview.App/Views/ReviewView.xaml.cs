@@ -1,12 +1,11 @@
-using System.Windows;
+using System.Windows.Controls;
 using RiftReview.App.ViewModels;
-using Wpf.Ui.Controls;
 
-namespace RiftReview.App;
+namespace RiftReview.App.Views;
 
-public partial class MainWindow : FluentWindow
+public partial class ReviewView : UserControl
 {
-    public MainWindow(MainViewModel vm)
+    public ReviewView(MainViewModel vm)
     {
         InitializeComponent();
         DataContext = vm;

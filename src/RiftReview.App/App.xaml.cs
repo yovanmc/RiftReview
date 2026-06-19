@@ -5,6 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
+using RiftReview.App.Views;
 using RiftReview.Core.Configuration;
 using RiftReview.Core.Data;
 using RiftReview.Core.DataDragon;
@@ -83,14 +84,20 @@ public partial class App : Application
                         Path.Combine(appData, "ddragon")));
 
                 s.AddSingleton<ViewModels.MainViewModel>();
-                // MainWindow is the FluentWindow shell; MainViewModel is injected via its constructor.
-                s.AddSingleton<MainWindow>();
+
+                // Pages (transient — NavigationView resolves a fresh instance each navigation)
+                s.AddTransient<ReviewView>();
+                s.AddTransient<ChampPoolView>();
+                s.AddTransient<SettingsView>();
+
+                // AppShell is the top-level FluentWindow shell
+                s.AddSingleton<AppShell>();
             })
             .Build();
 
         if (seedDemo) Demo.DemoSeeder.Seed(Services.GetRequiredService<RiftReviewDb>());
 
-        var win = Services.GetRequiredService<MainWindow>();
+        var win = Services.GetRequiredService<AppShell>();
         win.Show();
     }
 
