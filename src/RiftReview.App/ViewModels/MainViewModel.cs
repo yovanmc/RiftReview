@@ -29,6 +29,7 @@ public sealed partial class MainViewModel : ObservableObject
         DeepDive = new DeepDiveViewModel(_db, _ddragon);
         TrendStrip = new TrendStripViewModel();
         Reload();
+        SetIdleStatus();
     }
 
     public DeepDiveViewModel DeepDive { get; }
@@ -48,6 +49,7 @@ public sealed partial class MainViewModel : ObservableObject
     {
         try { await _ddragon.EnsureLoadedAsync(); } catch { /* names fall back to placeholders offline */ }
         Reload();
+        SetIdleStatus();
     }
 
     [RelayCommand]
@@ -91,5 +93,16 @@ public sealed partial class MainViewModel : ObservableObject
         TrendStrip.Load(rows);
         SelectedMatch = Matches.FirstOrDefault();
         OnPropertyChanged(nameof(IsEmpty));
+    }
+
+    // Reflects the stored-match count on startup so the status line isn't a misleading
+    // "Press Sync…" when matches are already loaded. A sync's own result message wins after a sync
+    // (this is only called from the ctor and InitializeAsync, never from Reload or SyncAsync).
+    private void SetIdleStatus()
+    {
+        IsError = false;
+        StatusMessage = Matches.Count == 0
+            ? "Press Sync to pull your recent matches."
+            : $"Showing {Matches.Count} stored {(Matches.Count == 1 ? "match" : "matches")}. Press Sync to refresh.";
     }
 }
