@@ -77,6 +77,22 @@ public static class TestData
         }));
 }
 
+public sealed class PerIdFakeClient : IRiotApiClient
+{
+    private readonly List<string> _ids;
+    private readonly Dictionary<string, MatchDto> _matches;
+    private readonly TimelineDto _t;
+    public PerIdFakeClient(List<string> ids, Dictionary<string, MatchDto> matches, TimelineDto timeline)
+    { _ids = ids; _matches = matches; _t = timeline; }
+    public Task<AccountDto> ResolvePuuidAsync(string g, string t, CancellationToken ct = default) => Task.FromResult(new AccountDto("ME", g, t));
+    public Task<List<string>> GetMatchIdsAsync(string puuid, int start, int count, CancellationToken ct = default)
+        => Task.FromResult(start == 0 ? _ids : new List<string>());
+    public Task<(MatchDto, string)> GetMatchWithRawAsync(string id, CancellationToken ct = default) => Task.FromResult((_matches[id], "{}"));
+    public Task<(TimelineDto, string)> GetTimelineWithRawAsync(string id, CancellationToken ct = default) => Task.FromResult((_t, "{}"));
+    public Task<IReadOnlyList<LeagueEntryDto>> GetLeagueEntriesAsync(string puuid, CancellationToken ct = default)
+        => Task.FromResult((IReadOnlyList<LeagueEntryDto>)new List<LeagueEntryDto>());
+}
+
 public class SyncServiceTests
 {
     [Fact]
@@ -196,5 +212,30 @@ public class SyncServiceTests
         Assert.Equal(1, res.NewMatches);     // match sync unaffected
         Assert.Null(res.Error);
         Assert.Empty(db.GetLpSnapshots());   // snapshot skipped, not fatal
+    }
+
+    [Fact]
+    public async Task Sync_skips_matches_missing_my_puuid_and_continues()
+    {
+        using var db = RiftReviewDb.Open("Data Source=:memory:");
+        db.SetMeta("puuid", "ME");
+
+        // NA1_good has ME in participants; NA1_bad does NOT (old match w/o my puuid).
+        var client = new PerIdFakeClient(
+            ids: new() { "NA1_good", "NA1_bad" },
+            matches: new()
+            {
+                ["NA1_good"] = TestData.Match("NA1_good", "ME"),
+                ["NA1_bad"] = TestData.Match("NA1_bad", "SOMEONE_ELSE"),
+            },
+            timeline: TestData.Timeline());
+        var svc = new SyncService(db, client);
+
+        var res = await svc.SyncAsync(20, null);
+
+        Assert.Null(res.Error);                 // one unattributable match must NOT abort the sync
+        Assert.Equal(1, res.NewMatches);        // only the attributable match stored
+        Assert.True(db.HasMatch("NA1_good"));
+        Assert.False(db.HasMatch("NA1_bad"));   // skipped, not stored
     }
 }

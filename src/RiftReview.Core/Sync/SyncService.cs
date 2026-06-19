@@ -24,6 +24,16 @@ public sealed class SyncService
                 ct.ThrowIfCancellationRequested();
                 var (match, matchRaw) = await _client.GetMatchWithRawAsync(id, ct);
                 var (timeline, tlRaw) = await _client.GetTimelineWithRawAsync(id, ct);
+
+                // Riot deep-history quirk: very old matches can come back without the account's PUUID
+                // in the participant list. We can't attribute stats to the player, so skip such a match
+                // rather than aborting the whole sync. (The display path already tolerates this.)
+                if (!match.Info.Participants.Any(p => p.Puuid == puuid))
+                {
+                    progress?.Report(new SyncProgress(done, newIds.Count, $"skipped {id} (not in match)"));
+                    continue;
+                }
+
                 var s = MatchExtractor.Summarize(match, puuid);
                 var cs10 = TimelineExtractor.CsAtMinute(timeline, s.MyParticipantId, 10);
                 var g15 = TimelineExtractor.GoldDiffAtMinute(timeline, s.MyParticipantId, s.OpponentParticipantId, 15);
@@ -31,11 +41,12 @@ public sealed class SyncService
                     s.MyChampionId, s.MyTeamPosition, s.Win, s.Kills, s.Deaths, s.Assists, s.Cs,
                     cs10, g15, s.OpponentParticipantId, s.OpponentChampionId, DateTimeOffset.UtcNow.ToUnixTimeSeconds());
                 _db.UpsertMatch(row, matchRaw, tlRaw);
-                progress?.Report(new SyncProgress(++done, newIds.Count, id));
+                done++;
+                progress?.Report(new SyncProgress(done, newIds.Count, id));
             }
             await TrySnapshotLpAsync(puuid, ct);
             _db.SetMeta("last_sync_utc", DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString());
-            return new SyncResult(newIds.Count, ids.Count - newIds.Count, null);
+            return new SyncResult(done, ids.Count - newIds.Count, null);
         }
         catch (RiotApiException ex) when (ex.IsKeyProblem)
         { return new SyncResult(0, 0, "Your Riot API key looks expired or invalid. Set a fresh dev key and try again."); }
