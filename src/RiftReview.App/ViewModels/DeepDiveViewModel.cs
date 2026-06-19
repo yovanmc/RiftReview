@@ -1,5 +1,7 @@
 using System.Text.Json;
+using System.Windows.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
+using RiftReview.App.Controls;
 using RiftReview.Core.Analysis;
 using RiftReview.Core.Data;
 using RiftReview.Core.DataDragon;
@@ -12,6 +14,19 @@ public sealed partial class DeepDiveViewModel : ObservableObject
     private static readonly JsonSerializerOptions Json = new() { PropertyNameCaseInsensitive = true };
     private readonly RiftReviewDb _db;
     private readonly DataDragonClient? _ddragon;
+
+    // Static frozen brushes — safe to create off-UI-thread (SolidColorBrush.Freeze() is thread-safe).
+    private static readonly Brush LaneBrush     = Frozen(0xC8, 0xAA, 0x6E); // Hextech Gold (vs lane)
+    private static readonly Brush TeamBrush     = Frozen(0x5A, 0xA9, 0xE6); // blue (vs team)
+    private static readonly Brush CsLineBrush   = Frozen(0xC8, 0xAA, 0x6E); // gold (your CS pace)
+    private static readonly Brush BaselineBrush = Frozen(0x8A, 0x8A, 0x8A); // gray dashed baseline
+
+    private static Brush Frozen(byte r, byte g, byte b)
+    {
+        var br = new SolidColorBrush(Color.FromRgb(r, g, b));
+        br.Freeze();
+        return br;
+    }
 
     public DeepDiveViewModel(RiftReviewDb db, DataDragonClient? ddragon = null)
     {
@@ -27,6 +42,10 @@ public sealed partial class DeepDiveViewModel : ObservableObject
     [ObservableProperty] private IReadOnlyList<ChartPoint> _csCurve = Array.Empty<ChartPoint>();
     [ObservableProperty] private IReadOnlyList<ChartPoint> _csBaseline = Array.Empty<ChartPoint>();
     [ObservableProperty] private IReadOnlyList<double> _deathMinutes = Array.Empty<double>();
+
+    // Assembled ChartSeries for the LineChart controls in DeepDiveView.
+    [ObservableProperty] private IReadOnlyList<ChartSeries> _goldSeries = Array.Empty<ChartSeries>();
+    [ObservableProperty] private IReadOnlyList<ChartSeries> _csSeries   = Array.Empty<ChartSeries>();
 
     public void Load(MatchRow selected)
     {
@@ -45,11 +64,24 @@ public sealed partial class DeepDiveViewModel : ObservableObject
         CsCurve = dd.CsPerMinute;
         DeathMinutes = dd.DeathMinutes;
         HasLaneOpponent = dd.HasLaneOpponent;
-        CsBaseline = BuildBaseline(selected, puuid);
+        var csBaseline = BuildBaseline(selected, puuid);
+        CsBaseline = csBaseline;
 
         var champ = _ddragon?.ChampionName(summary.MyChampionId) ?? $"Champ {summary.MyChampionId}";
         Header = $"{champ} · {summary.MyTeamPosition} · {(summary.Win ? "Win" : "Loss")} · {summary.Kills}/{summary.Deaths}/{summary.Assists}";
         HasData = true;
+
+        // Assemble chart series for XAML binding.
+        GoldSeries = new List<ChartSeries>
+        {
+            new(dd.GoldDiffVsTeam, TeamBrush),
+            new(dd.GoldDiffVsLane, LaneBrush),  // lane drawn on top of team
+        };
+        CsSeries = new List<ChartSeries>
+        {
+            new(dd.CsPerMinute, CsLineBrush),
+            new(csBaseline, BaselineBrush, Dashed: true),
+        };
     }
 
     private IReadOnlyList<ChartPoint> BuildBaseline(MatchRow selected, string puuid)
@@ -85,5 +117,7 @@ public sealed partial class DeepDiveViewModel : ObservableObject
         CsCurve = Array.Empty<ChartPoint>();
         CsBaseline = Array.Empty<ChartPoint>();
         DeathMinutes = Array.Empty<double>();
+        GoldSeries = Array.Empty<ChartSeries>();
+        CsSeries   = Array.Empty<ChartSeries>();
     }
 }
