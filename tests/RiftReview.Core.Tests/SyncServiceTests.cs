@@ -11,9 +11,11 @@ public sealed class FakeRiotClient : IRiotApiClient
     private readonly TimelineDto _timeline;
     private readonly AccountDto? _account;
     private readonly RiotApiException? _throwOnIds;
+    private readonly IReadOnlyList<LeagueEntryDto> _league;
     public FakeRiotClient(List<string> ids, MatchDto match, TimelineDto timeline,
-        AccountDto? account = null, RiotApiException? throwOnIds = null)
-    { _ids = ids; _match = match; _timeline = timeline; _account = account; _throwOnIds = throwOnIds; }
+        AccountDto? account = null, RiotApiException? throwOnIds = null,
+        IReadOnlyList<LeagueEntryDto>? league = null)
+    { _ids = ids; _match = match; _timeline = timeline; _account = account; _throwOnIds = throwOnIds; _league = league ?? new List<LeagueEntryDto>(); }
 
     public Task<AccountDto> ResolvePuuidAsync(string gameName, string tagLine, CancellationToken ct = default)
         => Task.FromResult(_account ?? new AccountDto("ME", gameName, tagLine));
@@ -23,6 +25,8 @@ public sealed class FakeRiotClient : IRiotApiClient
         => Task.FromResult((_match, "{\"match\":\"raw\"}"));
     public Task<(TimelineDto Dto, string Raw)> GetTimelineWithRawAsync(string id, CancellationToken ct = default)
         => Task.FromResult((_timeline, "{\"timeline\":\"raw\"}"));
+    public Task<IReadOnlyList<LeagueEntryDto>> GetLeagueEntriesAsync(string puuid, CancellationToken ct = default)
+        => Task.FromResult(_league);
 }
 
 public static class TestData

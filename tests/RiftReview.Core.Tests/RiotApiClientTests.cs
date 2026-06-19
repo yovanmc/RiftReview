@@ -67,4 +67,22 @@ public class RiotApiClientTests
         await rl.WaitForSlotAsync();
         Assert.True(totalDelay >= TimeSpan.FromSeconds(5));
     }
+
+    [Fact]
+    public async Task GetLeagueEntries_parses_entries_and_hits_platform_host()
+    {
+        var body = "[{\"queueType\":\"RANKED_SOLO_5x5\",\"tier\":\"GOLD\",\"rank\":\"II\",\"leaguePoints\":47,\"wins\":120,\"losses\":110}]";
+        var stub = new StubHttpMessageHandler(_ => StubHttpMessageHandler.Json(body));
+        var c = Make(stub);
+
+        var entries = await c.GetLeagueEntriesAsync("PUUID-1");
+
+        Assert.Single(entries);
+        Assert.Equal("RANKED_SOLO_5x5", entries[0].QueueType);
+        Assert.Equal("GOLD", entries[0].Tier);
+        Assert.Equal("II", entries[0].Rank);
+        Assert.Equal(47, entries[0].LeaguePoints);
+        Assert.Contains("na1.api.riotgames.com", stub.Requests[0].RequestUri!.ToString());
+        Assert.Contains("/lol/league/v4/entries/by-puuid/PUUID-1", stub.Requests[0].RequestUri!.ToString());
+    }
 }

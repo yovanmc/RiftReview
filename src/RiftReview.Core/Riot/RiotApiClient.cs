@@ -74,6 +74,10 @@ public sealed class RiotApiClient : IRiotApiClient
         return (JsonSerializer.Deserialize<TimelineDto>(raw, Json)!, raw);
     }
 
+    public async Task<IReadOnlyList<LeagueEntryDto>> GetLeagueEntriesAsync(string puuid, CancellationToken ct = default)
+        => await GetAsync<List<LeagueEntryDto>>(
+            $"{_platformHost}/lol/league/v4/entries/by-puuid/{puuid}", ct);
+
     private async Task<T> GetAsync<T>(string url, CancellationToken ct)
     {
         var body = await GetRawAsync(url, ct);
