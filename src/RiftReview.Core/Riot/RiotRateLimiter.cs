@@ -11,6 +11,10 @@ public sealed class RiotRateLimiter
 
     private static readonly TimeSpan ShortWindow = TimeSpan.FromSeconds(1);
     private static readonly TimeSpan LongWindow = TimeSpan.FromSeconds(120);
+    // Riot enforces the 100-req window server-side; releasing the next call at exactly oldest+120s
+    // can still draw a boundary 429 from clock skew. Wait this much past the bare window so the
+    // boundary call lands after Riot's window has definitely rolled. Pacing only; retry is the backstop.
+    private static readonly TimeSpan LongWindowMargin = TimeSpan.FromSeconds(3);
     private const int ShortMax = 20;
     private const int LongMax = 100;
 
@@ -54,10 +58,11 @@ public sealed class RiotRateLimiter
                     continue;
                 }
 
-                // Check long window (100 req/2 min)
+                // Check long window (100 req/2 min) — release boundary calls LongWindowMargin past
+                // the bare window so we stay safely under Riot's server-side limit.
                 if (_long.Count >= LongMax)
                 {
-                    await _delay(FreeIn(_long, now, LongWindow), ct);
+                    await _delay(FreeIn(_long, now, LongWindow + LongWindowMargin), ct);
                     continue;
                 }
 
