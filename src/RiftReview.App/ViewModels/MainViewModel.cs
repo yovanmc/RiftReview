@@ -39,6 +39,9 @@ public sealed partial class MainViewModel : ObservableObject
     [ObservableProperty] private bool _rankedOnly;
     [ObservableProperty] private bool _isBusy;
     [ObservableProperty] private string _statusMessage = "Press Sync to pull your recent matches.";
+    [ObservableProperty] private bool _isError;
+
+    public bool IsEmpty => Matches.Count == 0;
 
     // NOTE: the View (Task 14) must call InitializeAsync() from its Loaded handler so Data Dragon
     // champion names load and the match list refreshes from placeholders to real names.
@@ -53,16 +56,22 @@ public sealed partial class MainViewModel : ObservableObject
     {
         if (IsBusy) return;
         IsBusy = true;
+        IsError = false;
         StatusMessage = "Syncing…";
         try
         {
             try { await _ddragon.EnsureLoadedAsync(); } catch { }
             await AccountResolver.EnsurePuuidAsync(_db, _client, _options.RiotId);
             var res = await _sync.SyncAsync(20, null);
+            IsError = res.Error is not null;
             StatusMessage = res.Error ?? $"Synced: {res.NewMatches} new, {res.Skipped} already stored.";
             Reload();
         }
-        catch (Exception ex) { StatusMessage = ex.Message; }
+        catch (Exception ex)
+        {
+            IsError = true;
+            StatusMessage = ex.Message;
+        }
         finally { IsBusy = false; }
     }
 
@@ -81,5 +90,6 @@ public sealed partial class MainViewModel : ObservableObject
             Matches.Add(new MatchListItemViewModel(r, _ddragon.ChampionName(r.MyChampionId)));
         TrendStrip.Load(rows);
         SelectedMatch = Matches.FirstOrDefault();
+        OnPropertyChanged(nameof(IsEmpty));
     }
 }

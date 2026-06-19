@@ -18,6 +18,9 @@
         <conv:BoolToBrushConverter x:Key="WinDotBrush"
             TrueBrush="{StaticResource WinBrush}"
             FalseBrush="{StaticResource LossBrush}"/>
+        <conv:BoolToBrushConverter x:Key="IsErrorBrush"
+            TrueBrush="{StaticResource LossBrush}"
+            FalseBrush="{StaticResource TextMutedBrush}"/>
         <BooleanToVisibilityConverter x:Key="BoolToVis"/>
     </ui:FluentWindow.Resources>
 
@@ -67,15 +70,25 @@
                                               FontSize="12"/>
                             </StackPanel>
                             <TextBlock Text="{Binding StatusMessage}"
-                                       Foreground="{StaticResource TextMutedBrush}"
+                                       Foreground="{Binding IsError, Converter={StaticResource IsErrorBrush}}"
                                        FontSize="11"
                                        TextWrapping="Wrap"/>
                         </StackPanel>
                     </Border>
 
-                    <!-- Match list -->
-                    <ListBox DockPanel.Dock="Bottom"
-                             ItemsSource="{Binding Matches}"
+                    <!-- Match list (with empty-state overlay) -->
+                    <Grid DockPanel.Dock="Bottom">
+                        <!-- Empty state hint — visible only when list is empty -->
+                        <TextBlock Text="No matches yet — set your Riot key and press Sync."
+                                   Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVis}}"
+                                   Foreground="{StaticResource TextMutedBrush}"
+                                   FontSize="12"
+                                   TextWrapping="Wrap"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"
+                                   TextAlignment="Center"
+                                   Margin="16,24"/>
+                    <ListBox ItemsSource="{Binding Matches}"
                              SelectedItem="{Binding SelectedMatch}"
                              Background="Transparent"
                              BorderThickness="0"
@@ -142,6 +155,7 @@
                             </DataTemplate>
                         </ListBox.ItemTemplate>
                     </ListBox>
+                    </Grid>
                 </DockPanel>
             </Border>
 
