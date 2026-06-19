@@ -89,6 +89,7 @@ public partial class App : Application
                 s.AddTransient<ReviewView>();
                 s.AddTransient<ViewModels.ChampPoolViewModel>();
                 s.AddTransient<ChampPoolView>();
+                s.AddTransient<ViewModels.SettingsViewModel>();
                 s.AddTransient<SettingsView>();
 
                 // AppShell is the top-level FluentWindow shell
