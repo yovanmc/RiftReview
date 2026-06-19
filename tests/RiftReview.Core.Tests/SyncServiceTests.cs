@@ -215,6 +215,34 @@ public class SyncServiceTests
     }
 
     [Fact]
+    public async Task Sync_stores_derived_metrics()
+    {
+        using var db = RiftReviewDb.Open("Data Source=:memory:");
+        db.SetMeta("puuid", "ME");
+        var parts = new List<ParticipantDto>
+        {
+            new("ME", 3, 103, 100, "MIDDLE", true,  4, 2, 2, 200, 10, 1000),
+            new("B",  1, 110, 100, "TOP",    true,  2, 1, 0, 180, 0,  1000),  // team100 kills=4+2=6, dmg=2000
+            new("X",  8, 145, 200, "MIDDLE", false, 3, 3, 3, 180, 0,  1000),
+        };
+        var match = new MatchDto(new MatchMetadata("NA1_2", parts.Select(p => p.Puuid).ToList()),
+            new MatchInfo(420, 1_700_000_000_000, 1800, "15.12.1", parts));
+        var tl = new TimelineDto(new TimelineMetadata("NA1_2", new()),
+            new TimelineInfo(60000, new List<FrameDto>
+            {
+                new(0, new(), new List<EventDto> { new("CHAMPION_KILL", 7*60000L, 8, 3) }), // me (pid 3) dies at 7:00
+            }));
+        var fake = new FakeRiotClient(new() { "NA1_2" }, match, tl);
+        var res = await new SyncService(db, fake).SyncAsync(20, null);
+
+        Assert.Equal(1, res.NewMatches);
+        var row = db.GetMatch("NA1_2")!;
+        Assert.Equal(1.0, row.KillParticipation!.Value, 3);   // (myK 4 + myA 2) / teamKills 6 = 1.0
+        Assert.Equal(0.5, row.DamageShare!.Value, 3);          // myDmg 1000 / teamDmg 2000 = 0.5
+        Assert.Equal(1, row.DeathsPre15);
+    }
+
+    [Fact]
     public async Task Sync_skips_matches_missing_my_puuid_and_continues()
     {
         using var db = RiftReviewDb.Open("Data Source=:memory:");

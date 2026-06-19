@@ -37,9 +37,11 @@ public sealed class SyncService
                 var s = MatchExtractor.Summarize(match, puuid);
                 var cs10 = TimelineExtractor.CsAtMinute(timeline, s.MyParticipantId, 10);
                 var g15 = TimelineExtractor.GoldDiffAtMinute(timeline, s.MyParticipantId, s.OpponentParticipantId, 15);
+                int pre15 = TimelineExtractor.DeathsBeforeMinute(timeline, s.MyParticipantId, 15);
                 var row = new MatchRow(id, s.QueueId, s.GameStartUtc, s.DurationS, s.Patch,
                     s.MyChampionId, s.MyTeamPosition, s.Win, s.Kills, s.Deaths, s.Assists, s.Cs,
-                    cs10, g15, s.OpponentParticipantId, s.OpponentChampionId, DateTimeOffset.UtcNow.ToUnixTimeSeconds());
+                    cs10, g15, s.OpponentParticipantId, s.OpponentChampionId, DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+                    s.KillParticipation, s.DamageShare, pre15);
                 _db.UpsertMatch(row, matchRaw, tlRaw);
                 done++;
                 progress?.Report(new SyncProgress(done, newIds.Count, id));
