@@ -32,4 +32,15 @@ public class SettingsStoreTests
         new SettingsStore(db).DefaultRankedOnly = false;
         Assert.False(new SettingsStore(db).DefaultRankedOnly);
     }
+
+    [Fact]
+    public void Trend_window_defaults_to_10_and_clamps()
+    {
+        using var db = RiftReviewDb.Open("Data Source=:memory:");
+        var s = new SettingsStore(db);
+        Assert.Equal(10, s.TrendWindow);
+        s.TrendWindow = 3;   Assert.Equal(SettingsStore.MinTrendWindow, new SettingsStore(db).TrendWindow);
+        s.TrendWindow = 999; Assert.Equal(SettingsStore.MaxTrendWindow, new SettingsStore(db).TrendWindow);
+        s.TrendWindow = 14;  Assert.Equal(14, new SettingsStore(db).TrendWindow);
+    }
 }
