@@ -2,6 +2,7 @@ namespace RiftReview.Core.Riot.Dtos;
 
 // MATCH-V5 timeline (subset)
 public sealed record TimelineDto(TimelineMetadata Metadata, TimelineInfo Info);
+// Participants = ordered PUUID strings
 public sealed record TimelineMetadata(string MatchId, List<string> Participants);
 public sealed record TimelineInfo(long FrameInterval, List<FrameDto> Frames);
 public sealed record FrameDto(

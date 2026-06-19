@@ -2,6 +2,7 @@ namespace RiftReview.Core.Riot.Dtos;
 
 // MATCH-V5 match detail (subset we use)
 public sealed record MatchDto(MatchMetadata Metadata, MatchInfo Info);
+// Participants = ordered PUUID strings
 public sealed record MatchMetadata(string MatchId, List<string> Participants);
 public sealed record MatchInfo(
     long QueueId, long GameCreation, long GameDuration, string GameVersion,

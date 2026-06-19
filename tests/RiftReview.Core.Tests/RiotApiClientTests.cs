@@ -43,4 +43,28 @@ public class RiotApiClientTests
         var ex = await Assert.ThrowsAsync<RiotApiException>(() => c.ResolvePuuidAsync("x", "y"));
         Assert.True(ex.IsKeyProblem);
     }
+
+    [Fact]
+    public async Task Rate_limited_429_throws_and_backs_off_per_retry_after()
+    {
+        var clock = new FakeClock();
+        var totalDelay = TimeSpan.Zero;
+        Func<TimeSpan, CancellationToken, Task> delay = (d, _) => { totalDelay += d; clock.Advance(d); return Task.CompletedTask; };
+        var rl = new RiotRateLimiter(clock, delay);
+        var h = new StubHttpMessageHandler(_ =>
+        {
+            var m = new System.Net.Http.HttpResponseMessage(System.Net.HttpStatusCode.TooManyRequests)
+                { Content = new StringContent("{}", System.Text.Encoding.UTF8, "application/json") };
+            m.Headers.TryAddWithoutValidation("Retry-After", "5");
+            return m;
+        });
+        var c = new RiotApiClient(new HttpClient(h), rl, apiKey: "RGAPI-test", platform: "na1");
+
+        var ex = await Assert.ThrowsAsync<RiotApiException>(() => c.ResolvePuuidAsync("x", "y"));
+        Assert.True(ex.IsRateLimited);
+
+        // The client must have called NotifyRetryAfter(5s): the next slot wait must back off >= 5s.
+        await rl.WaitForSlotAsync();
+        Assert.True(totalDelay >= TimeSpan.FromSeconds(5));
+    }
 }

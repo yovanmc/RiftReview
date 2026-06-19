@@ -57,7 +57,11 @@ public sealed class RiotApiClient
 
         if (resp.StatusCode == HttpStatusCode.TooManyRequests)
         {
-            var ra = resp.Headers.RetryAfter?.Delta ?? TimeSpan.FromSeconds(1);
+            var ra = resp.Headers.RetryAfter?.Delta
+                     ?? (resp.Headers.TryGetValues("Retry-After", out var raVals)
+                         && int.TryParse(raVals.FirstOrDefault(), out var raSec)
+                         ? TimeSpan.FromSeconds(raSec)
+                         : TimeSpan.FromSeconds(5));
             _rl.NotifyRetryAfter(ra);
             throw new RiotApiException(429, $"Rate limited; retry after {ra.TotalSeconds:0}s");
         }
