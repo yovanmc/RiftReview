@@ -44,6 +44,8 @@ public class RiotApiClientTests
         Assert.True(ex.IsKeyProblem);
     }
 
+    // Persistent 429 on every call → client retries up to MaxRateLimitRetries, then gives up and throws.
+    // The recorded Retry-After back-off must still be honoured (next WaitForSlotAsync backs off >= 5s).
     [Fact]
     public async Task Rate_limited_429_throws_and_backs_off_per_retry_after()
     {
@@ -63,9 +65,38 @@ public class RiotApiClientTests
         var ex = await Assert.ThrowsAsync<RiotApiException>(() => c.ResolvePuuidAsync("x", "y"));
         Assert.True(ex.IsRateLimited);
 
+        // The persistent 429 must have been attempted more than once before giving up.
+        Assert.True(h.Requests.Count >= 2);
+
         // The client must have called NotifyRetryAfter(5s): the next slot wait must back off >= 5s.
         await rl.WaitForSlotAsync();
         Assert.True(totalDelay >= TimeSpan.FromSeconds(5));
+    }
+
+    [Fact]
+    public async Task Rate_limited_429_then_retries_and_succeeds()
+    {
+        int calls = 0;
+        var clock = new FakeClock();
+        var rl = new RiotRateLimiter(clock, (d, _) => { clock.Advance(d); return Task.CompletedTask; });
+        var h = new StubHttpMessageHandler(_ =>
+        {
+            calls++;
+            if (calls == 1)
+            {
+                var m = new System.Net.Http.HttpResponseMessage(System.Net.HttpStatusCode.TooManyRequests)
+                    { Content = new StringContent("{}", System.Text.Encoding.UTF8, "application/json") };
+                m.Headers.TryAddWithoutValidation("Retry-After", "1");
+                return m;
+            }
+            return StubHttpMessageHandler.Json("{\"puuid\":\"P1\",\"gameName\":\"Y\",\"tagLine\":\"NA1\"}");
+        });
+        var c = new RiotApiClient(new HttpClient(h), rl, apiKey: "RGAPI-test", platform: "na1");
+
+        var acc = await c.ResolvePuuidAsync("Y", "NA1");   // must NOT throw — it retries past the single 429
+
+        Assert.Equal("P1", acc.Puuid);
+        Assert.Equal(2, calls);   // one 429, then one success
     }
 
     [Fact]

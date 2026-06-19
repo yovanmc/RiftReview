@@ -37,29 +37,40 @@ public sealed class RiotApiClient : IRiotApiClient
             $"{_regionalHost}/lol/match/v5/matches/by-puuid/{puuid}/ids?start={start}&count={count}",
             ct);
 
+    // Riot's app-rate-limit 429 can fire at the 100/120s window boundary purely from clock skew
+    // even when our limiter paced correctly. Honor Retry-After (recorded via NotifyRetryAfter so the
+    // next WaitForSlotAsync blocks until it clears) and retry, rather than aborting the whole sync.
+    // A genuinely exhausted key returns 401/403, not 429, so those still throw immediately below.
+    private const int MaxRateLimitRetries = 5;
+
     public async Task<string> GetRawAsync(string url, CancellationToken ct = default)
     {
-        await _rl.WaitForSlotAsync(ct);
-        using var req = new HttpRequestMessage(HttpMethod.Get, url);
-        req.Headers.Add("X-Riot-Token", _apiKey);
-        using var resp = await _http.SendAsync(req, ct);
-        var body = await resp.Content.ReadAsStringAsync(ct);
-
-        if (resp.StatusCode == HttpStatusCode.TooManyRequests)
+        for (int attempt = 0; ; attempt++)
         {
-            var ra = resp.Headers.RetryAfter?.Delta
-                     ?? (resp.Headers.TryGetValues("Retry-After", out var raVals)
-                         && int.TryParse(raVals.FirstOrDefault(), out var raSec)
-                         ? TimeSpan.FromSeconds(raSec)
-                         : TimeSpan.FromSeconds(5));
-            _rl.NotifyRetryAfter(ra);
-            throw new RiotApiException(429, $"Rate limited; retry after {ra.TotalSeconds:0}s");
+            await _rl.WaitForSlotAsync(ct);
+            using var req = new HttpRequestMessage(HttpMethod.Get, url);
+            req.Headers.Add("X-Riot-Token", _apiKey);
+            using var resp = await _http.SendAsync(req, ct);
+            var body = await resp.Content.ReadAsStringAsync(ct);
+
+            if (resp.StatusCode == HttpStatusCode.TooManyRequests)
+            {
+                var ra = resp.Headers.RetryAfter?.Delta
+                         ?? (resp.Headers.TryGetValues("Retry-After", out var raVals)
+                             && int.TryParse(raVals.FirstOrDefault(), out var raSec)
+                             ? TimeSpan.FromSeconds(raSec)
+                             : TimeSpan.FromSeconds(5));
+                _rl.NotifyRetryAfter(ra);
+                if (attempt >= MaxRateLimitRetries)
+                    throw new RiotApiException(429, $"Rate limited; retry after {ra.TotalSeconds:0}s (gave up after {MaxRateLimitRetries} retries)");
+                continue;
+            }
+
+            if (!resp.IsSuccessStatusCode)
+                throw new RiotApiException((int)resp.StatusCode, $"Riot API {(int)resp.StatusCode} for {url}: {body}");
+
+            return body;
         }
-
-        if (!resp.IsSuccessStatusCode)
-            throw new RiotApiException((int)resp.StatusCode, $"Riot API {(int)resp.StatusCode} for {url}: {body}");
-
-        return body;
     }
 
     public async Task<(MatchDto Dto, string Raw)> GetMatchWithRawAsync(string id, CancellationToken ct = default)
