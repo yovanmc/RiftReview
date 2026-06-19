@@ -142,6 +142,18 @@ CREATE INDEX IF NOT EXISTS ix_matches_queue ON matches(queue_id);";
         return list;
     }
 
+    public IReadOnlyList<MatchRow> AllMatches(bool rankedOnly)
+    {
+        using var c = _conn.CreateCommand();
+        c.CommandText = "SELECT * FROM matches" +
+            (rankedOnly ? " WHERE queue_id IN (420,440)" : "") +
+            " ORDER BY game_start_utc DESC";
+        var list = new List<MatchRow>();
+        using var r = c.ExecuteReader();
+        while (r.Read()) list.Add(ReadRow(r));
+        return list;
+    }
+
     public string? GetMeta(string key) =>
         ScalarString("SELECT value FROM meta WHERE key=$k", ("$k", (object)key));
 

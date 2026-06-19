@@ -61,4 +61,15 @@ public class RiftReviewDbTests
         Assert.Single(all);
         Assert.Equal(snap, all[0]);
     }
+
+    [Fact]
+    public void AllMatches_returns_every_stored_row_newest_first()
+    {
+        using var db = NewDb();
+        for (int i = 0; i < 25; i++)
+            db.UpsertMatch(Row($"NA1_{i}", i % 2 == 0 ? 420 : 400, start: 1000 + i), "{}", "{}");
+        Assert.Equal(25, db.AllMatches(rankedOnly: false).Count);
+        Assert.True(db.AllMatches(rankedOnly: true).Count < 25);     // only ranked (420/440)
+        Assert.Equal("NA1_24", db.AllMatches(false)[0].MatchId);     // newest first
+    }
 }
