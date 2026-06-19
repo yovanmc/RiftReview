@@ -15,7 +15,7 @@ public sealed class SyncService
         try
         {
             var puuid = _db.GetMeta("puuid") ?? throw new InvalidOperationException("No PUUID resolved.");
-            var ids = await _client.GetMatchIdsAsync(puuid, 0, count, ct);
+            var ids = await FetchIdsAsync(puuid, count, ct);
             var newIds = ids.Where(id => !_db.HasMatch(id)).ToList();
             progress?.Report(new SyncProgress(0, newIds.Count, null));
             int done = 0;
@@ -33,6 +33,7 @@ public sealed class SyncService
                 _db.UpsertMatch(row, matchRaw, tlRaw);
                 progress?.Report(new SyncProgress(++done, newIds.Count, id));
             }
+            await TrySnapshotLpAsync(puuid, ct);
             _db.SetMeta("last_sync_utc", DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString());
             return new SyncResult(newIds.Count, ids.Count - newIds.Count, null);
         }
@@ -42,5 +43,31 @@ public sealed class SyncService
         { return new SyncResult(0, 0, ex.Message); }
         catch (InvalidOperationException ex)
         { return new SyncResult(0, 0, ex.Message); }
+    }
+
+    private async Task<List<string>> FetchIdsAsync(string puuid, int count, CancellationToken ct)
+    {
+        const int page = 100;   // MATCH-V5 max per call
+        var all = new List<string>();
+        for (int start = 0; start < count; start += page)
+        {
+            var take = Math.Min(page, count - start);
+            var batch = await _client.GetMatchIdsAsync(puuid, start, take, ct);
+            all.AddRange(batch);
+            if (batch.Count < take) break;   // reached end of history
+        }
+        return all;
+    }
+
+    private async Task TrySnapshotLpAsync(string puuid, CancellationToken ct)
+    {
+        try
+        {
+            var entries = await _client.GetLeagueEntriesAsync(puuid, ct);
+            long now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+            foreach (var e in entries.Where(e => e.QueueType is "RANKED_SOLO_5x5" or "RANKED_FLEX_SR"))
+                _db.InsertLpSnapshot(new LpSnapshot(now, e.QueueType, e.Tier, e.Rank, e.LeaguePoints, e.Wins, e.Losses));
+        }
+        catch { /* LP snapshot is best-effort; never fail the match sync over it */ }
     }
 }
