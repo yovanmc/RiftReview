@@ -81,7 +81,7 @@ public partial class App : Application
                         Path.Combine(appData, "ddragon")));
 
                 s.AddSingleton<ViewModels.MainViewModel>();
-                // Task 14 will replace this with the real Views.MainWindow that takes MainViewModel.
+                // MainWindow is the FluentWindow shell; MainViewModel is injected via its constructor.
                 s.AddSingleton<MainWindow>();
             })
             .Build();

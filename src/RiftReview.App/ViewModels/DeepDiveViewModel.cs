@@ -54,34 +54,41 @@ public sealed partial class DeepDiveViewModel : ObservableObject
         var tlJson = _db.GetTimelineJson(selected.MatchId);
         if (puuid is null || matchJson is null || tlJson is null) { Clear(); return; }
 
-        var match = JsonSerializer.Deserialize<MatchDto>(matchJson, Json)!;
-        var summary = MatchExtractor.Summarize(match, puuid);
-        var tl = JsonSerializer.Deserialize<TimelineDto>(tlJson, Json)!;
-        var dd = TimelineExtractor.BuildDeepDive(tl, summary.MyParticipantId, summary.OpponentParticipantId);
-
-        GoldVsLane = dd.GoldDiffVsLane;
-        GoldVsTeam = dd.GoldDiffVsTeam;
-        CsCurve = dd.CsPerMinute;
-        DeathMinutes = dd.DeathMinutes;
-        HasLaneOpponent = dd.HasLaneOpponent;
-        var csBaseline = BuildBaseline(selected, puuid);
-        CsBaseline = csBaseline;
-
-        var champ = _ddragon?.ChampionName(summary.MyChampionId) ?? $"Champ {summary.MyChampionId}";
-        Header = $"{champ} · {summary.MyTeamPosition} · {(summary.Win ? "Win" : "Loss")} · {summary.Kills}/{summary.Deaths}/{summary.Assists}";
-        HasData = true;
-
-        // Assemble chart series for XAML binding.
-        GoldSeries = new List<ChartSeries>
+        try
         {
-            new(dd.GoldDiffVsTeam, TeamBrush),
-            new(dd.GoldDiffVsLane, LaneBrush),  // lane drawn on top of team
-        };
-        CsSeries = new List<ChartSeries>
+            var match = JsonSerializer.Deserialize<MatchDto>(matchJson, Json)!;
+            var summary = MatchExtractor.Summarize(match, puuid);
+            var tl = JsonSerializer.Deserialize<TimelineDto>(tlJson, Json)!;
+            var dd = TimelineExtractor.BuildDeepDive(tl, summary.MyParticipantId, summary.OpponentParticipantId);
+
+            GoldVsLane = dd.GoldDiffVsLane;
+            GoldVsTeam = dd.GoldDiffVsTeam;
+            CsCurve = dd.CsPerMinute;
+            DeathMinutes = dd.DeathMinutes;
+            HasLaneOpponent = dd.HasLaneOpponent;
+            var csBaseline = BuildBaseline(selected, puuid);
+            CsBaseline = csBaseline;
+
+            var champ = _ddragon?.ChampionName(summary.MyChampionId) ?? $"Champ {summary.MyChampionId}";
+            Header = $"{champ} · {summary.MyTeamPosition} · {(summary.Win ? "Win" : "Loss")} · {summary.Kills}/{summary.Deaths}/{summary.Assists}";
+
+            // Assemble chart series for XAML binding.
+            GoldSeries = new List<ChartSeries>
+            {
+                new(dd.GoldDiffVsTeam, TeamBrush),
+                new(dd.GoldDiffVsLane, LaneBrush),  // lane drawn on top of team
+            };
+            CsSeries = new List<ChartSeries>
+            {
+                new(dd.CsPerMinute, CsLineBrush),
+                new(csBaseline, BaselineBrush, Dashed: true),
+            };
+            HasData = true;
+        }
+        catch (Exception ex) when (ex is JsonException or InvalidOperationException)
         {
-            new(dd.CsPerMinute, CsLineBrush),
-            new(csBaseline, BaselineBrush, Dashed: true),
-        };
+            Clear(); // a corrupt/unexpected stored match → show the empty state, never crash
+        }
     }
 
     private IReadOnlyList<ChartPoint> BuildBaseline(MatchRow selected, string puuid)

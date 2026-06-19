@@ -43,8 +43,7 @@ public sealed partial class MainViewModel : ObservableObject
 
     public bool IsEmpty => Matches.Count == 0;
 
-    // NOTE: the View (Task 14) must call InitializeAsync() from its Loaded handler so Data Dragon
-    // champion names load and the match list refreshes from placeholders to real names.
+    // NOTE: the View calls InitializeAsync() from its Loaded handler so Data Dragon names load and the list refreshes.
     public async Task InitializeAsync()
     {
         try { await _ddragon.EnsureLoadedAsync(); } catch { /* names fall back to placeholders offline */ }
@@ -62,7 +61,8 @@ public sealed partial class MainViewModel : ObservableObject
         {
             try { await _ddragon.EnsureLoadedAsync(); } catch { }
             await AccountResolver.EnsurePuuidAsync(_db, _client, _options.RiotId);
-            var res = await _sync.SyncAsync(20, null);
+            var progress = new Progress<SyncProgress>(p => StatusMessage = $"Syncing… {p.Fetched}/{p.Total}");
+            var res = await _sync.SyncAsync(20, progress);
             IsError = res.Error is not null;
             StatusMessage = res.Error ?? $"Synced: {res.NewMatches} new, {res.Skipped} already stored.";
             Reload();
