@@ -58,6 +58,8 @@ public partial class App : Application
                 s.AddSingleton<RiftReviewDb>(sp =>
                     RiftReviewDb.Open($"Data Source={dbPath}"));
 
+                s.AddSingleton<RiftReview.Core.Configuration.SettingsStore>();
+
                 s.AddSingleton<RiotApiClient>(sp =>
                 {
                     var o = sp.GetRequiredService<IOptions<RiotOptions>>().Value;

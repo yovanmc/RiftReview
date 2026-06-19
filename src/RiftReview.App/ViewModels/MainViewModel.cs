@@ -17,17 +17,20 @@ public sealed partial class MainViewModel : ObservableObject
     private readonly IRiotApiClient _client;
     private readonly DataDragonClient _ddragon;
     private readonly RiotOptions _options;
+    private readonly SettingsStore _settings;
 
     public MainViewModel(RiftReviewDb db, SyncService sync, IRiotApiClient client,
-        DataDragonClient ddragon, IOptions<RiotOptions> options)
+        DataDragonClient ddragon, IOptions<RiotOptions> options, SettingsStore settings)
     {
         _db = db;
         _sync = sync;
         _client = client;
         _ddragon = ddragon;
         _options = options.Value;
+        _settings = settings;
         DeepDive = new DeepDiveViewModel(_db, _ddragon);
         TrendStrip = new TrendStripViewModel();
+        _rankedOnly = settings.DefaultRankedOnly;
         Reload();
         SetIdleStatus();
     }
@@ -64,7 +67,7 @@ public sealed partial class MainViewModel : ObservableObject
             try { await _ddragon.EnsureLoadedAsync(); } catch { }
             await AccountResolver.EnsurePuuidAsync(_db, _client, _options.RiotId);
             var progress = new Progress<SyncProgress>(p => StatusMessage = $"Syncing… {p.Fetched}/{p.Total}");
-            var res = await _sync.SyncAsync(20, progress);
+            var res = await _sync.SyncAsync(_settings.MatchDepth, progress);
             IsError = res.Error is not null;
             StatusMessage = res.Error ?? $"Synced: {res.NewMatches} new, {res.Skipped} already stored.";
             Reload();
