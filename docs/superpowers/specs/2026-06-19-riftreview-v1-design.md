@@ -137,9 +137,14 @@ Parse stored `timeline_json`:
   `myTeamTotalGold − enemyTeamTotalGold`. **Death markers** overlaid = `CHAMPION_KILL` events
   where the victim is me, plotted at their timestamp on the gold chart.
   Fallback: if no clean lane opponent (e.g. ARAM/odd roles), draw only the team line + a note.
-- **CS per minute:** this game's CS/min curve (`minionsKilled + jungleMinionsKilled` per frame)
-  plus a dashed **same-role rolling baseline** = average per-minute CS across recent same-role
-  games (parsed on demand from their stored timelines; cached in memory).
+- **CS per minute:** this game's CS/min curve plus a dashed **same-role rolling baseline**.
+  - Curve semantics (explicit, to avoid ambiguity): at each frame `t`, plot
+    **running-average pace** = cumulative CS at `t` (`minionsKilled + jungleMinionsKilled`)
+    divided by minutes elapsed at `t`. This is the standard "CS/min" reading and makes the
+    baseline an apples-to-apples comparison (both are running-average pace).
+  - Baseline = the per-minute average of that same running-average-pace curve across recent
+    same-role games (parsed on demand from their stored timelines; cached in memory). If too few
+    same-role games exist to be meaningful, hide the baseline rather than show a noisy one.
 
 ### Cross-game trend strip
 
