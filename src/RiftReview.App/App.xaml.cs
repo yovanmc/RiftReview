@@ -86,7 +86,7 @@ public partial class App : Application
             })
             .Build();
 
-        // Task 15: if (seedDemo) Demo.DemoSeeder.Seed(Services.GetRequiredService<RiftReviewDb>());
+        if (seedDemo) Demo.DemoSeeder.Seed(Services.GetRequiredService<RiftReviewDb>());
 
         var win = Services.GetRequiredService<MainWindow>();
         win.Show();
