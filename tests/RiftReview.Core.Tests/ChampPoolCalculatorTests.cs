@@ -7,6 +7,9 @@ public class ChampPoolCalculatorTests
     private static MatchRow M(int champ, bool win, int k, int d, int a, int? cs10, long start) =>
         new($"NA1_{start}", 420, start, 1800, "15.12", champ, "MIDDLE", win, k, d, a, 200, cs10, 0, 7, 1, start);
 
+    private static MatchRow Mr(int champ, string pos, long start) =>
+        new($"NA1_{start}", 420, start, 1800, "15.12", champ, pos, true, 1, 1, 1, 200, 80, 0, 7, 1, start);
+
     [Fact]
     public void Aggregates_per_champion()
     {
@@ -60,5 +63,12 @@ public class ChampPoolCalculatorTests
         var pool = ChampPoolCalculator.Build(new List<MatchRow>());
         Assert.Empty(pool.All);
         Assert.Empty(pool.PracticingChampionIds);
+    }
+
+    [Fact]
+    public void DominantRole_is_most_common_position()
+    {
+        var rows = new List<MatchRow> { Mr(103, "MIDDLE", 100), Mr(103, "MIDDLE", 200), Mr(103, "TOP", 300) };
+        Assert.Equal("MIDDLE", ChampPoolCalculator.Build(rows).All.Single().DominantRole);
     }
 }

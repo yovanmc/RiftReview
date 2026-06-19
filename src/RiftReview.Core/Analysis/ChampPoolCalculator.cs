@@ -17,13 +17,20 @@ public static class ChampPoolCalculator
                 int sumK = games.Sum(m => m.Kills), sumD = games.Sum(m => m.Deaths), sumA = games.Sum(m => m.Assists);
                 var cs10 = games.Where(m => m.CsAt10 is not null).Select(m => m.CsAt10!.Value).ToList();
                 var trend = games.OrderBy(m => m.GameStartUtc).Select(m => m.CsAt10).ToList();   // oldest→newest
+                var dominantRole = games
+                    .Where(m => !string.IsNullOrEmpty(m.MyTeamPosition))
+                    .GroupBy(m => m.MyTeamPosition)
+                    .OrderByDescending(x => x.Count())
+                    .Select(x => x.Key)
+                    .FirstOrDefault() ?? "";
                 return new ChampStat(
                     g.Key, games.Count, wins, games.Count - wins,
                     games.Count == 0 ? 0 : (double)wins / games.Count,
                     (sumK + sumA) / (double)Math.Max(1, sumD),
                     cs10.Count == 0 ? null : cs10.Average(),
                     games.Average(m => (double)m.Deaths),
-                    trend);
+                    trend,
+                    dominantRole);
             })
             .OrderByDescending(c => c.Games).ThenByDescending(c => c.WinRate)
             .ToList();

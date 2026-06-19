@@ -11,7 +11,17 @@ public sealed class ChampCardViewModel
     public string ChampionName { get; }
     public string WinRate => $"{_s.WinRate * 100:0}%";
     public bool Winning => _s.WinRate >= 0.5;
-    public string Subtitle => $"{_s.Games} games · mid";
+    public string Subtitle => $"{_s.Games} games · {RoleLabel}";
+    private string RoleLabel => _s.DominantRole switch
+    {
+        "TOP" => "top",
+        "JUNGLE" => "jungle",
+        "MIDDLE" => "mid",
+        "BOTTOM" => "bot",
+        "UTILITY" => "support",
+        "" => "—",
+        var other => other.ToLowerInvariant(),
+    };
     public string Kda => $"KDA {_s.Kda:0.0}";
     public string Cs10 => _s.AvgCs10 is null ? "CS@10 —" : $"CS@10 {_s.AvgCs10.Value:0}";
     public string Deaths => $"Dth {_s.AvgDeaths:0.0}";
