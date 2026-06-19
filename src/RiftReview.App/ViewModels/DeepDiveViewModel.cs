@@ -69,7 +69,8 @@ public sealed partial class DeepDiveViewModel : ObservableObject
                 var mdd = TimelineExtractor.BuildDeepDive(mtl, ms.MyParticipantId, ms.OpponentParticipantId);
                 curves.Add(mdd.CsPerMinute);
             }
-            catch { /* skip a match whose blobs can't be parsed/summarized */ }
+            catch (Exception ex) when (ex is JsonException or InvalidOperationException)
+            { /* skip a match whose stored blobs can't be parsed/summarized */ }
         }
         return BaselineCalculator.Average(curves);
     }

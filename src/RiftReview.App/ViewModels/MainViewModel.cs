@@ -40,6 +40,8 @@ public sealed partial class MainViewModel : ObservableObject
     [ObservableProperty] private bool _isBusy;
     [ObservableProperty] private string _statusMessage = "Press Sync to pull your recent matches.";
 
+    // NOTE: the View (Task 14) must call InitializeAsync() from its Loaded handler so Data Dragon
+    // champion names load and the match list refreshes from placeholders to real names.
     public async Task InitializeAsync()
     {
         try { await _ddragon.EnsureLoadedAsync(); } catch { /* names fall back to placeholders offline */ }
