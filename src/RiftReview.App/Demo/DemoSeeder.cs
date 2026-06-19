@@ -19,12 +19,12 @@ public static class DemoSeeder
         db.SetMeta("puuid", "ME");
         db.SetMeta("riot_id", "DemoSummoner#NA1");
         const long baseCreation = 1_700_000_000_000L;
-        // Concentrated demo pool: champ 103 (x12), champ 157 (x8), then 4 one-offs — mirrors a two-champ grind.
+        // 24 Ahri games (≥2N for trends eligibility), 8 Yasuo, 4 one-offs.
         int[] plan =
         {
             103,103,103,103,103,103,103,103,103,103,103,103,
-            157,157,157,157,157,157,157,157,
-            7, 238, 99, 142
+            103,103,103,103,103,103,103,103,103,103,103,103,
+            157,157,157,157,157,157,157,157, 7, 238, 99, 142
         };
         for (int i = 0; i < plan.Length; i++)
         {
@@ -34,7 +34,8 @@ public static class DemoSeeder
             var g15 = TimelineExtractor.GoldDiffAtMinute(tl, s.MyParticipantId, s.OpponentParticipantId, 15);
             var row = new MatchRow(match.Metadata.MatchId, s.QueueId, s.GameStartUtc, s.DurationS, s.Patch,
                 s.MyChampionId, s.MyTeamPosition, s.Win, s.Kills, s.Deaths, s.Assists, s.Cs,
-                cs10, g15, s.OpponentParticipantId, s.OpponentChampionId, s.GameStartUtc);
+                cs10, g15, s.OpponentParticipantId, s.OpponentChampionId, s.GameStartUtc,
+                s.KillParticipation, s.DamageShare);
             db.UpsertMatch(row, JsonSerializer.Serialize(match, Json), JsonSerializer.Serialize(tl, Json));
         }
     }
@@ -65,10 +66,16 @@ public static class DemoSeeder
             int d = pid == 3 ? deathCount : 3;
             int a = pid == 3 ? assists : 4;
             // TotalMinionsKilled + NeutralMinionsKilled together form CS
-            // For "ME": ~7 cs/min * frames minutes, split as mostly lane cs
-            int totalMinions = pid == 3 ? (6 * frames) : 80;
+            // For "ME": lane cs rate decreases with i so CS@10 is higher for newer (lower-i) games.
+            //   cs10 ≈ (7.0 - i*0.1)*10 + 10: i=0(newest)→80, i=23(oldest)→57; delta≈10 >> 2.0 floor → "Improving".
+            int totalMinions = pid == 3 ? (int)((7.0 - i * 0.1) * frames) : 80;
             int neutralMinions = pid == 3 ? (frames) : 10;   // ~1/min jungle bonus
-            parts.Add(new ParticipantDto(puuid, pid, champ, team, position, w, k, d, a, totalMinions, neutralMinions));
+            // Damage: lower i = newer game; ME scales up so damage share trends.
+            //   i=0 (newest) → 9000+3450=12450, i=23 (oldest) → 9000+0=9000.
+            int dmg = pid == 3 ? (9000 + (23 - i) * 150)
+                    : pid <= 5 ? 8000                        // ally
+                    : 7500;                                  // enemy
+            parts.Add(new ParticipantDto(puuid, pid, champ, team, position, w, k, d, a, totalMinions, neutralMinions, dmg));
         }
         var match = new MatchDto(
             new MatchMetadata($"NA1_DEMO_{i}", parts.Select(p => p.Puuid).ToList()),
@@ -80,8 +87,9 @@ public static class DemoSeeder
             var pf = new Dictionary<string, ParticipantFrameDto>();
             for (int pid = 1; pid <= 10; pid++)
             {
-                // "ME" (pid=3) accumulates ~7 cs/min in minions + some jungle
-                int mk = pid == 3 ? (int)((6.0 + (i % 3) * 0.4) * f) : 5 * f;
+                // "ME" (pid=3): lane cs rate = 7.0 - i*0.1 so CS@10 is ~80 for newest (i=0) and ~57 for oldest (i=23).
+                // Seeding is newest-first (gameCreation = base - i*day), so lower i = newer game.
+                int mk = pid == 3 ? (int)((7.0 - i * 0.1) * f) : 5 * f;
                 int jk = pid == 3 ? f : 0;
                 // Gold: base + per-frame accumulation; opponent (pid=8) varies by sign/laneSlope for gold diff curves
                 int gold = pid == 3 ? 500 + (480 + i * 10) * f
