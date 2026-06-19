@@ -4,7 +4,7 @@ using RiftReview.Core.Riot.Dtos;
 
 namespace RiftReview.Core.Riot;
 
-public sealed class RiotApiClient
+public sealed class RiotApiClient : IRiotApiClient
 {
     private static readonly JsonSerializerOptions Json = new() { PropertyNameCaseInsensitive = true };
     private readonly HttpClient _http;
@@ -70,6 +70,18 @@ public sealed class RiotApiClient
             throw new RiotApiException((int)resp.StatusCode, $"Riot API {(int)resp.StatusCode} for {url}: {body}");
 
         return body;
+    }
+
+    public async Task<(MatchDto Dto, string Raw)> GetMatchWithRawAsync(string id, CancellationToken ct = default)
+    {
+        var raw = await GetRawAsync($"{_regionalHost}/lol/match/v5/matches/{id}", ct);
+        return (JsonSerializer.Deserialize<MatchDto>(raw, Json)!, raw);
+    }
+
+    public async Task<(TimelineDto Dto, string Raw)> GetTimelineWithRawAsync(string id, CancellationToken ct = default)
+    {
+        var raw = await GetRawAsync($"{_regionalHost}/lol/match/v5/matches/{id}/timeline", ct);
+        return (JsonSerializer.Deserialize<TimelineDto>(raw, Json)!, raw);
     }
 
     private async Task<T> GetAsync<T>(string url, CancellationToken ct)
