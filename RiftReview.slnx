@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/RiftReview.App/RiftReview.App.csproj" />
+    <Project Path="src/RiftReview.Core/RiftReview.Core.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/RiftReview.App.Tests/RiftReview.App.Tests.csproj" />
+    <Project Path="tests/RiftReview.Core.Tests/RiftReview.Core.Tests.csproj" />
+  </Folder>
+</Solution>
