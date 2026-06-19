@@ -87,6 +87,7 @@ public partial class App : Application
 
                 // Pages (transient — NavigationView resolves a fresh instance each navigation)
                 s.AddTransient<ReviewView>();
+                s.AddTransient<ViewModels.ChampPoolViewModel>();
                 s.AddTransient<ChampPoolView>();
                 s.AddTransient<SettingsView>();
 

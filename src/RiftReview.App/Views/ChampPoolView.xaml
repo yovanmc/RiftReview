@@ -1,13 +1,211 @@
 <UserControl x:Class="RiftReview.App.Views.ChampPoolView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml">
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+             xmlns:conv="clr-namespace:RiftReview.App.Converters"
+             xmlns:controls="clr-namespace:RiftReview.App.Controls">
+
+    <UserControl.Resources>
+        <conv:BoolToBrushConverter x:Key="WinRateBrush"
+            TrueBrush="{StaticResource WinBrush}"
+            FalseBrush="{StaticResource TextMutedBrush}"/>
+        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+    </UserControl.Resources>
 
     <Grid Background="{StaticResource PanelBgBrush}">
-        <TextBlock Text="Champions"
-                   Foreground="{StaticResource TextMutedBrush}"
-                   FontSize="16"
-                   HorizontalAlignment="Center"
-                   VerticalAlignment="Center"/>
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <StackPanel Margin="20,16">
+
+                <!-- Header row: title + ranked toggle -->
+                <DockPanel Margin="0,0,0,16">
+                    <TextBlock DockPanel.Dock="Left"
+                               Text="Champion Pool"
+                               Foreground="{StaticResource AccentBrush}"
+                               FontSize="18"
+                               FontWeight="SemiBold"
+                               VerticalAlignment="Center"/>
+                    <ToggleButton DockPanel.Dock="Right"
+                                  Content="Ranked only"
+                                  IsChecked="{Binding RankedOnly, Mode=TwoWay}"
+                                  HorizontalAlignment="Right"
+                                  Padding="10,5"
+                                  Background="Transparent"
+                                  BorderBrush="{StaticResource HairlineBrush}"
+                                  Foreground="{StaticResource TextMutedBrush}"
+                                  FontSize="12"/>
+                </DockPanel>
+
+                <!-- Currently Practicing section -->
+                <StackPanel Visibility="{Binding HasPracticing, Converter={StaticResource BoolToVis}}"
+                            Margin="0,0,0,20">
+                    <TextBlock Text="CURRENTLY PRACTICING"
+                               Foreground="{StaticResource TextMutedBrush}"
+                               FontSize="11"
+                               FontWeight="SemiBold"
+                               Margin="0,0,0,10"/>
+                    <ItemsControl ItemsSource="{Binding Practicing}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel Orientation="Horizontal"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Background="{StaticResource CardBgBrush}"
+                                        BorderBrush="{StaticResource HairlineBrush}"
+                                        BorderThickness="1"
+                                        CornerRadius="6"
+                                        Padding="14,12"
+                                        Margin="0,0,12,12"
+                                        MinWidth="180">
+                                    <StackPanel>
+                                        <!-- Champion name + win rate -->
+                                        <DockPanel Margin="0,0,0,2">
+                                            <TextBlock DockPanel.Dock="Right"
+                                                       Text="{Binding WinRate}"
+                                                       Foreground="{Binding Winning, Converter={StaticResource WinRateBrush}}"
+                                                       FontSize="14"
+                                                       FontWeight="SemiBold"/>
+                                            <TextBlock Text="{Binding ChampionName}"
+                                                       Foreground="{StaticResource TextPrimaryBrush}"
+                                                       FontSize="14"
+                                                       FontWeight="SemiBold"
+                                                       TextTrimming="CharacterEllipsis"/>
+                                        </DockPanel>
+
+                                        <!-- Subtitle (games · role) -->
+                                        <TextBlock Text="{Binding Subtitle}"
+                                                   Foreground="{StaticResource TextMutedBrush}"
+                                                   FontSize="11"
+                                                   Margin="0,0,0,8"/>
+
+                                        <!-- Sparkline -->
+                                        <controls:Sparkline Points="{Binding Trend}"
+                                                            Height="38"
+                                                            Margin="0,0,0,8"/>
+
+                                        <!-- Stats row -->
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="{Binding Kda}"
+                                                       Foreground="{StaticResource TextMutedBrush}"
+                                                       FontSize="11"
+                                                       Margin="0,0,8,0"/>
+                                            <TextBlock Text="{Binding Cs10}"
+                                                       Foreground="{StaticResource TextMutedBrush}"
+                                                       FontSize="11"
+                                                       Margin="0,0,8,0"/>
+                                            <TextBlock Text="{Binding Deaths}"
+                                                       Foreground="{StaticResource TextMutedBrush}"
+                                                       FontSize="11"/>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+
+                <!-- All Champions section -->
+                <StackPanel>
+                    <TextBlock Text="ALL CHAMPIONS"
+                               Foreground="{StaticResource TextMutedBrush}"
+                               FontSize="11"
+                               FontWeight="SemiBold"
+                               Margin="0,0,0,10"/>
+
+                    <!-- Empty state -->
+                    <TextBlock Text="No champions yet — Sync to load your matches."
+                               Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVis}}"
+                               Foreground="{StaticResource TextMutedBrush}"
+                               FontSize="13"
+                               HorizontalAlignment="Center"
+                               Margin="0,24"/>
+
+                    <!-- Champion table -->
+                    <ListView ItemsSource="{Binding AllChampions}"
+                              Background="Transparent"
+                              BorderThickness="0"
+                              ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="ListViewItem">
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                                <Setter Property="Padding" Value="0,6"/>
+                                <Setter Property="Background" Value="Transparent"/>
+                                <Setter Property="BorderThickness" Value="0,0,0,1"/>
+                                <Setter Property="BorderBrush" Value="{StaticResource HairlineBrush}"/>
+                                <Setter Property="Focusable" Value="False"/>
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="{StaticResource CardBgBrush}"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </ListView.ItemContainerStyle>
+                        <ListView.View>
+                            <GridView>
+                                <GridView.ColumnHeaderContainerStyle>
+                                    <Style TargetType="GridViewColumnHeader">
+                                        <Setter Property="Background" Value="Transparent"/>
+                                        <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+                                        <Setter Property="FontSize" Value="11"/>
+                                        <Setter Property="FontWeight" Value="SemiBold"/>
+                                        <Setter Property="BorderThickness" Value="0,0,0,1"/>
+                                        <Setter Property="BorderBrush" Value="{StaticResource HairlineBrush}"/>
+                                        <Setter Property="Padding" Value="4,4"/>
+                                    </Style>
+                                </GridView.ColumnHeaderContainerStyle>
+                                <GridViewColumn Header="Champion" Width="160">
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding ChampionName}"
+                                                       Foreground="{StaticResource TextPrimaryBrush}"
+                                                       FontSize="13"/>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+                                <GridViewColumn Header="Games" Width="70">
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding Games}"
+                                                       Foreground="{StaticResource TextMutedBrush}"
+                                                       FontSize="13"/>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+                                <GridViewColumn Header="Win Rate" Width="90">
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding WinRate}"
+                                                       Foreground="{Binding Winning, Converter={StaticResource WinRateBrush}}"
+                                                       FontSize="13"
+                                                       FontWeight="SemiBold"/>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+                                <GridViewColumn Header="KDA" Width="70">
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding Kda}"
+                                                       Foreground="{StaticResource TextMutedBrush}"
+                                                       FontSize="13"/>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+                                <GridViewColumn Header="CS@10" Width="70">
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding Cs10}"
+                                                       Foreground="{StaticResource TextMutedBrush}"
+                                                       FontSize="13"/>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+                </StackPanel>
+
+            </StackPanel>
+        </ScrollViewer>
     </Grid>
 </UserControl>
