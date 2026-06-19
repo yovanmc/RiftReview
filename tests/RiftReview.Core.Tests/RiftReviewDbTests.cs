@@ -42,4 +42,23 @@ public class RiftReviewDbTests
 
     private static MatchRow Row(string id, int queue, long start) =>
         new(id, queue, start, 1800, "15.12.1", 103, "MIDDLE", true, 1, 1, 1, 100, 60, 0, 7, 1, start);
+
+    [Fact]
+    public void Schema_is_v2()
+    {
+        using var db = NewDb();
+        Assert.Equal(2, db.GetSchemaVersion());
+        Assert.Equal(2, RiftReviewDb.LatestSchemaVersion);
+    }
+
+    [Fact]
+    public void Lp_snapshot_insert_and_read_roundtrips()
+    {
+        using var db = NewDb();
+        var snap = new LpSnapshot(1_700_000_000, "RANKED_SOLO_5x5", "GOLD", "II", 47, 120, 110);
+        db.InsertLpSnapshot(snap);
+        var all = db.GetLpSnapshots();
+        Assert.Single(all);
+        Assert.Equal(snap, all[0]);
+    }
 }

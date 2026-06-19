@@ -4,7 +4,7 @@ namespace RiftReview.Core.Data;
 
 public sealed class RiftReviewDb : IDisposable
 {
-    public const int LatestSchemaVersion = 1;
+    public const int LatestSchemaVersion = 2;
     private readonly SqliteConnection _conn;
 
     private RiftReviewDb(SqliteConnection conn) => _conn = conn;
@@ -34,7 +34,21 @@ public sealed class RiftReviewDb : IDisposable
             Exec(_conn, Schema);
             Exec(_conn, "PRAGMA user_version=1;");
         }
-        // future: if (v < 2) { ... PRAGMA user_version=2; }
+        if (v < 2)
+        {
+            Exec(_conn, @"CREATE TABLE IF NOT EXISTS lp_snapshots (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  taken_utc INTEGER NOT NULL,
+  queue_type TEXT NOT NULL,
+  tier TEXT NOT NULL,
+  division TEXT NOT NULL,
+  league_points INTEGER NOT NULL,
+  wins INTEGER NOT NULL,
+  losses INTEGER NOT NULL
+);
+CREATE INDEX IF NOT EXISTS ix_lp_taken ON lp_snapshots(taken_utc);");
+            Exec(_conn, "PRAGMA user_version=2;");
+        }
     }
 
     private const string Schema = @"
@@ -136,6 +150,30 @@ CREATE INDEX IF NOT EXISTS ix_matches_queue ON matches(queue_id);";
         using var c = _conn.CreateCommand();
         c.CommandText = "INSERT INTO meta(key,value) VALUES($k,$v) ON CONFLICT(key) DO UPDATE SET value=$v;";
         Bind(c, "$k", key); Bind(c, "$v", value); c.ExecuteNonQuery();
+    }
+
+    public void InsertLpSnapshot(LpSnapshot s)
+    {
+        using var c = _conn.CreateCommand();
+        c.CommandText = @"INSERT INTO lp_snapshots
+        (taken_utc,queue_type,tier,division,league_points,wins,losses)
+        VALUES ($t,$q,$tier,$div,$lp,$w,$l);";
+        Bind(c, "$t", s.TakenUtc); Bind(c, "$q", s.QueueType); Bind(c, "$tier", s.Tier);
+        Bind(c, "$div", s.Division); Bind(c, "$lp", s.LeaguePoints);
+        Bind(c, "$w", s.Wins); Bind(c, "$l", s.Losses);
+        c.ExecuteNonQuery();
+    }
+
+    public IReadOnlyList<LpSnapshot> GetLpSnapshots()
+    {
+        using var c = _conn.CreateCommand();
+        c.CommandText = "SELECT taken_utc,queue_type,tier,division,league_points,wins,losses FROM lp_snapshots ORDER BY taken_utc";
+        var list = new List<LpSnapshot>();
+        using var r = c.ExecuteReader();
+        while (r.Read())
+            list.Add(new LpSnapshot(r.GetInt64(0), r.GetString(1), r.GetString(2), r.GetString(3),
+                r.GetInt32(4), r.GetInt32(5), r.GetInt32(6)));
+        return list;
     }
 
     private static MatchRow ReadRow(SqliteDataReader r) => new(
