@@ -62,7 +62,7 @@ CREATE TABLE IF NOT EXISTS match_detail (
 CREATE INDEX IF NOT EXISTS ix_matches_start ON matches(game_start_utc DESC);
 CREATE INDEX IF NOT EXISTS ix_matches_queue ON matches(queue_id);";
 
-    public bool HasMatch(string id) => Scalar<long>("SELECT COUNT(1) FROM matches WHERE match_id=$id", ("$id", (object)id)) > 0;
+    public bool HasMatch(string id) => ScalarLong("SELECT COUNT(1) FROM matches WHERE match_id=$id", ("$id", (object)id)) > 0;
 
     public void UpsertMatch(MatchRow m, string matchJson, string timelineJson)
     {
@@ -163,13 +163,12 @@ CREATE INDEX IF NOT EXISTS ix_matches_queue ON matches(queue_id);";
         return r.IsDBNull(o) ? null : r.GetInt32(o);
     }
 
-    private T Scalar<T>(string sql, params (string, object)[] ps)
+    private long ScalarLong(string sql, params (string, object)[] ps)
     {
         using var c = _conn.CreateCommand();
         c.CommandText = sql;
         foreach (var (n, v) in ps) Bind(c, n, v);
-        var o = c.ExecuteScalar();
-        return (T)Convert.ChangeType(o!, typeof(T));
+        return (long)c.ExecuteScalar()!; // COUNT(1) never returns null
     }
 
     private string? ScalarString(string sql, params (string, object)[] ps)

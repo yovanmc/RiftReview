@@ -4,7 +4,7 @@ using Xunit;
 
 public class RiftReviewDbTests
 {
-    private static RiftReviewDb NewDb() => RiftReviewDb.Open("Data Source=:memory:;Cache=Shared");
+    private static RiftReviewDb NewDb() => RiftReviewDb.Open("Data Source=:memory:");
 
     [Fact]
     public void Initialize_sets_user_version_and_creates_tables()
@@ -25,6 +25,7 @@ public class RiftReviewDbTests
         var got = db.GetMatch("NA1_1")!;
         Assert.Equal(row, got);
         Assert.Equal("{\"t\":1}", db.GetTimelineJson("NA1_1"));
+        Assert.Equal("{\"m\":1}", db.GetMatchJson("NA1_1"));
     }
 
     [Fact]
