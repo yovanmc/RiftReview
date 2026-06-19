@@ -19,9 +19,16 @@ public static class DemoSeeder
         db.SetMeta("puuid", "ME");
         db.SetMeta("riot_id", "DemoSummoner#NA1");
         const long baseCreation = 1_700_000_000_000L;
-        for (int i = 0; i < 8; i++)
+        // Concentrated demo pool: champ 103 (x12), champ 157 (x8), then 4 one-offs — mirrors a two-champ grind.
+        int[] plan =
         {
-            var (match, tl) = BuildGame(i, baseCreation - i * 86_400_000L);
+            103,103,103,103,103,103,103,103,103,103,103,103,
+            157,157,157,157,157,157,157,157,
+            7, 238, 99, 142
+        };
+        for (int i = 0; i < plan.Length; i++)
+        {
+            var (match, tl) = BuildGame(i, baseCreation - i * 86_400_000L, plan[i]);
             var s = MatchExtractor.Summarize(match, "ME");
             var cs10 = TimelineExtractor.CsAtMinute(tl, s.MyParticipantId, 10);
             var g15 = TimelineExtractor.GoldDiffAtMinute(tl, s.MyParticipantId, s.OpponentParticipantId, 15);
@@ -32,10 +39,9 @@ public static class DemoSeeder
         }
     }
 
-    private static (MatchDto, TimelineDto) BuildGame(int i, long gameCreation)
+    private static (MatchDto, TimelineDto) BuildGame(int i, long gameCreation, int myChamp)
     {
         bool win = (i % 3) != 0;                         // mix of wins/losses: 0=loss,1=win,2=win,3=loss,...
-        int myChamp = MidChamps[i % MidChamps.Length];
         int oppChamp = MidChamps[(i + 3) % MidChamps.Length];
         int durationS = 1500 + (i % 5) * 150;
         int frames = durationS / 60 + 1;
