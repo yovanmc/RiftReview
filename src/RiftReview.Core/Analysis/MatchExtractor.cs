@@ -8,8 +8,11 @@ public static class MatchExtractor
     {
         var me = match.Info.Participants.FirstOrDefault(p => p.Puuid == myPuuid)
             ?? throw new InvalidOperationException($"puuid {myPuuid} not in match {match.Metadata.MatchId}");
-        var opp = match.Info.Participants.FirstOrDefault(
-            p => p.TeamId != me.TeamId && p.TeamPosition == me.TeamPosition && !string.IsNullOrEmpty(me.TeamPosition));
+        // No clean lane opponent when position is unknown (e.g. ARAM): teamPosition is "" for all.
+        var opp = string.IsNullOrEmpty(me.TeamPosition)
+            ? null
+            : match.Info.Participants.FirstOrDefault(
+                p => p.TeamId != me.TeamId && p.TeamPosition == me.TeamPosition);
 
         var durationS = NormalizeDuration(match.Info.GameDuration);
         return new MatchSummary(
