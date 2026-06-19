@@ -4,7 +4,7 @@ namespace RiftReview.Core.Data;
 
 public sealed class RiftReviewDb : IDisposable
 {
-    public const int LatestSchemaVersion = 2;
+    public const int LatestSchemaVersion = 3;
     private readonly SqliteConnection _conn;
 
     private RiftReviewDb(SqliteConnection conn) => _conn = conn;
@@ -49,6 +49,13 @@ public sealed class RiftReviewDb : IDisposable
 CREATE INDEX IF NOT EXISTS ix_lp_taken ON lp_snapshots(taken_utc);");
             Exec(_conn, "PRAGMA user_version=2;");
         }
+        if (v < 3)
+        {
+            Exec(_conn, @"ALTER TABLE matches ADD COLUMN kill_participation REAL;
+ALTER TABLE matches ADD COLUMN damage_share REAL;
+ALTER TABLE matches ADD COLUMN deaths_pre15 INTEGER;");
+            Exec(_conn, "PRAGMA user_version=3;");
+        }
     }
 
     private const string Schema = @"
@@ -86,12 +93,14 @@ CREATE INDEX IF NOT EXISTS ix_matches_queue ON matches(queue_id);";
             c.Transaction = tx;
             c.CommandText = @"INSERT INTO matches
               (match_id,queue_id,game_start_utc,duration_s,patch,my_champion_id,my_team_position,win,
-               kills,deaths,assists,cs,cs_at_10,gold_diff_at_15,opponent_participant_id,opponent_champion_id,synced_at)
-              VALUES ($id,$q,$gs,$d,$p,$champ,$pos,$win,$k,$de,$a,$cs,$cs10,$g15,$opid,$ochamp,$sync)
+               kills,deaths,assists,cs,cs_at_10,gold_diff_at_15,opponent_participant_id,opponent_champion_id,synced_at,
+               kill_participation,damage_share,deaths_pre15)
+              VALUES ($id,$q,$gs,$d,$p,$champ,$pos,$win,$k,$de,$a,$cs,$cs10,$g15,$opid,$ochamp,$sync,$kp,$ds,$pre15)
               ON CONFLICT(match_id) DO UPDATE SET
                queue_id=$q,game_start_utc=$gs,duration_s=$d,patch=$p,my_champion_id=$champ,my_team_position=$pos,
                win=$win,kills=$k,deaths=$de,assists=$a,cs=$cs,cs_at_10=$cs10,gold_diff_at_15=$g15,
-               opponent_participant_id=$opid,opponent_champion_id=$ochamp,synced_at=$sync;";
+               opponent_participant_id=$opid,opponent_champion_id=$ochamp,synced_at=$sync,
+               kill_participation=$kp,damage_share=$ds,deaths_pre15=$pre15;";
             Bind(c, "$id", m.MatchId); Bind(c, "$q", m.QueueId); Bind(c, "$gs", m.GameStartUtc);
             Bind(c, "$d", m.DurationS); Bind(c, "$p", m.Patch); Bind(c, "$champ", m.MyChampionId);
             Bind(c, "$pos", m.MyTeamPosition); Bind(c, "$win", m.Win ? 1 : 0);
@@ -101,6 +110,9 @@ CREATE INDEX IF NOT EXISTS ix_matches_queue ON matches(queue_id);";
             Bind(c, "$opid", (object?)m.OpponentParticipantId ?? DBNull.Value);
             Bind(c, "$ochamp", (object?)m.OpponentChampionId ?? DBNull.Value);
             Bind(c, "$sync", m.SyncedAt);
+            Bind(c, "$kp", (object?)m.KillParticipation ?? DBNull.Value);
+            Bind(c, "$ds", (object?)m.DamageShare ?? DBNull.Value);
+            Bind(c, "$pre15", (object?)m.DeathsPre15 ?? DBNull.Value);
             c.ExecuteNonQuery();
         }
         using (var c = _conn.CreateCommand())
@@ -205,12 +217,21 @@ CREATE INDEX IF NOT EXISTS ix_matches_queue ON matches(queue_id);";
         GetNullableInt(r, "gold_diff_at_15"),
         GetNullableInt(r, "opponent_participant_id"),
         GetNullableInt(r, "opponent_champion_id"),
-        r.GetInt64(r.GetOrdinal("synced_at")));
+        r.GetInt64(r.GetOrdinal("synced_at")),
+        GetNullableDouble(r, "kill_participation"),
+        GetNullableDouble(r, "damage_share"),
+        GetNullableInt(r, "deaths_pre15"));
 
     private static int? GetNullableInt(SqliteDataReader r, string col)
     {
         var o = r.GetOrdinal(col);
         return r.IsDBNull(o) ? null : r.GetInt32(o);
+    }
+
+    private static double? GetNullableDouble(SqliteDataReader r, string col)
+    {
+        var o = r.GetOrdinal(col);
+        return r.IsDBNull(o) ? null : r.GetDouble(o);
     }
 
     private long ScalarLong(string sql, params (string, object)[] ps)

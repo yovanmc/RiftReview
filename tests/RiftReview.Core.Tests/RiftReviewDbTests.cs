@@ -44,11 +44,24 @@ public class RiftReviewDbTests
         new(id, queue, start, 1800, "15.12.1", 103, "MIDDLE", true, 1, 1, 1, 100, 60, 0, 7, 1, start);
 
     [Fact]
-    public void Schema_is_v2()
+    public void Schema_is_v3()
     {
-        using var db = NewDb();
-        Assert.Equal(2, db.GetSchemaVersion());
-        Assert.Equal(2, RiftReviewDb.LatestSchemaVersion);
+        using var db = RiftReviewDb.Open("Data Source=:memory:");
+        Assert.Equal(3, db.GetSchemaVersion());
+    }
+
+    [Fact]
+    public void Derived_metrics_roundtrip()
+    {
+        using var db = RiftReviewDb.Open("Data Source=:memory:");
+        var row = new MatchRow("NA1_1", 420, 1, 1800, "15.12", 103, "MIDDLE", true,
+            5, 3, 7, 200, 80, 150, 4, 8, 100,
+            KillParticipation: 0.62, DamageShare: 0.27, DeathsPre15: 1);
+        db.UpsertMatch(row, "{}", "{}");
+        var back = db.GetMatch("NA1_1")!;
+        Assert.Equal(0.62, back.KillParticipation!.Value, 3);
+        Assert.Equal(0.27, back.DamageShare!.Value, 3);
+        Assert.Equal(1, back.DeathsPre15);
     }
 
     [Fact]
