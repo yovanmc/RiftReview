@@ -6,7 +6,8 @@ public sealed record MatchSummary(
     int QueueId, long GameStartUtc, int DurationS, string Patch,
     int MyChampionId, string MyTeamPosition, bool Win,
     int Kills, int Deaths, int Assists, int Cs,
-    int MyParticipantId, int? OpponentParticipantId, int? OpponentChampionId);
+    int MyParticipantId, int? OpponentParticipantId, int? OpponentChampionId,
+    double KillParticipation, double DamageShare);
 
 public sealed record DeepDive(
     IReadOnlyList<ChartPoint> GoldDiffVsLane,

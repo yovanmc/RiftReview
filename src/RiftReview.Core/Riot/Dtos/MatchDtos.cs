@@ -9,4 +9,5 @@ public sealed record MatchInfo(
     List<ParticipantDto> Participants);
 public sealed record ParticipantDto(
     string Puuid, int ParticipantId, int ChampionId, int TeamId, string TeamPosition, bool Win,
-    int Kills, int Deaths, int Assists, int TotalMinionsKilled, int NeutralMinionsKilled);
+    int Kills, int Deaths, int Assists, int TotalMinionsKilled, int NeutralMinionsKilled,
+    int TotalDamageDealtToChampions = 0);

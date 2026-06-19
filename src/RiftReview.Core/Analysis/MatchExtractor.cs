@@ -14,12 +14,19 @@ public static class MatchExtractor
             : match.Info.Participants.FirstOrDefault(
                 p => p.TeamId != me.TeamId && p.TeamPosition == me.TeamPosition);
 
+        var myTeam = match.Info.Participants.Where(p => p.TeamId == me.TeamId).ToList();
+        int teamKills = myTeam.Sum(p => p.Kills);
+        long teamDmg = myTeam.Sum(p => (long)p.TotalDamageDealtToChampions);
+        double kp = teamKills <= 0 ? 0 : (me.Kills + me.Assists) / (double)teamKills;
+        double dmgShare = teamDmg <= 0 ? 0 : me.TotalDamageDealtToChampions / (double)teamDmg;
+
         var durationS = NormalizeDuration(match.Info.GameDuration);
         return new MatchSummary(
             (int)match.Info.QueueId, match.Info.GameCreation / 1000, durationS,
             PatchFromVersion(match.Info.GameVersion), me.ChampionId, me.TeamPosition, me.Win,
             me.Kills, me.Deaths, me.Assists, me.TotalMinionsKilled + me.NeutralMinionsKilled,
-            me.ParticipantId, opp?.ParticipantId, opp?.ChampionId);
+            me.ParticipantId, opp?.ParticipantId, opp?.ChampionId,
+            kp, dmgShare);
     }
 
     // gameDuration is seconds on modern patches; guard against legacy ms (>100000 => ms).
