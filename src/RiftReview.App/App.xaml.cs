@@ -80,7 +80,7 @@ public partial class App : Application
                         sp.GetRequiredService<IHttpClientFactory>().CreateClient(),
                         Path.Combine(appData, "ddragon")));
 
-                // Task 13: s.AddSingleton<ViewModels.MainViewModel>();
+                s.AddSingleton<ViewModels.MainViewModel>();
                 // Task 14 will replace this with the real Views.MainWindow that takes MainViewModel.
                 s.AddSingleton<MainWindow>();
             })
