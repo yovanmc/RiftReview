@@ -60,6 +60,14 @@ public static class TimelineExtractor
         return mine.TotalGold - opp.TotalGold;
     }
 
+    public static int DeathsBeforeMinute(TimelineDto tl, int myParticipantId, int minute)
+    {
+        long cutoff = minute * 60000L;
+        return tl.Info.Frames
+            .SelectMany(f => f.Events)
+            .Count(e => e.Type == "CHAMPION_KILL" && e.VictimId == myParticipantId && e.Timestamp < cutoff);
+    }
+
     private static FrameDto? NearestFrame(TimelineDto tl, int minute)
     {
         long target = minute * 60000L;
