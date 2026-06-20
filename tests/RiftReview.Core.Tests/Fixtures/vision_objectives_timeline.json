@@ -1,0 +1,26 @@
+{
+  "_note": "synthetic vision+objective events for M7 tests; me = participantId 3 (team 100)",
+  "metadata": { "matchId": "NA1_M7_TEST", "participants": ["P1","P2","ME","P4","P5","P6","P7","P8","P9","P10"] },
+  "info": {
+    "frameInterval": 60000,
+    "frames": [
+      { "timestamp": 0, "participantFrames": {}, "events": [] },
+      { "timestamp": 1800000, "participantFrames": {}, "events": [
+        { "type": "WARD_PLACED", "timestamp": 120000, "creatorId": 3, "wardType": "YELLOW_TRINKET" },
+        { "type": "WARD_PLACED", "timestamp": 300000, "creatorId": 3, "wardType": "CONTROL_WARD" },
+        { "type": "WARD_PLACED", "timestamp": 320000, "creatorId": 7, "wardType": "CONTROL_WARD" },
+        { "type": "WARD_KILL", "timestamp": 340000, "killerId": 3, "wardType": "SIGHT_WARD" },
+        { "type": "WARD_KILL", "timestamp": 360000, "killerId": 8, "wardType": "YELLOW_TRINKET" },
+        { "type": "ELITE_MONSTER_KILL", "timestamp": 480000, "killerId": 3, "killerTeamId": 100, "monsterType": "DRAGON", "monsterSubType": "FIRE_DRAGON", "assistingParticipantIds": [1,2] },
+        { "type": "ELITE_MONSTER_KILL", "timestamp": 1140000, "killerId": 2, "killerTeamId": 100, "monsterType": "DRAGON", "monsterSubType": "WATER_DRAGON", "assistingParticipantIds": [3,4] },
+        { "type": "ELITE_MONSTER_KILL", "timestamp": 1680000, "killerId": 8, "killerTeamId": 200, "monsterType": "DRAGON", "monsterSubType": "AIR_DRAGON" },
+        { "type": "ELITE_MONSTER_KILL", "timestamp": 660000, "killerId": 1, "killerTeamId": 100, "monsterType": "RIFTHERALD", "assistingParticipantIds": [3] },
+        { "type": "ELITE_MONSTER_KILL", "timestamp": 1500000, "killerId": 7, "killerTeamId": 200, "monsterType": "BARON_NASHOR" },
+        { "type": "BUILDING_KILL", "timestamp": 780000, "killerId": 3, "teamId": 200, "buildingType": "TOWER_BUILDING", "towerType": "OUTER_TURRET", "laneType": "MID_LANE" },
+        { "type": "BUILDING_KILL", "timestamp": 1020000, "killerId": 6, "teamId": 200, "buildingType": "TOWER_BUILDING", "towerType": "OUTER_TURRET", "laneType": "TOP_LANE" },
+        { "type": "BUILDING_KILL", "timestamp": 900000, "killerId": 8, "teamId": 100, "buildingType": "TOWER_BUILDING", "towerType": "OUTER_TURRET", "laneType": "MID_LANE" },
+        { "type": "BUILDING_KILL", "timestamp": 1620000, "killerId": 6, "teamId": 200, "buildingType": "INHIBITOR_BUILDING", "laneType": "MID_LANE", "assistingParticipantIds": [3] }
+      ] }
+    ]
+  }
+}

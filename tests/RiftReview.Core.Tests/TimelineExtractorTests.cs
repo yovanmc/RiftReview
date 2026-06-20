@@ -26,6 +26,23 @@ public class TimelineExtractorPre15Tests
     }
 }
 
+public class TimelineExtractorVisionTests
+{
+    private static TimelineDto VoTl() => JsonSerializer.Deserialize<TimelineDto>(
+        FixtureLoader.Read("vision_objectives_timeline.json"),
+        new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+
+    [Fact]
+    public void Vision_counts_my_wards_placed_cleared_and_control()
+    {
+        var r = TimelineExtractor.BuildVisionObjectives(VoTl(), myParticipantId: 3, myTeamId: 100);
+        Assert.Equal(2, r.Vision.WardsPlaced);
+        Assert.Equal(1, r.Vision.WardsCleared);
+        Assert.Equal(1, r.Vision.ControlWardsPlaced);
+        Assert.Equal(4, r.Vision.VisionProxy);
+    }
+}
+
 public class TimelineExtractorTests
 {
     private static TimelineDto Tl() => JsonSerializer.Deserialize<TimelineDto>(

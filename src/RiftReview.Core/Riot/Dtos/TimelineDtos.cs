@@ -11,4 +11,15 @@ public sealed record FrameDto(
     List<EventDto> Events);
 public sealed record ParticipantFrameDto(
     int ParticipantId, int TotalGold, int MinionsKilled, int JungleMinionsKilled);
-public sealed record EventDto(string Type, long Timestamp, int? KillerId, int? VictimId);
+public sealed record EventDto(
+    string Type, long Timestamp, int? KillerId, int? VictimId,
+    int? CreatorId = null,
+    string? WardType = null,
+    int? KillerTeamId = null,
+    string? MonsterType = null,
+    string? MonsterSubType = null,
+    string? BuildingType = null,
+    string? TowerType = null,
+    string? LaneType = null,
+    int? TeamId = null,
+    List<int>? AssistingParticipantIds = null);

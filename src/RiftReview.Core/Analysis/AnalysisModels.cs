@@ -15,3 +15,12 @@ public sealed record DeepDive(
     IReadOnlyList<ChartPoint> CsPerMinute,
     IReadOnlyList<double> DeathMinutes,
     bool HasLaneOpponent);
+
+public sealed record VisionStats(
+    int WardsPlaced, int WardsCleared, int ControlWardsPlaced, int VisionProxy);
+
+public sealed record ObjectiveParticipation(
+    string Label, int Participated, int TeamTotal);
+
+public sealed record VisionObjectivesResult(
+    VisionStats Vision, IReadOnlyList<ObjectiveParticipation> Objectives);
