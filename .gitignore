@@ -59,8 +59,7 @@ packages/
 ddragon-cache/
 
 # ---- Local screenshot-verification scratch (throwaway PNGs + capture scripts) ----
-.m2shots/
-.m3shots/
+.m?shots/
 
 # ---- OS noise ----
 Thumbs.db
