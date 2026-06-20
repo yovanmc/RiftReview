@@ -31,11 +31,36 @@ Repo: github.com/yovanmc/RiftReview · Specs: `docs/superpowers/specs/` · Plans
 | 4 | Session Health | ✅ Merged | `docs/superpowers/plans/2026-06-19-riftreview-m4.md` | — | sessions + loss-streak/decay tilt guard; cross-page banner (singleton VM) |
 | 5 | Climb | ✅ Merged | `docs/superpowers/plans/2026-06-19-riftreview-m5.md` | — | current rank + ranked streaks + net-LP-per-snapshot segments; RankLadder |
 | 6 | You-vs-rank on graphs | ✅ Merged | `docs/superpowers/plans/2026-06-20-riftreview-m6.md` | #1 | rank baseline on Trends sparklines + deep-dive CS-pace chart; Rank⇄Own toggle + per-tier selector + signed delta badges + provenance; sparse never-fabricate seed table |
-| 7 | Vision + objectives | 📝 Plan ready | `docs/superpowers/plans/2026-06-20-riftreview-m7.md` | — | wards placed/cleared + vision-score proxy + objective participation; deep-dive section, on-demand from stored timeline blob (NO schema migration). **Gate cleared:** ward/objective events ARE persisted (raw `timeline_json` blob, re-parseable). |
+| 7 | Vision + objectives | ✅ Merged | `docs/superpowers/plans/2026-06-20-riftreview-m7.md` | #2 | deep-dive Vision & objectives section: exact wards placed/cleared/control + labeled vision proxy + objective participation (dragons/herald/baron/towers/inhibitors, Void Grubs if present); on-demand from stored timeline blob (NO schema migration). Suite 126. |
 | 8 | Timeline causality | [ ] Not started | — | — | "where the game turned" swing marker + game-state-at-death context + back-timing/item-spike lag (items 13–15) |
 | 9 | Build analysis + discipline | [ ] Not started | — | — | own-best-build per champ (item 17 only — NO external build data) + number-under-every-verdict audit + no-composite-score non-goal + optional timeline mini-score (items 16–20) |
 
 ## Decision log & gotchas
+- **2026-06-20 — M7 shipped (PR #2, all plan tasks).** Deep-dive **Vision & objectives**
+  section (compact, placed at the TOP of the deep-dive under the header so PrintWindow
+  captures it without scrolling). Computed **on demand** from the stored `timeline_json`
+  blob — **no DB schema migration**. Suite **126** (Core 102, App 24).
+  - `EventDto` extended with 10 nullable fields (defaults preserve existing positional
+    constructions). `TimelineExtractor.BuildVisionObjectives(tl, myParticipantId, myTeamId)`
+    does all the work. `MatchSummary` gained `MyTeamId` (from `me.TeamId`).
+  - **Vision numbers are exact; only the composite is a proxy.** Vision proxy =
+    placed + cleared + control (control counts twice); UI caption labels it an estimate,
+    NOT Riot's Vision Score (Riot's real visionScore is a *match*-participant field, absent
+    from the timeline). Exact ward counts shown alongside.
+  - **Objective crediting:** elites use `killerTeamId` (fallback `TeamOfNullable(killerId)`);
+    buildings use `teamId` = team that LOST the building, so my team destroyed it iff
+    `teamId != myTeamId` — my own lost buildings are correctly excluded. Team total 0 →
+    UI shows **"none taken"** (never a fabricated 0%).
+  - **Gotcha:** `TimelineExtractor` already had a non-nullable `TeamOf(int)` (used by
+    BuildDeepDive for team-gold). The nullable variant is `TeamOfNullable(int?)` (returns
+    null for participantId 0/null = minion/structure) to avoid overload ambiguity.
+  - **No CI on this repo** (no `.github/workflows`) — merge gate = local `dotnet test` +
+    the `.m?shots` screenshot subagent verdict, same as M6. `.m7shots/run_capture.ps1`
+    reuses the M6 harness (review page, UIAutomation `SelectionItemPattern.Select()` first
+    match, DisableHWAcceleration set/restore, `.m2shots/Capturer/out/Capturer.exe`). PNGs
+    gitignored via `.m?shots/*.png` (harness scripts ARE committed).
+  - **Foundational for M8** (timeline causality): reuses the extended `EventDto` + the
+    frame/event flattening idiom.
 - **2026-06-20 — M7 planned (gate cleared).** Recon confirmed match-v5 ward/objective
   events ARE persisted: the **full raw timeline JSON** is stored in `match_detail.timeline_json`
   since M1 and is immutably re-parseable (proven by `DerivedMetricsBackfill`). The current
