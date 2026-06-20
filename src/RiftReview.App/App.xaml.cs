@@ -85,6 +85,7 @@ public partial class App : Application
 
                 s.AddSingleton<RiftReview.App.Services.NavigationService>();
                 s.AddSingleton<ViewModels.MainViewModel>();
+                s.AddSingleton<ViewModels.SessionHealthViewModel>();
 
                 // Pages (transient — NavigationView resolves a fresh instance each navigation)
                 s.AddTransient<ReviewView>();
@@ -96,6 +97,7 @@ public partial class App : Application
                 s.AddTransient<MatchupsView>();
                 s.AddTransient<ViewModels.SettingsViewModel>();
                 s.AddTransient<SettingsView>();
+                s.AddTransient<SessionHealthView>();
 
                 // AppShell is the top-level FluentWindow shell
                 s.AddSingleton<AppShell>();

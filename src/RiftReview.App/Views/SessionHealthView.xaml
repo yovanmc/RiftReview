@@ -1,0 +1,193 @@
+<UserControl x:Class="RiftReview.App.Views.SessionHealthView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+             xmlns:conv="clr-namespace:RiftReview.App.Converters">
+
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+        <conv:BoolToBrushConverter x:Key="WinResultBrush"
+            TrueBrush="{StaticResource WinBrush}"
+            FalseBrush="{StaticResource LossBrush}"/>
+    </UserControl.Resources>
+
+    <Grid Background="{StaticResource PanelBgBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- ═══ HEADER ═══ -->
+        <TextBlock Grid.Row="0"
+                   Text="Session Health"
+                   Foreground="{StaticResource AccentBrush}"
+                   FontSize="18"
+                   FontWeight="SemiBold"
+                   Margin="20,16,20,12"/>
+
+        <!-- ═══ BODY ═══ -->
+        <ScrollViewer Grid.Row="1"
+                      VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled">
+            <StackPanel Margin="20,0,20,20">
+
+                <!-- ─── Latest-session hero ─── -->
+                <Border Background="{StaticResource CardBgBrush}"
+                        CornerRadius="6"
+                        Padding="16"
+                        Margin="0,0,0,16"
+                        DataContext="{Binding Latest}">
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding}" Value="{x:Null}">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                    <StackPanel>
+
+                        <!-- When label (muted, small) -->
+                        <TextBlock Text="{Binding WhenLabel}"
+                                   Foreground="{StaticResource TextMutedBrush}"
+                                   FontSize="11"
+                                   Margin="0,0,0,4"/>
+
+                        <!-- Severity label (big, color via DataTriggers) -->
+                        <TextBlock Text="{Binding SeverityLabel}"
+                                   FontSize="22"
+                                   FontWeight="SemiBold"
+                                   Margin="0,0,0,6">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsTilted}" Value="True">
+                                            <Setter Property="Foreground" Value="{StaticResource LossBrush}"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding IsCaution}" Value="True">
+                                            <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding IsCalm}" Value="True">
+                                            <Setter Property="Foreground" Value="{StaticResource WinBrush}"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+
+                        <!-- Record · GamesLabel (muted) -->
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                            <TextBlock Text="{Binding Record}"
+                                       Foreground="{StaticResource TextMutedBrush}"
+                                       FontSize="13"
+                                       Margin="0,0,6,0"/>
+                            <TextBlock Text=" · "
+                                       Foreground="{StaticResource TextMutedBrush}"
+                                       FontSize="13"
+                                       Margin="0,0,6,0"/>
+                            <TextBlock Text="{Binding GamesLabel}"
+                                       Foreground="{StaticResource TextMutedBrush}"
+                                       FontSize="13"/>
+                        </StackPanel>
+
+                        <!-- Reasons (primary, wrapped) -->
+                        <TextBlock Text="{Binding ReasonsText}"
+                                   Foreground="{StaticResource TextPrimaryBrush}"
+                                   FontSize="13"
+                                   TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- ─── "RECENT SESSIONS" header ─── -->
+                <TextBlock Text="RECENT SESSIONS"
+                           Foreground="{StaticResource TextMutedBrush}"
+                           FontSize="11"
+                           FontWeight="SemiBold"
+                           Margin="0,0,0,8"/>
+
+                <!-- ─── Session history list ─── -->
+                <ItemsControl ItemsSource="{Binding Sessions}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Padding="0,8"
+                                    BorderBrush="{StaticResource HairlineBrush}"
+                                    BorderThickness="0,0,0,1">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <!-- Left: WhenLabel + ReasonsText -->
+                                    <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="0,0,12,0">
+                                        <TextBlock Text="{Binding WhenLabel}"
+                                                   Foreground="{StaticResource TextPrimaryBrush}"
+                                                   FontSize="13"/>
+                                        <TextBlock Text="{Binding ReasonsText}"
+                                                   Foreground="{StaticResource TextMutedBrush}"
+                                                   FontSize="11"
+                                                   TextWrapping="Wrap"
+                                                   Margin="0,2,0,0"/>
+                                    </StackPanel>
+
+                                    <!-- Right: Record + GamesLabel + severity pill -->
+                                    <StackPanel Grid.Column="1"
+                                                Orientation="Horizontal"
+                                                VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding Record}"
+                                                   Foreground="{StaticResource TextMutedBrush}"
+                                                   FontSize="12"
+                                                   VerticalAlignment="Center"
+                                                   Margin="0,0,6,0"/>
+                                        <TextBlock Text="{Binding GamesLabel}"
+                                                   Foreground="{StaticResource TextMutedBrush}"
+                                                   FontSize="11"
+                                                   VerticalAlignment="Center"
+                                                   Margin="0,0,8,0"/>
+
+                                        <!-- Severity pill -->
+                                        <Border CornerRadius="8"
+                                                Padding="8,2"
+                                                VerticalAlignment="Center">
+                                            <Border.Style>
+                                                <Style TargetType="Border">
+                                                    <Setter Property="Background" Value="Transparent"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsTilted}" Value="True">
+                                                            <Setter Property="Background" Value="{StaticResource LossBrush}"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding IsCaution}" Value="True">
+                                                            <Setter Property="Background" Value="{StaticResource AccentBrush}"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding IsCalm}" Value="True">
+                                                            <Setter Property="Background" Value="{StaticResource WinBrush}"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Border.Style>
+                                            <TextBlock Text="{Binding SeverityLabel}"
+                                                       FontSize="11"
+                                                       Foreground="#0A0A0C"/>
+                                        </Border>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <!-- ─── Empty state ─── -->
+                <TextBlock Text="No games synced yet — play and sync to see your session health."
+                           Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVis}}"
+                           Foreground="{StaticResource TextMutedBrush}"
+                           FontSize="13"
+                           TextWrapping="Wrap"
+                           HorizontalAlignment="Center"
+                           Margin="0,24"/>
+
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

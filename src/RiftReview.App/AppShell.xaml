@@ -50,6 +50,13 @@
                         <ui:SymbolIcon Symbol="PeopleSwap24"/>
                     </ui:NavigationViewItem.Icon>
                 </ui:NavigationViewItem>
+
+                <ui:NavigationViewItem Content="Session Health"
+                                       TargetPageType="{x:Type views:SessionHealthView}">
+                    <ui:NavigationViewItem.Icon>
+                        <ui:SymbolIcon Symbol="HeartPulse24"/>
+                    </ui:NavigationViewItem.Icon>
+                </ui:NavigationViewItem>
             </ui:NavigationView.MenuItems>
 
             <ui:NavigationView.FooterMenuItems>
