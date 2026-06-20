@@ -29,6 +29,7 @@
         <Grid Visibility="{Binding HasData, Converter={StaticResource BoolToVis}}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
@@ -45,8 +46,58 @@
                            FontWeight="SemiBold"/>
             </Border>
 
-            <!-- Gold diff chart -->
+            <!-- Vision & objectives -->
             <Border Grid.Row="1"
+                    Background="{StaticResource CardBgBrush}"
+                    BorderBrush="{StaticResource HairlineBrush}"
+                    BorderThickness="0,0,0,1"
+                    Margin="0,0,0,2"
+                    Padding="12,8">
+                <StackPanel>
+                    <TextBlock Text="Vision &amp; objectives"
+                               Foreground="{StaticResource AccentBrush}"
+                               FontSize="13" FontWeight="SemiBold" Margin="0,0,0,6"/>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                        <StackPanel Margin="0,0,28,0">
+                            <TextBlock Text="Wards placed" Foreground="{StaticResource TextMutedBrush}" FontSize="11"/>
+                            <TextBlock Text="{Binding Vision.WardsPlaced}" Foreground="{StaticResource TextPrimaryBrush}" FontSize="18"/>
+                        </StackPanel>
+                        <StackPanel Margin="0,0,28,0">
+                            <TextBlock Text="Wards cleared" Foreground="{StaticResource TextMutedBrush}" FontSize="11"/>
+                            <TextBlock Text="{Binding Vision.WardsCleared}" Foreground="{StaticResource TextPrimaryBrush}" FontSize="18"/>
+                        </StackPanel>
+                        <StackPanel Margin="0,0,28,0">
+                            <TextBlock Text="Control wards" Foreground="{StaticResource TextMutedBrush}" FontSize="11"/>
+                            <TextBlock Text="{Binding Vision.ControlWardsPlaced}" Foreground="{StaticResource TextPrimaryBrush}" FontSize="18"/>
+                        </StackPanel>
+                        <StackPanel Margin="0,0,28,0">
+                            <TextBlock Text="Vision proxy" Foreground="{StaticResource TextMutedBrush}" FontSize="11"/>
+                            <TextBlock Text="{Binding Vision.VisionProxy}" Foreground="{StaticResource AccentBrush}" FontSize="18"/>
+                        </StackPanel>
+                    </StackPanel>
+                    <TextBlock Text="Vision proxy = wards placed + cleared (control wards count twice). Estimate from timeline events — not Riot's official Vision Score."
+                               Foreground="{StaticResource TextMutedBrush}" FontSize="10" TextWrapping="Wrap" Margin="0,0,0,6"/>
+                    <ItemsControl ItemsSource="{Binding Objectives}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Margin="0,1">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="110"/>
+                                        <ColumnDefinition Width="70"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="{Binding Label}" Foreground="{StaticResource TextPrimaryBrush}" FontSize="12"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding Detail}" Foreground="{StaticResource TextPrimaryBrush}" FontSize="12"/>
+                                    <TextBlock Grid.Column="2" Text="{Binding Percent}" Foreground="{StaticResource AccentBrush}" FontSize="12"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+
+            <!-- Gold diff chart -->
+            <Border Grid.Row="2"
                     Background="{StaticResource CardBgBrush}"
                     BorderBrush="{StaticResource HairlineBrush}"
                     BorderThickness="0,0,0,1"
@@ -71,7 +122,7 @@
             </Border>
 
             <!-- CS/min chart -->
-            <Border Grid.Row="2"
+            <Border Grid.Row="3"
                     Background="{StaticResource CardBgBrush}"
                     Padding="12,8">
                 <Grid>

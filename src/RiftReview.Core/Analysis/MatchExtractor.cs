@@ -25,7 +25,7 @@ public static class MatchExtractor
             (int)match.Info.QueueId, match.Info.GameCreation / 1000, durationS,
             PatchFromVersion(match.Info.GameVersion), me.ChampionId, me.TeamPosition, me.Win,
             me.Kills, me.Deaths, me.Assists, me.TotalMinionsKilled + me.NeutralMinionsKilled,
-            me.ParticipantId, opp?.ParticipantId, opp?.ChampionId,
+            me.ParticipantId, me.TeamId, opp?.ParticipantId, opp?.ChampionId,
             kp, dmgShare);
     }
 

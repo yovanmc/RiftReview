@@ -58,8 +58,8 @@ packages/
 *.sqlite3
 ddragon-cache/
 
-# ---- Local screenshot-verification scratch (throwaway PNGs + capture scripts) ----
-.m?shots/
+# ---- Local screenshot-verification scratch (throwaway PNGs; scripts are committed) ----
+.m?shots/*.png
 
 # ---- OS noise ----
 Thumbs.db
