@@ -53,6 +53,19 @@ public sealed partial class DeepDiveViewModel : ObservableObject
     [ObservableProperty] private VisionStats _vision = new(0, 0, 0, 0);
     [ObservableProperty] private IReadOnlyList<ObjectiveRowVm> _objectives = Array.Empty<ObjectiveRowVm>();
 
+    // Swing & causality (M8)
+    [ObservableProperty] private bool _hasCausality;
+    [ObservableProperty] private bool _hasSwing;
+    [ObservableProperty] private string _swingText = "";
+    [ObservableProperty] private bool _swingFavorable;
+    [ObservableProperty] private double? _swingStartMinute;
+    [ObservableProperty] private double? _swingEndMinute;
+    [ObservableProperty] private IReadOnlyList<DeathContextVm> _deathContexts = Array.Empty<DeathContextVm>();
+    [ObservableProperty] private string _backSummary = "";
+    [ObservableProperty] private IReadOnlyList<BackVm> _backs = Array.Empty<BackVm>();
+    [ObservableProperty] private bool _hasLag;
+    [ObservableProperty] private string _turningPointLag = "";
+
     public void Load(MatchRow selected)
     {
         var puuid = _db.GetMeta("puuid");
@@ -113,6 +126,36 @@ public sealed partial class DeepDiveViewModel : ObservableObject
                 o.TeamTotal == 0 ? "none taken" : $"{o.Participated} / {o.TeamTotal}",
                 o.TeamTotal == 0 ? "" : ((double)o.Participated / o.TeamTotal).ToString("P0"))).ToList();
 
+            // Swing & causality (M8)
+            var causality = TimelineExtractor.BuildCausality(tl, summary.MyParticipantId);
+
+            if (causality.Swing is { } sw)
+            {
+                HasSwing = true;
+                SwingFavorable = sw.Favorable;
+                SwingText = $"{FormatGold(sw.Delta)} {(sw.Favorable ? "in your favor" : "against you")} · "
+                          + $"{Clock(sw.StartMinute)} → {Clock(sw.EndMinute)}";
+                SwingStartMinute = sw.StartMinute;
+                SwingEndMinute   = sw.EndMinute;
+            }
+            else { HasSwing = false; SwingText = "No decisive swing this game."; SwingStartMinute = null; SwingEndMinute = null; }
+
+            DeathContexts = causality.Deaths
+                .Select(d => new DeathContextVm(Clock(d.Minute), FormatGold(d.GoldDiff), d.GoldDiff >= 0))
+                .ToList();
+
+            Backs = causality.Backs
+                .Select(b => new BackVm($"{Clock(b.Minute)}{(b.ItemCount > 1 ? $" ×{b.ItemCount}" : "")}"))
+                .ToList();
+            BackSummary = causality.Backs.Count switch { 0 => "", 1 => "1 back", var n => $"{n} backs" };
+
+            HasLag = causality.TurningPointLagMinutes is not null;
+            TurningPointLag = causality.TurningPointLagMinutes is double lag
+                ? $"Power swing began {Clock(lag)} after a back"
+                : "";
+
+            HasCausality = HasSwing || DeathContexts.Count > 0 || Backs.Count > 0;
+
             HasData = true;
         }
         catch (Exception ex) when (ex is JsonException or InvalidOperationException)
@@ -158,7 +201,34 @@ public sealed partial class DeepDiveViewModel : ObservableObject
         CsSeries   = Array.Empty<ChartSeries>();
         Vision = new(0, 0, 0, 0);
         Objectives = Array.Empty<ObjectiveRowVm>();
+        HasCausality = false;
+        HasSwing = false;
+        SwingText = "";
+        SwingFavorable = false;
+        SwingStartMinute = null;
+        SwingEndMinute = null;
+        DeathContexts = Array.Empty<DeathContextVm>();
+        BackSummary = "";
+        Backs = Array.Empty<BackVm>();
+        HasLag = false;
+        TurningPointLag = "";
+    }
+
+    // 14.0 -> "14:00", 14.5 -> "14:30"
+    private static string Clock(double minute)
+    {
+        int total = (int)Math.Round(minute * 60);
+        return $"{total / 60}:{total % 60:00}";
+    }
+
+    // +1850 -> "+1,850g", -1200 -> "−1,200g" (U+2212 minus), 0 -> "0g"
+    private static string FormatGold(double g)
+    {
+        string sign = g > 0 ? "+" : g < 0 ? "−" : "";
+        return $"{sign}{Math.Abs(g):#,0}g";
     }
 }
 
 public sealed record ObjectiveRowVm(string Label, string Detail, string Percent);
+public sealed record DeathContextVm(string Minute, string Gold, bool Ahead);
+public sealed record BackVm(string Text);

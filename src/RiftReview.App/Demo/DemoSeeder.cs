@@ -224,6 +224,31 @@ public static class DemoSeeder
         AddEv(15, new EventDto("BUILDING_KILL", 60000L * 15, KillerId: 8, VictimId: null,
             TeamId: 100, BuildingType: "TOWER_BUILDING", TowerType: "OUTER_TURRET", LaneType: "MID_LANE"));
 
+        // M8: synthetic recalls (clusters of ITEM_PURCHASED events) for the player so the
+        // back-timing feature renders in --seed-demo.  Each cluster = one "back" trip.
+        // Minutes 2, 8, 14, 20 are all within the shortest game (25 frames, indices 0-25).
+        // Minute 2 precedes the gold-diff curve's first significant swing, satisfying the
+        // "at least one recall precedes the biggest gold change" requirement.
+        void AddBack(int minute, int[] items)
+        {
+            if (minute >= frames) return;
+            long baseTs = 60_000L * minute;
+            for (int idx = 0; idx < items.Length; idx++)
+                // stagger each item purchase ~1 s apart within the same frame
+                frameList[minute].Events.Add(
+                    new EventDto("ITEM_PURCHASED", baseTs + idx * 1_000L, null, null,
+                        ParticipantId: 3, ItemId: items[idx]));
+        }
+
+        // Recall at ~2 min: starter item upgrade (1 purchase)
+        AddBack(2,  new[] { 1055 });
+        // Recall at ~8 min: first back — Luden's Tempest components (3 purchases)
+        AddBack(8,  new[] { 3145, 1026, 1052 });
+        // Recall at ~14 min: second back — Luden's Tempest completed + sorcerer's shoes (2 purchases)
+        AddBack(14, new[] { 3285, 3020 });
+        // Recall at ~20 min: third back — Shadowflame + amp tome (2 purchases)
+        AddBack(20, new[] { 4645, 1052 });
+
         var tl = new TimelineDto(
             new TimelineMetadata(matchId, parts.Select(p => p.Puuid).ToList()),
             new TimelineInfo(60000, frameList));

@@ -30,6 +30,7 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
@@ -46,8 +47,63 @@
                            FontWeight="SemiBold"/>
             </Border>
 
-            <!-- Vision & objectives -->
+            <!-- Swing & causality (M8) -->
             <Border Grid.Row="1"
+                    Background="{StaticResource CardBgBrush}"
+                    BorderBrush="{StaticResource HairlineBrush}"
+                    BorderThickness="0,0,0,1"
+                    Margin="0,0,0,2"
+                    Padding="12,8"
+                    Visibility="{Binding HasCausality, Converter={StaticResource BoolToVis}}">
+                <StackPanel>
+                    <TextBlock Text="Swing &amp; causality"
+                               Foreground="{StaticResource AccentBrush}"
+                               FontSize="13" FontWeight="SemiBold" Margin="0,0,0,6"/>
+
+                    <!-- Item 13: where the game turned -->
+                    <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                        <TextBlock Text="Where the game turned: " Foreground="{StaticResource TextMutedBrush}"/>
+                        <TextBlock Text="{Binding SwingText}" Foreground="{StaticResource TextPrimaryBrush}"/>
+                    </StackPanel>
+
+                    <!-- Item 14: deaths in context -->
+                    <ItemsControl ItemsSource="{Binding DeathContexts}" Margin="0,6,0,0">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal" Margin="0,1,0,1">
+                                    <TextBlock Text="Died " Foreground="{StaticResource TextMutedBrush}"/>
+                                    <TextBlock Text="{Binding Minute}" Foreground="{StaticResource TextPrimaryBrush}"/>
+                                    <TextBlock Text=" — " Foreground="{StaticResource TextMutedBrush}"/>
+                                    <TextBlock Text="{Binding Gold}" Foreground="{StaticResource TextPrimaryBrush}"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <!-- Item 15: back-timing -->
+                    <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
+                        <TextBlock Text="Backs: " Foreground="{StaticResource TextMutedBrush}"/>
+                        <TextBlock Text="{Binding BackSummary}" Foreground="{StaticResource TextPrimaryBrush}"/>
+                    </StackPanel>
+                    <ItemsControl ItemsSource="{Binding Backs}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Text}" Margin="0,0,10,0" Opacity="0.85"
+                                           Foreground="{StaticResource TextPrimaryBrush}"/>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <TextBlock Text="{Binding TurningPointLag}" Margin="0,4,0,0"
+                               Foreground="{StaticResource TextMutedBrush}"
+                               Visibility="{Binding HasLag, Converter={StaticResource BoolToVis}}"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Vision & objectives -->
+            <Border Grid.Row="2"
                     Background="{StaticResource CardBgBrush}"
                     BorderBrush="{StaticResource HairlineBrush}"
                     BorderThickness="0,0,0,1"
@@ -97,7 +153,7 @@
             </Border>
 
             <!-- Gold diff chart -->
-            <Border Grid.Row="2"
+            <Border Grid.Row="3"
                     Background="{StaticResource CardBgBrush}"
                     BorderBrush="{StaticResource HairlineBrush}"
                     BorderThickness="0,0,0,1"
@@ -117,12 +173,14 @@
                                         Series="{Binding GoldSeries}"
                                         DeathMarkers="{Binding DeathMinutes}"
                                         ShowZeroLine="True"
+                                        SwingStartMinute="{Binding SwingStartMinute}"
+                                        SwingEndMinute="{Binding SwingEndMinute}"
                                         MinHeight="180"/>
                 </Grid>
             </Border>
 
             <!-- CS/min chart -->
-            <Border Grid.Row="3"
+            <Border Grid.Row="4"
                     Background="{StaticResource CardBgBrush}"
                     Padding="12,8">
                 <Grid>

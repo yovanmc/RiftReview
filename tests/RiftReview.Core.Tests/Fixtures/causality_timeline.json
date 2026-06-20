@@ -1,0 +1,27 @@
+{
+  "metadata": { "matchId": "TEST_M8", "participants": ["p1","p2","p3","p4","p5","p6","p7","p8","p9","p10"] },
+  "info": {
+    "frameInterval": 60000,
+    "frames": [
+      { "timestamp": 0,      "participantFrames": { "1": {"participantId":1,"totalGold":500, "minionsKilled":0, "jungleMinionsKilled":0}, "6": {"participantId":6,"totalGold":500, "minionsKilled":0, "jungleMinionsKilled":0} }, "events": [] },
+      { "timestamp": 60000,  "participantFrames": { "1": {"participantId":1,"totalGold":800, "minionsKilled":8, "jungleMinionsKilled":0}, "6": {"participantId":6,"totalGold":700, "minionsKilled":7, "jungleMinionsKilled":0} }, "events": [
+          {"type":"ITEM_PURCHASED","timestamp":60000,"participantId":1,"itemId":1001},
+          {"type":"ITEM_PURCHASED","timestamp":61000,"participantId":1,"itemId":1004},
+          {"type":"ITEM_PURCHASED","timestamp":62000,"participantId":1,"itemId":2003} ] },
+      { "timestamp": 120000, "participantFrames": { "1": {"participantId":1,"totalGold":1100,"minionsKilled":16,"jungleMinionsKilled":0}, "6": {"participantId":6,"totalGold":900, "minionsKilled":14,"jungleMinionsKilled":0} }, "events": [
+          {"type":"CHAMPION_KILL","timestamp":120000,"killerId":6,"victimId":1} ] },
+      { "timestamp": 180000, "participantFrames": { "1": {"participantId":1,"totalGold":1400,"minionsKilled":24,"jungleMinionsKilled":0}, "6": {"participantId":6,"totalGold":1100,"minionsKilled":21,"jungleMinionsKilled":0} }, "events": [] },
+      { "timestamp": 240000, "participantFrames": { "1": {"participantId":1,"totalGold":1700,"minionsKilled":32,"jungleMinionsKilled":0}, "6": {"participantId":6,"totalGold":1300,"minionsKilled":28,"jungleMinionsKilled":0} }, "events": [
+          {"type":"ITEM_PURCHASED","timestamp":240000,"participantId":1,"itemId":3020},
+          {"type":"ITEM_PURCHASED","timestamp":241000,"participantId":1,"itemId":1026} ] },
+      { "timestamp": 300000, "participantFrames": { "1": {"participantId":1,"totalGold":2000,"minionsKilled":40,"jungleMinionsKilled":0}, "6": {"participantId":6,"totalGold":1500,"minionsKilled":35,"jungleMinionsKilled":0} }, "events": [] },
+      { "timestamp": 360000, "participantFrames": { "1": {"participantId":1,"totalGold":2500,"minionsKilled":46,"jungleMinionsKilled":0}, "6": {"participantId":6,"totalGold":1500,"minionsKilled":40,"jungleMinionsKilled":0} }, "events": [] },
+      { "timestamp": 420000, "participantFrames": { "1": {"participantId":1,"totalGold":3200,"minionsKilled":52,"jungleMinionsKilled":0}, "6": {"participantId":6,"totalGold":1500,"minionsKilled":44,"jungleMinionsKilled":0} }, "events": [
+          {"type":"CHAMPION_KILL","timestamp":420000,"killerId":6,"victimId":1} ] },
+      { "timestamp": 480000, "participantFrames": { "1": {"participantId":1,"totalGold":4000,"minionsKilled":58,"jungleMinionsKilled":0}, "6": {"participantId":6,"totalGold":1500,"minionsKilled":48,"jungleMinionsKilled":0} }, "events": [
+          {"type":"ITEM_PURCHASED","timestamp":480000,"participantId":1,"itemId":3089} ] },
+      { "timestamp": 540000, "participantFrames": { "1": {"participantId":1,"totalGold":4200,"minionsKilled":64,"jungleMinionsKilled":0}, "6": {"participantId":6,"totalGold":1700,"minionsKilled":52,"jungleMinionsKilled":0} }, "events": [] },
+      { "timestamp": 600000, "participantFrames": { "1": {"participantId":1,"totalGold":4400,"minionsKilled":70,"jungleMinionsKilled":0}, "6": {"participantId":6,"totalGold":1900,"minionsKilled":56,"jungleMinionsKilled":0} }, "events": [] }
+    ]
+  }
+}
