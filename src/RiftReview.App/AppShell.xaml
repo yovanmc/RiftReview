@@ -16,11 +16,18 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- Tilt banner: collapses to zero height when not on tilt; spans the top. -->
-        <Border x:Name="TiltBanner" Grid.Row="0"
+        <!-- Window title bar (caption buttons + drag region). Must sit at the window top as a
+             first-class element so the FluentWindow chrome wires up min/max/close + dragging.
+             (Nesting it inside the NavigationView's TitleBar slot breaks the chrome once the
+             NavigationView is no longer the Grid's direct top child.) -->
+        <ui:TitleBar Grid.Row="0" Title="RiftReview"/>
+
+        <!-- Tilt banner: collapses to zero height when not on tilt; sits below the title bar. -->
+        <Border x:Name="TiltBanner" Grid.Row="1"
                 Padding="16,10" Margin="0"
                 Visibility="Collapsed"
                 BorderThickness="0,0,0,1"
@@ -44,13 +51,9 @@
             </Grid>
         </Border>
 
-        <ui:NavigationView x:Name="RootNavigation" Grid.Row="1"
+        <ui:NavigationView x:Name="RootNavigation" Grid.Row="2"
                            PaneDisplayMode="LeftFluent"
                            IsPaneOpen="False">
-
-            <ui:NavigationView.TitleBar>
-                <ui:TitleBar Title="RiftReview"/>
-            </ui:NavigationView.TitleBar>
 
             <ui:NavigationView.MenuItems>
                 <ui:NavigationViewItem Content="Review"
