@@ -173,6 +173,8 @@
                                         Series="{Binding GoldSeries}"
                                         DeathMarkers="{Binding DeathMinutes}"
                                         ShowZeroLine="True"
+                                        SwingStartMinute="{Binding SwingStartMinute}"
+                                        SwingEndMinute="{Binding SwingEndMinute}"
                                         MinHeight="180"/>
                 </Grid>
             </Border>

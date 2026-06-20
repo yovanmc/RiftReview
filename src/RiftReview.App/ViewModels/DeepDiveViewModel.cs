@@ -58,6 +58,8 @@ public sealed partial class DeepDiveViewModel : ObservableObject
     [ObservableProperty] private bool _hasSwing;
     [ObservableProperty] private string _swingText = "";
     [ObservableProperty] private bool _swingFavorable;
+    [ObservableProperty] private double? _swingStartMinute;
+    [ObservableProperty] private double? _swingEndMinute;
     [ObservableProperty] private IReadOnlyList<DeathContextVm> _deathContexts = Array.Empty<DeathContextVm>();
     [ObservableProperty] private string _backSummary = "";
     [ObservableProperty] private IReadOnlyList<BackVm> _backs = Array.Empty<BackVm>();
@@ -133,8 +135,10 @@ public sealed partial class DeepDiveViewModel : ObservableObject
                 SwingFavorable = sw.Favorable;
                 SwingText = $"{FormatGold(sw.Delta)} {(sw.Favorable ? "in your favor" : "against you")} · "
                           + $"{Clock(sw.StartMinute)} → {Clock(sw.EndMinute)}";
+                SwingStartMinute = sw.StartMinute;
+                SwingEndMinute   = sw.EndMinute;
             }
-            else { HasSwing = false; SwingText = "No decisive swing this game."; }
+            else { HasSwing = false; SwingText = "No decisive swing this game."; SwingStartMinute = null; SwingEndMinute = null; }
 
             DeathContexts = causality.Deaths
                 .Select(d => new DeathContextVm(Clock(d.Minute), FormatGold(d.GoldDiff), d.GoldDiff >= 0))
@@ -201,6 +205,8 @@ public sealed partial class DeepDiveViewModel : ObservableObject
         HasSwing = false;
         SwingText = "";
         SwingFavorable = false;
+        SwingStartMinute = null;
+        SwingEndMinute = null;
         DeathContexts = Array.Empty<DeathContextVm>();
         BackSummary = "";
         Backs = Array.Empty<BackVm>();

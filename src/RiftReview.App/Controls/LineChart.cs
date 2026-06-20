@@ -80,6 +80,26 @@ public sealed class LineChart : FrameworkElement
         set => SetValue(ShowZeroLineProperty, value);
     }
 
+    public static readonly DependencyProperty SwingStartMinuteProperty = DependencyProperty.Register(
+        nameof(SwingStartMinute), typeof(double?), typeof(LineChart),
+        new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender));
+
+    public double? SwingStartMinute
+    {
+        get => (double?)GetValue(SwingStartMinuteProperty);
+        set => SetValue(SwingStartMinuteProperty, value);
+    }
+
+    public static readonly DependencyProperty SwingEndMinuteProperty = DependencyProperty.Register(
+        nameof(SwingEndMinute), typeof(double?), typeof(LineChart),
+        new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender));
+
+    public double? SwingEndMinute
+    {
+        get => (double?)GetValue(SwingEndMinuteProperty);
+        set => SetValue(SwingEndMinuteProperty, value);
+    }
+
     // ── Rendering ─────────────────────────────────────────────────────────────
 
     protected override void OnRenderSizeChanged(SizeChangedInfo info)
@@ -111,6 +131,16 @@ public sealed class LineChart : FrameworkElement
         if (maxX <= minX) maxX = minX + 1;
 
         var sc = new ChartScaler(minX, maxX, minY, maxY, w, h, Pad);
+
+        // Swing band — drawn first so it appears behind series and markers
+        if (SwingStartMinute is { } swStart && SwingEndMinute is { } swEnd)
+        {
+            double bx1 = sc.X(swStart);
+            double bx2 = sc.X(swEnd);
+            if (bx2 < bx1) (bx1, bx2) = (bx2, bx1);
+            var swingBrush = Freeze(new SolidColorBrush(Color.FromArgb(0x22, 0xC8, 0xAA, 0x6E)));
+            dc.DrawRectangle(swingBrush, null, new Rect(new Point(bx1, Pad), new Point(bx2, h - Pad)));
+        }
 
         // Zero gridline
         if (ShowZeroLine && minY <= 0 && maxY >= 0)
