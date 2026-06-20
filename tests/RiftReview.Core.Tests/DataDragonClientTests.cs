@@ -22,10 +22,16 @@ public class DataDragonClientTests
     public async Task Caches_champion_json_to_disk_and_reuses_it()
     {
         int champFetches = 0;
+        int itemFetches = 0;
         var h = new StubHttpMessageHandler(req =>
         {
             if (req.RequestUri!.ToString().Contains("versions.json"))
                 return StubHttpMessageHandler.Json("[\"15.12.1\"]");
+            if (req.RequestUri!.ToString().Contains("item.json"))
+            {
+                itemFetches++;
+                return StubHttpMessageHandler.Json("{\"data\":{}}"); // empty item catalog (not champion json)
+            }
             champFetches++;
             return StubHttpMessageHandler.Json("{\"data\":{\"Ahri\":{\"key\":\"103\",\"id\":\"Ahri\",\"name\":\"Ahri\"}}}");
         });
@@ -36,6 +42,7 @@ public class DataDragonClientTests
         await dd2.EnsureLoadedAsync();
         Assert.Equal("Ahri", dd2.ChampionName(103));
         Assert.Equal(1, champFetches); // champion.json fetched once; second load read it from disk
+        Assert.Equal(1, itemFetches);  // item.json fetched once; second load read it from disk
     }
 
     [Fact]

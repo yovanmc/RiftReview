@@ -4,7 +4,9 @@ namespace RiftReview.Core.Riot.Dtos;
 public sealed record TimelineDto(TimelineMetadata Metadata, TimelineInfo Info);
 // Participants = ordered PUUID strings
 public sealed record TimelineMetadata(string MatchId, List<string> Participants);
-public sealed record TimelineInfo(long FrameInterval, List<FrameDto> Frames);
+public sealed record TimelineParticipantDto(int ParticipantId, string? Puuid);
+public sealed record TimelineInfo(long FrameInterval, List<FrameDto> Frames,
+    List<TimelineParticipantDto>? Participants = null);
 public sealed record FrameDto(
     long Timestamp,
     Dictionary<string, ParticipantFrameDto> ParticipantFrames,
