@@ -34,6 +34,14 @@ public sealed class MetricTrendViewModel
     public bool   IsBad       { get; }
     public IReadOnlyList<double?> Series { get; }
 
+    // Direction-aware comparison vs the active baseline (rank or own); null/false when no baseline.
+    public bool    HasBaseline     { get; set; }
+    public double? BaselineValue   { get; set; }
+    public string  BaselineLabel   { get; set; } = "";   // e.g. "Gold avg" / "Your avg"
+    public string  DeltaVsBaseline { get; set; } = "";   // "+0.8" / "−1.2", signed
+    public bool    BaselineIsGood  { get; set; }
+    public bool    BaselineIsBad   { get; set; }
+
     private static string Format(double? v, string unit) => v is null ? "—"
         : unit == "%" ? Math.Round(v.Value * 100) + "%"
         : unit == "g" ? (v.Value >= 0 ? "+" : "") + Math.Round(v.Value) + "g"
