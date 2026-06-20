@@ -57,6 +57,30 @@ public static class DemoSeeder
             db.UpsertMatch(row, JsonSerializer.Serialize(match, Json), JsonSerializer.Serialize(tl, Json));
         }
 
+        // LP snapshots for the Climb page — a Gold IV → Gold I Solo climb across the demo timeline,
+        // taken_utc values interleaved among the demo ranked games so each segment has games in-window.
+        //
+        // Demo Solo (queue-420) game_start_utc span:
+        //   Oldest: i=35 → 1_696_976_000 s  (1_700_000_000 − 35*86400)
+        //   Newest: tilted t=4 → 1_700_031_200 s
+        //   Note: i=7 is queue-400 (NORMAL), so 35 Solo main games + 5 tilted = 40 Solo games total.
+        //
+        // 4 Solo snapshots → 3 segments:
+        //   Snap1 = 1_696_975_000  (just before oldest Solo game at 1_696_976_000)
+        //   Snap2 = 1_697_840_000  (= 1_700_000_000 − 25*86400; game i=25 exactly at boundary, captured by <=)
+        //   Snap3 = 1_698_840_000
+        //   Snap4 = 1_700_031_201  (just after newest tilted game at 1_700_031_200)
+        //
+        // Segment 1 (Snap1..Snap2]: games k=25..35 (all Solo) → 11 games, Gold IV 30 → Gold III 60, NetLp=+130
+        // Segment 2 (Snap2..Snap3]: games k=14..24 (all Solo) → 11 games, Gold III 60 → Gold II 12, NetLp=+52
+        // Segment 3 (Snap3..Snap4]: games k=0..13 excl k=7 (13) + 5 tilted → 18 games, Gold II 12 → Gold I 75, NetLp=+263
+        db.InsertLpSnapshot(new LpSnapshot(1_696_975_000L, "RANKED_SOLO_5x5", "GOLD", "IV",   30, 60, 55));
+        db.InsertLpSnapshot(new LpSnapshot(1_697_840_000L, "RANKED_SOLO_5x5", "GOLD", "III",  60, 66, 58));
+        db.InsertLpSnapshot(new LpSnapshot(1_698_840_000L, "RANKED_SOLO_5x5", "GOLD", "II",   12, 72, 61));
+        db.InsertLpSnapshot(new LpSnapshot(1_700_031_201L, "RANKED_SOLO_5x5", "GOLD", "I",    75, 79, 64));
+        db.InsertLpSnapshot(new LpSnapshot(1_697_840_000L, "RANKED_FLEX_SR",  "SILVER", "I",  40, 20, 15));
+        db.InsertLpSnapshot(new LpSnapshot(1_700_031_201L, "RANKED_FLEX_SR",  "GOLD", "IV",    5, 24, 18));
+
         // Tilted latest session: 5 Ahri games clustered ~40 min apart, starting 6 h after the
         // existing newest game (i=0 at baseCreation/1000 seconds).  The 6 h gap >> SessionGapSeconds
         // (3 h), so SessionCalculator treats these as a NEW session separate from all existing games.
