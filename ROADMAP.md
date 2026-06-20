@@ -22,6 +22,11 @@ Repo: github.com/yovanmc/RiftReview · Specs: `docs/superpowers/specs/` · Plans
   controller. PNGs gitignored.
 - Merge: PR → foreground `gh pr checks <#> --watch` → `--merge --delete-branch` from master.
 
+## Non-goals
+- **No single composite "RiftScore":** RiftReview will never reduce a player or game to one opaque score. The decomposed, per-metric, number-under-every-verdict approach is the architecture; any future score-like surface must decompose into named, individually-numbered components.
+- **No external/recommended-build or live-overlay/draft-scouting data:** item 16 (recommended-build comparison against aggregators) and any live-game overlay or draft-scouting integration are permanently out of scope. Data Dragon is used only for item names + the completed-item filter; all win-rate signal is own-games-only.
+- **Never fabricate:** sparse baselines stay sparse (absent cell → no number, not a made-up default); own-games-only builds require ≥3 games or show "not enough games yet."
+
 ## Milestones
 | # | Title | Status | Plan | PR | Notes |
 |---|-------|--------|------|----|-------|
