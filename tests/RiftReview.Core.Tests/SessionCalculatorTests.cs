@@ -51,7 +51,63 @@ public class SessionCalculatorTests
         Assert.True(s.DecayPresent);
         Assert.True(s.DeathsDelta > 0);
         Assert.True(s.Severity >= TiltSeverity.Caution);
-        Assert.Contains(s.Reasons, r => r.Contains("deaths", System.StringComparison.OrdinalIgnoreCase));
+        // reason must carry the delta number (e.g. "deaths climbing (+6.0/game)")
+        Assert.Contains(s.Reasons, r => r.Contains("deaths climbing (+"));
+    }
+
+    [Fact]
+    public void Deaths_decay_reason_includes_numeric_delta()
+    {
+        // first half avg deaths = 1.0, second half avg deaths = 9.0 → delta = 8.0 ≥ threshold 1.5
+        var games = new List<MatchRow>
+        {
+            G(0, true, deaths: 1), G(2400, true, deaths: 1),
+            G(4800, false, deaths: 9), G(7200, false, deaths: 9),
+        };
+        var s = SessionCalculator.BuildSessions(games)[0];
+        Assert.True(s.DeathsDelta >= SessionCalculator.DeathsDecayThreshold);
+        // reason must contain the positive delta in "+X.X/game" form
+        var reason = s.Reasons.FirstOrDefault(r => r.StartsWith("deaths climbing"));
+        Assert.NotNull(reason);
+        Assert.Contains("+", reason);
+        Assert.Contains("/game", reason);
+    }
+
+    [Fact]
+    public void Cs10_decay_reason_includes_numeric_delta()
+    {
+        // first half cs@10 avg = 100, second half cs@10 avg = 60 → delta = 40 ≥ threshold 8
+        var games = new List<MatchRow>
+        {
+            G(0, true, cs10: 100), G(2400, true, cs10: 100),
+            G(4800, false, cs10: 60), G(7200, false, cs10: 60),
+        };
+        var s = SessionCalculator.BuildSessions(games)[0];
+        Assert.True(s.Cs10Delta >= SessionCalculator.Cs10DecayThreshold);
+        var reason = s.Reasons.FirstOrDefault(r => r.StartsWith("CS@10 falling"));
+        Assert.NotNull(reason);
+        Assert.Contains("(-", reason);
+        // must NOT just say "CS@10 falling" with nothing after
+        Assert.True(reason!.Length > "CS@10 falling".Length);
+    }
+
+    [Fact]
+    public void Kda_decay_reason_includes_numeric_delta()
+    {
+        // first half: kda = (5+7)/max(1,1)=12 each → avg 12; second half: kda=(1+1)/max(1,9)≈0.22 each
+        var games = new List<MatchRow>
+        {
+            G(0, true, deaths: 1), G(2400, true, deaths: 1),
+            G(4800, false, deaths: 9), G(7200, false, deaths: 9),
+        };
+        // Only KDA decay needed — reuse the existing deaths+KDA scenario
+        // With deaths=1 first half: KDA=(5+7)/1=12; deaths=9 second half: KDA=(5+7)/9≈1.33 → delta≈10.67
+        var s = SessionCalculator.BuildSessions(games)[0];
+        Assert.True(s.KdaDelta >= SessionCalculator.KdaDecayThreshold);
+        var reason = s.Reasons.FirstOrDefault(r => r.StartsWith("KDA falling"));
+        Assert.NotNull(reason);
+        Assert.Contains("(-", reason);
+        Assert.True(reason!.Length > "KDA falling".Length);
     }
 
     [Fact]

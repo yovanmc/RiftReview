@@ -22,6 +22,11 @@ Repo: github.com/yovanmc/RiftReview · Specs: `docs/superpowers/specs/` · Plans
   controller. PNGs gitignored.
 - Merge: PR → foreground `gh pr checks <#> --watch` → `--merge --delete-branch` from master.
 
+## Non-goals
+- **No single composite "RiftScore":** RiftReview will never reduce a player or game to one opaque score. The decomposed, per-metric, number-under-every-verdict approach is the architecture; any future score-like surface must decompose into named, individually-numbered components.
+- **No external/recommended-build or live-overlay/draft-scouting data:** item 16 (recommended-build comparison against aggregators) and any live-game overlay or draft-scouting integration are permanently out of scope. Data Dragon is used only for item names + the completed-item filter; all win-rate signal is own-games-only.
+- **Never fabricate:** sparse baselines stay sparse (absent cell → no number, not a made-up default); own-games-only builds require ≥3 games or show "not enough games yet."
+
 ## Milestones
 | # | Title | Status | Plan | PR | Notes |
 |---|-------|--------|------|----|-------|
@@ -33,9 +38,70 @@ Repo: github.com/yovanmc/RiftReview · Specs: `docs/superpowers/specs/` · Plans
 | 6 | You-vs-rank on graphs | ✅ Merged | `docs/superpowers/plans/2026-06-20-riftreview-m6.md` | #1 | rank baseline on Trends sparklines + deep-dive CS-pace chart; Rank⇄Own toggle + per-tier selector + signed delta badges + provenance; sparse never-fabricate seed table |
 | 7 | Vision + objectives | ✅ Merged | `docs/superpowers/plans/2026-06-20-riftreview-m7.md` | #2 | deep-dive Vision & objectives section: exact wards placed/cleared/control + labeled vision proxy + objective participation (dragons/herald/baron/towers/inhibitors, Void Grubs if present); on-demand from stored timeline blob (NO schema migration). Suite 126. |
 | 8 | Timeline causality | ✅ Merged | `docs/superpowers/plans/2026-06-20-riftreview-m8.md` | #3 | "where the game turned" team-gold-diff swing marker (+ translucent band on chart) + game-state-at-death context + back-timing cadence (recall clusters; NO external item data) + turning-point lag; on-demand from timeline blob (NO migration); EventDto +2 fields. Suite 133. |
-| 9 | Build analysis + discipline | [ ] Not started | — | — | own-best-build per champ (item 17 only — NO external build data) + number-under-every-verdict audit + no-composite-score non-goal + optional timeline mini-score (items 16–20) |
+| 9 | Build analysis + discipline | ✅ Merged | `docs/superpowers/plans/2026-06-20-riftreview-m9.md` | #4 | own-best-build per champ (item 17, own-games-only; Data Dragon item.json supplies names + completed-item filter) on Champions practicing cards + number-under-every-verdict audit (Session-Health decay reasons get deltas) + no-composite-score non-goal enshrined. Timeline mini-score (item 20) DEFERRED. On-demand from timeline_json (NO migration). Suite 155. |
 
 ## Decision log & gotchas
+- **2026-06-20 — M9 shipped (PR #4, all plan tasks; autonomous run).** Champions page gained a **Best
+  build** panel on the "Currently Practicing" cards: per champ (dominant role), the completed items you
+  build most often in YOUR games, each with its own `N games · X% WR` caption. Suite **155** (Core 131,
+  App 24). Computed **on demand** from `timeline_json` — **no migration**.
+  - **Build math is PURE + unit-tested** (no DB/network): `BuildExtractor.CompletedItemsPurchased`
+    (flatten frames→events, `ITEM_PURCHASED` for my pid, keep ids in the completed-set, first-purchase
+    order, deduped) + `BuildExtractor.MyParticipantId` + `BuildAnalyzer.Analyze` (per-item games/wins/
+    winRate, order Games↓ then WinRate↓ then ItemId↑, topN=6). App-layer `ChampPoolViewModel.BuildFor`
+    does the I/O (load each match's timeline, resolve me, extract, aggregate, map ids→names).
+  - **"Me" resolved from `TimelineMetadata.Participants`** (ordered PUUID list, index+1 = participantId;
+    guaranteed present) with the new `TimelineInfo.Participants` as fallback. puuid source =
+    `_db.GetMeta("puuid")` (same as `DeepDiveViewModel`).
+  - **Item metadata = Data Dragon item.json** fetched in `DataDragonClient.EnsureLoadedAsync` (disk-cached
+    per version, mirrors champion.json; wrapped in its OWN try/catch so an item.json failure can't break
+    champion names). `ItemCatalogParser.Parse` is pure + tested. Predicate validated 16.12.1 (706→115).
+    `HasItemData=false` (offline, no cache) → panel shows "item data unavailable"; `<3 games` → "not
+    enough games". Names only — NO recommended-build/external/gold-valuation data.
+  - **GOTCHA (cost a silent-invisible-panel bug, caught by the screenshot gate, fix `e937c27`):**
+    `ChampCardViewModel.BestBuild` is set on a background thread AFTER first render, so it MUST be an
+    `[ObservableProperty]` on an `ObservableObject` — a plain `{get;set;}` never fires INPC and the
+    `NullToCollapsed` binding leaves the panel permanently collapsed. Compiles + unit-tests pass either
+    way; only the screenshot reveals it. (App-layer `BuildFor` integration is still untested — Core
+    coverage offsets; add an async-VM test when the App harness supports it.)
+  - **Demo seeder:** Ahri games now `AddBack(22, {6655,3157,3089|6655,3157})` (Luden's/Zhonya's in all,
+    Rabadon's in every other game → non-constant WR column). Player puuid `"ME"` sits at
+    `Metadata.Participants[2]` (pid 3), matching the pid the purchases are emitted under. M8 recall
+    cadence untouched. `.m9shots` clones `.m8shots` (page=champions, default capture — panel is top-of-
+    page; no list-selection/tall variant). PNGs gitignored (`.m?shots/*.png`); script committed.
+  - **Number-under-every-verdict (item 18):** only gap was Session Health decay reasons — now
+    `deaths climbing (+1.8/game)` / `CS@10 falling (-9)` / `KDA falling (-1.6)` (thresholds/severity
+    unchanged). Audit table + **no-composite-score** (item 19) in
+    `docs/superpowers/specs/2026-06-20-riftreview-verdict-audit.md` + ROADMAP **## Non-goals**.
+- **2026-06-20 — M9 planned (autonomous run).** Plan:
+  `docs/superpowers/plans/2026-06-20-riftreview-m9.md`. Owner decisions: (1) **fetch Data Dragon
+  item.json** — Riot's OWN static dict (same source as champion names), NOT a 3rd-party build
+  aggregator, so it honors data-honest/local-only. Supplies item **names** + the **completed-item
+  filter** only; the build win-rate signal is **100% own games**. (2) **Placement = per-champ aggregate
+  on the Champions page**, MVP rendered on the **"Currently Practicing"** cards (≤3 champs → bounded
+  timeline I/O, async off-UI-thread). (3) **Item 20 (timeline mini-score) DEFERRED** to a later
+  milestone. (4) Item 16 (external recommended-build) stays a documented **non-goal**.
+  - **Build source = ITEM_PURCHASED stream only** (no final-inventory data is persisted —
+    `ParticipantDto` has no `item0..6`; `match_detail` is opaque JSON). Computed **on demand** from
+    `timeline_json` → **no schema migration** (M7/M8 pattern).
+  - **Completed-item predicate** (web-validated against live item.json 16.12.1, 706 items → **115**
+    kept; STRUCTURAL not version-pinned): `idStr.Length ≤ 4 && maps["11"]==true && gold.total ≥ 2000 &&
+    !tags∋(Consumable|Trinket|Boots) && (into absent/empty)`. **Do NOT gate on `gold.purchasable`** —
+    transform results (Muramana/Seraph's/Fimbulwinter) are `purchasable:false`; their precursor is the
+    terminal ≥2000 item we want. Transform items appear in the purchase stream as their **precursor id**
+    (e.g. "Manamune") — shown as-purchased by design (honest: sole source is what was bought).
+  - **`info.participants` modeled on `TimelineDto`** (additive/nullable) to resolve "me" (puuid →
+    participantId) from the timeline alone, avoiding a `match_json` load per game. Fallback =
+    `MatchExtractor.Summarize` idiom if absent.
+  - **Number-under-every-verdict audit:** the codebase is already number-backed everywhere (Trends,
+    Matchups, Swing, Vision) EXCEPT Session Health **decay reasons** ("deaths climbing"/"CS@10
+    falling"/"KDA falling") — the only fix. Deltas already exist on `PlaySession`; M9 appends them to the
+    reason strings. Audit table + **no-composite-score** non-goal enshrined in
+    `docs/superpowers/specs/2026-06-20-riftreview-verdict-audit.md` + a ROADMAP **Non-goals** section.
+  - **Demo seeder** must emit completed-item `ITEM_PURCHASED` events for a practicing champ (≥3 games,
+    real ids e.g. 6655/3157/3089, one varied for non-constant WR) or the build panel renders empty —
+    same class of gotcha as M8's synthetic recalls. `.m9shots` clones `.m8shots` (page=champions; build
+    panel is top-of-page → default capture, no list-selection/tall variant).
 - **2026-06-20 — M8 shipped (PR #3, all plan tasks + the risk-gated chart band).** Deep-dive gained a
   **"Swing & causality"** card at the TOP (above Vision, so PrintWindow captures it). Suite **133**
   (Core 109 incl. 7 new causality tests, App 24). Computed **on demand** from `timeline_json` — **no
