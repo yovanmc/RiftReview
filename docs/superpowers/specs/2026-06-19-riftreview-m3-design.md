@@ -60,7 +60,7 @@ The champ picker lists the owner's champs with **≥ 5 ranked games** (avoids on
 A `PanelBgBrush` surface, black-glass + Hextech Gold theme, consistent with M1/M2:
 
 - **Header:** gold "Matchups" title + the **champ selector** (chips or a selector, mirroring the Trends champ chips), and the page-level **min-games filter** control.
-- **Left column (~40%):** the **opponent list** — one compact row per opponent faced on the selected champ: opponent name + colored win% + games. Sorted games desc; thin rows muted. Selecting an opponent populates the detail pane (the first/most-faced opponent is selected by default).
+- **Left column (~40%):** the **opponent list** — one compact row per opponent faced on the selected champ: opponent name + colored win% + games. Sorted games desc; thin rows muted. Selecting an opponent populates the detail pane (the first/most-faced opponent is selected by default). The **selected row is indicated by a lighter-than-panel surface** (the established `CardBgBrush`, exactly as the Review and Champions lists already mark selection) — **not** a gold/accent fill, so it doesn't collide with gold being the title/accent color.
 - **Right column (~60%):** the **detail pane** for the selected matchup:
   - Heading: "{champ} vs {opponent}" + record (e.g. "2–6 · 25% win") with a one-word favorability read.
   - **Metric tiles:** Gold@15 Δ, CS@10, Deaths, KDA, Pre-15 deaths (the laning+combat set, win% shown in the heading).
