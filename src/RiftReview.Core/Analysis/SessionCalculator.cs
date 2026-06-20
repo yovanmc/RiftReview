@@ -75,9 +75,9 @@ public static class SessionCalculator
         var reasons = new List<string>();
         if (endLoss >= 2) reasons.Add($"{endLoss}-loss skid to close");
         else if (longest >= LongStreakCaution) reasons.Add($"{longest}-loss skid earlier");
-        if (deathsDecay) reasons.Add("deaths climbing");
-        if (csDecay)     reasons.Add("CS@10 falling");
-        if (kdaDecay)    reasons.Add("KDA falling");
+        if (deathsDecay) reasons.Add($"deaths climbing (+{deathsDelta!.Value:0.0}/game)");
+        if (csDecay)     reasons.Add($"CS@10 falling (-{cs10Delta!.Value:0})");
+        if (kdaDecay)    reasons.Add($"KDA falling (-{kdaDelta!.Value:0.0})");
         if (n >= CautionWinRateMinGames && wr < CautionWinRate) reasons.Add($"{wins}/{n} in this session");
         if (reasons.Count == 0) reasons.Add(endWin >= 3 ? $"{endWin}-win heater" : "no tilt signals");
 
