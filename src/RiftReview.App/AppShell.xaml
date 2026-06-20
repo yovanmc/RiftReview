@@ -14,7 +14,37 @@
                  WindowStartupLocation="CenterScreen">
 
     <Grid>
-        <ui:NavigationView x:Name="RootNavigation"
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Tilt banner: collapses to zero height when not on tilt; spans the top. -->
+        <Border x:Name="TiltBanner" Grid.Row="0"
+                Padding="16,10" Margin="0"
+                Visibility="Collapsed"
+                BorderThickness="0,0,0,1"
+                BorderBrush="{StaticResource HairlineBrush}">
+            <Border.Resources>
+                <SolidColorBrush x:Key="TiltTintBrush"    Color="#33E24A4A"/>
+                <SolidColorBrush x:Key="CautionTintBrush" Color="#33C8AA6E"/>
+            </Border.Resources>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock x:Name="TiltBannerText" Grid.Column="0"
+                           VerticalAlignment="Center"
+                           Foreground="{StaticResource TextPrimaryBrush}"
+                           FontSize="13" TextWrapping="Wrap"/>
+                <TextBlock Grid.Column="1" Text="Open Session Health ›"
+                           VerticalAlignment="Center" Margin="16,0,0,0"
+                           Foreground="{StaticResource AccentBrush}" FontSize="12"/>
+            </Grid>
+        </Border>
+
+        <ui:NavigationView x:Name="RootNavigation" Grid.Row="1"
                            PaneDisplayMode="LeftFluent"
                            IsPaneOpen="False">
 
