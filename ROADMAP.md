@@ -31,11 +31,30 @@ Repo: github.com/yovanmc/RiftReview · Specs: `docs/superpowers/specs/` · Plans
 | 4 | Session Health | ✅ Merged | `docs/superpowers/plans/2026-06-19-riftreview-m4.md` | — | sessions + loss-streak/decay tilt guard; cross-page banner (singleton VM) |
 | 5 | Climb | ✅ Merged | `docs/superpowers/plans/2026-06-19-riftreview-m5.md` | — | current rank + ranked streaks + net-LP-per-snapshot segments; RankLadder |
 | 6 | You-vs-rank on graphs | ✅ Merged | `docs/superpowers/plans/2026-06-20-riftreview-m6.md` | #1 | rank baseline on Trends sparklines + deep-dive CS-pace chart; Rank⇄Own toggle + per-tier selector + signed delta badges + provenance; sparse never-fabricate seed table |
-| 7 | Vision + objectives | [ ] Not started | — | — | wards placed/cleared + vision-score proxy + objective participation from timeline events already fetched (items 10–12); confirm timeline ward/objective events are stored first |
+| 7 | Vision + objectives | 📝 Plan ready | `docs/superpowers/plans/2026-06-20-riftreview-m7.md` | — | wards placed/cleared + vision-score proxy + objective participation; deep-dive section, on-demand from stored timeline blob (NO schema migration). **Gate cleared:** ward/objective events ARE persisted (raw `timeline_json` blob, re-parseable). |
 | 8 | Timeline causality | [ ] Not started | — | — | "where the game turned" swing marker + game-state-at-death context + back-timing/item-spike lag (items 13–15) |
 | 9 | Build analysis + discipline | [ ] Not started | — | — | own-best-build per champ (item 17 only — NO external build data) + number-under-every-verdict audit + no-composite-score non-goal + optional timeline mini-score (items 16–20) |
 
 ## Decision log & gotchas
+- **2026-06-20 — M7 planned (gate cleared).** Recon confirmed match-v5 ward/objective
+  events ARE persisted: the **full raw timeline JSON** is stored in `match_detail.timeline_json`
+  since M1 and is immutably re-parseable (proven by `DerivedMetricsBackfill`). The current
+  `EventDto` only deserialized `Type/Timestamp/KillerId/VictimId`; M7 extends it (nullable
+  fields) + adds `TimelineExtractor.BuildVisionObjectives`. **No schema migration** — metrics
+  computed on demand from the blob in the deep-dive (like death markers).
+  - **Riot match-v5 timeline event schema (web-verified, cited):** `WARD_PLACED.creatorId`
+    (placer — NOT participantId) + `wardType`; `WARD_KILL.killerId` + `wardType`;
+    `ELITE_MONSTER_KILL` has `killerId`/`killerTeamId`/`monsterType`(DRAGON/RIFTHERALD/
+    BARON_NASHOR/HORDE)/`monsterSubType`(dragons)/`assistingParticipantIds`;
+    `BUILDING_KILL` has `killerId`(may be 0)/`teamId`(=team that LOST the building)/
+    `buildingType`/`towerType`/`laneType`/`assistingParticipantIds` and **no `killerTeamId`**.
+    Team invariant 1-5→100, 6-10→200. Treat all fields as optional; enum values open (never throw).
+  - **Vision "proxy" is intentional & honest:** Riot's real `visionScore` is a *match*-participant
+    field, NOT in the timeline — so a timeline-only vision composite must be a labeled estimate.
+    Ward COUNTS (placed/cleared/control) are exact; only the composite is a proxy. Proxy =
+    placed + cleared + control (control counts twice); UI labels it "not Riot's Vision Score" and
+    shows exact counts alongside. Objective participation (my takedowns ÷ my team's total) is exact.
+  - Added `MyTeamId` to `MatchSummary` (from `me.TeamId`) to determine "my team" for objective crediting.
 - **2026-06-20 — Post-v1 expansion scoped from competitive research** (op.gg/u.gg/lolalytics/
   Mobalytics/Porofessor; two deep-research passes). 20 actionable items → milestones M6–M9 by
   cluster. Headline owner ask: "you vs your rank" stat comparisons rendered ON the graphs.
