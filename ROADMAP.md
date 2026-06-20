@@ -9,7 +9,7 @@
 Single-user, **local-only, post-game, data-honest** League of Legends self-coach.
 C#/.NET 10 WPF (+ WPF-UI), `RiftReview.Core` (no-WPF, testable) + `RiftReview.App`.
 SQLite (schema v3). Riot API only. Black-glass + Hextech Gold (#C8AA6E) theme.
-Repo: github.com/yovanmc/RiftReview · Specs: `docs/superpowers/specs/` · Plans: `docs/superpowers/plans/`
+Repo: github.com/yovanmc/RiftReview · Specs: `docs/superpowers/specs/` · Plans: `docs/superpowers/plans/` · Research: `docs/research/`
 
 ## Conventions
 - Build: `dotnet build RiftReview.slnx -v minimal` · Test: `dotnet test RiftReview.slnx`
@@ -39,6 +39,8 @@ Repo: github.com/yovanmc/RiftReview · Specs: `docs/superpowers/specs/` · Plans
 - **2026-06-20 — Post-v1 expansion scoped from competitive research** (op.gg/u.gg/lolalytics/
   Mobalytics/Porofessor; two deep-research passes). 20 actionable items → milestones M6–M9 by
   cluster. Headline owner ask: "you vs your rank" stat comparisons rendered ON the graphs.
+  **Full learnings + cited findings + 20-item list + non-goals dossier:**
+  `docs/research/2026-06-20-league-analytics-competitive-research.md`.
 - **M6 owner decisions:** (1) rank baseline data = **HYBRID** — embedded patch-tagged,
   source-labeled, owner-editable per-rank seed table (primary) + own-trailing-average toggle
   (rigorous fallback). (2) Build analysis = **item 17 only** (own-best-build); item 16 (external
