@@ -32,10 +32,31 @@ Repo: github.com/yovanmc/RiftReview · Specs: `docs/superpowers/specs/` · Plans
 | 5 | Climb | ✅ Merged | `docs/superpowers/plans/2026-06-19-riftreview-m5.md` | — | current rank + ranked streaks + net-LP-per-snapshot segments; RankLadder |
 | 6 | You-vs-rank on graphs | ✅ Merged | `docs/superpowers/plans/2026-06-20-riftreview-m6.md` | #1 | rank baseline on Trends sparklines + deep-dive CS-pace chart; Rank⇄Own toggle + per-tier selector + signed delta badges + provenance; sparse never-fabricate seed table |
 | 7 | Vision + objectives | ✅ Merged | `docs/superpowers/plans/2026-06-20-riftreview-m7.md` | #2 | deep-dive Vision & objectives section: exact wards placed/cleared/control + labeled vision proxy + objective participation (dragons/herald/baron/towers/inhibitors, Void Grubs if present); on-demand from stored timeline blob (NO schema migration). Suite 126. |
-| 8 | Timeline causality | 📝 Plan ready | `docs/superpowers/plans/2026-06-20-riftreview-m8.md` | — | "where the game turned" swing marker + game-state-at-death context + back-timing/item-spike lag (items 13–15) |
+| 8 | Timeline causality | ✅ Merged | `docs/superpowers/plans/2026-06-20-riftreview-m8.md` | #3 | "where the game turned" team-gold-diff swing marker (+ translucent band on chart) + game-state-at-death context + back-timing cadence (recall clusters; NO external item data) + turning-point lag; on-demand from timeline blob (NO migration); EventDto +2 fields. Suite 133. |
 | 9 | Build analysis + discipline | [ ] Not started | — | — | own-best-build per champ (item 17 only — NO external build data) + number-under-every-verdict audit + no-composite-score non-goal + optional timeline mini-score (items 16–20) |
 
 ## Decision log & gotchas
+- **2026-06-20 — M8 shipped (PR #3, all plan tasks + the risk-gated chart band).** Deep-dive gained a
+  **"Swing & causality"** card at the TOP (above Vision, so PrintWindow captures it). Suite **133**
+  (Core 109 incl. 7 new causality tests, App 24). Computed **on demand** from `timeline_json` — **no
+  migration**. `EventDto` +2 nullable fields (`ParticipantId`, `ItemId`) appended at end (additive).
+  - `TimelineExtractor.BuildCausality(tl, myParticipantId)` → `CausalityResult(SwingPoint?, Deaths,
+    Backs, TurningPointLagMinutes?)`. New private `TeamGoldDiffSeries` mirrors `BuildDeepDive`'s
+    team-gold formula + skip-rule so the swing band aligns with the displayed chart; **`BuildDeepDive`
+    left untouched** (exact-value tested).
+  - **Swing tie-break = earliest.** On a perfectly LINEAR gold curve every 3-min window ties, so the
+    swing lands at 0:00→3:00 — which is exactly what the `--seed-demo` data does (its gold curve is
+    linear). Real non-linear games land it on the steepest section (proven by the unit fixture: swing
+    at min 5→8, Δ +2000). Did NOT change the demo curve (it feeds M6/M7 baselines/visuals).
+  - **Back-timing has NO item metadata** by design (honors M6 drop-external-build-data): a back = an
+    `ITEM_PURCHASED` cluster (>10s gap → new back); we report minute + item count only. Demo seeder
+    now emits synthetic recalls (player pid=3; backs at min 2/8/14/20) or it would render empty.
+  - `LineChart` gained nullable `SwingStartMinute`/`SwingEndMinute` DPs (band drawn behind series via
+    the existing `ChartScaler.X`; no-op when null). Bound on the gold-diff chart only.
+  - **`.m8shots`** harness clones `.m7shots` (review page, UIAutomation select-first-match,
+    DisableHWAcceleration set/restore, `.m2shots/Capturer/out/Capturer.exe`). Gold-diff chart sits
+    BELOW the default-window capture fold — use the **tall variant** (`run_capture_tall.ps1`,
+    `TransformPattern.Resize` to ~1120×1500) to frame the chart/band. PNGs gitignored; scripts committed.
 - **2026-06-20 — M8 planned (autonomous run).** Plan:
   `docs/superpowers/plans/2026-06-20-riftreview-m8.md`. Three timeline-only items, **no external data**,
   **no schema migration** (on-demand from `timeline_json`, M7 pattern).
