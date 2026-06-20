@@ -193,6 +193,37 @@ public static class DemoSeeder
             if (fm < frames)
                 frameList[fm].Events.Add(new EventDto("CHAMPION_KILL", 60000L * fm, 8, 3));
         }
+
+        // M7: vision + objective events (attributed to ME = pid 3, team 100) so the deep-dive
+        // Vision & objectives section renders with realistic demo data. Minutes <= 24 so they
+        // survive shorter demo games; the guard drops any that exceed this game's length.
+        void AddEv(int minute, EventDto ev) { if (minute < frames) frameList[minute].Events.Add(ev); }
+
+        foreach (var m in new[] { 2, 5, 9, 14, 20 })
+            AddEv(m, new EventDto("WARD_PLACED", 60000L * m, null, null,
+                CreatorId: 3, WardType: (m == 9 || m == 14) ? "CONTROL_WARD" : "YELLOW_TRINKET"));
+        foreach (var m in new[] { 7, 16, 24 })
+            AddEv(m, new EventDto("WARD_KILL", 60000L * m, KillerId: 3, VictimId: null, WardType: "SIGHT_WARD"));
+
+        AddEv(8,  new EventDto("ELITE_MONSTER_KILL", 60000L * 8,  KillerId: 3, VictimId: null,
+            KillerTeamId: 100, MonsterType: "DRAGON", MonsterSubType: "FIRE_DRAGON",
+            AssistingParticipantIds: new List<int> { 1, 2 }));
+        AddEv(19, new EventDto("ELITE_MONSTER_KILL", 60000L * 19, KillerId: 2, VictimId: null,
+            KillerTeamId: 100, MonsterType: "DRAGON", MonsterSubType: "WATER_DRAGON",
+            AssistingParticipantIds: new List<int> { 3, 4 }));
+        AddEv(11, new EventDto("ELITE_MONSTER_KILL", 60000L * 11, KillerId: 1, VictimId: null,
+            KillerTeamId: 100, MonsterType: "RIFTHERALD", AssistingParticipantIds: new List<int> { 3 }));
+
+        AddEv(13, new EventDto("BUILDING_KILL", 60000L * 13, KillerId: 3, VictimId: null,
+            TeamId: 200, BuildingType: "TOWER_BUILDING", TowerType: "OUTER_TURRET", LaneType: "MID_LANE"));
+        AddEv(17, new EventDto("BUILDING_KILL", 60000L * 17, KillerId: 6, VictimId: null,
+            TeamId: 200, BuildingType: "TOWER_BUILDING", TowerType: "OUTER_TURRET", LaneType: "TOP_LANE"));
+        AddEv(22, new EventDto("BUILDING_KILL", 60000L * 22, KillerId: 3, VictimId: null,
+            TeamId: 200, BuildingType: "TOWER_BUILDING", TowerType: "INNER_TURRET", LaneType: "MID_LANE",
+            AssistingParticipantIds: new List<int> { 2 }));
+        AddEv(15, new EventDto("BUILDING_KILL", 60000L * 15, KillerId: 8, VictimId: null,
+            TeamId: 100, BuildingType: "TOWER_BUILDING", TowerType: "OUTER_TURRET", LaneType: "MID_LANE"));
+
         var tl = new TimelineDto(
             new TimelineMetadata(matchId, parts.Select(p => p.Puuid).ToList()),
             new TimelineInfo(60000, frameList));
