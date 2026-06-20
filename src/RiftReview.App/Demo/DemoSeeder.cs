@@ -46,7 +46,13 @@ public static class DemoSeeder
         {
             int?  overrideOpp = i < 24 ? ahriOppPlan[i] : null;
             bool? overrideWin = i < 24 ? ahriWinPlan[i] : null;
-            var (match, tl) = BuildGame(i, baseCreation - i * 86_400_000L, plan[i], overrideOpp, overrideWin);
+            // For Ahri games: all get 6655 (Luden's Echo) + 3157 (Zhonya's); every other game also
+            // gets 3089 (Rabadon's) so per-item win rates differ and the WR column is non-constant.
+            int[]? completedItems = i < 24
+                ? (i % 2 == 0 ? new[] { 6655, 3157, 3089 } : new[] { 6655, 3157 })
+                : null;
+            var (match, tl) = BuildGame(i, baseCreation - i * 86_400_000L, plan[i], overrideOpp, overrideWin,
+                overrideCompletedItems: completedItems);
             var s = MatchExtractor.Summarize(match, "ME");
             var cs10 = TimelineExtractor.CsAtMinute(tl, s.MyParticipantId, 10);
             var g15 = TimelineExtractor.GoldDiffAtMinute(tl, s.MyParticipantId, s.OpponentParticipantId, 15);
@@ -124,7 +130,8 @@ public static class DemoSeeder
 
     private static (MatchDto, TimelineDto) BuildGame(int i, long gameCreation, int myChamp,
         int? overrideOppChamp = null, bool? overrideWin = null,
-        int? overrideDeaths = null, double? overrideCsRate = null, string? overrideMatchId = null)
+        int? overrideDeaths = null, double? overrideCsRate = null, string? overrideMatchId = null,
+        int[]? overrideCompletedItems = null)
     {
         bool win = overrideWin ?? (i % 3) != 0;          // mix of wins/losses: 0=loss,1=win,2=win,3=loss,...
         int oppChamp = overrideOppChamp ?? MidChamps[(i + 3) % MidChamps.Length];
@@ -248,6 +255,11 @@ public static class DemoSeeder
         AddBack(14, new[] { 3285, 3020 });
         // Recall at ~20 min: third back — Shadowflame + amp tome (2 purchases)
         AddBack(20, new[] { 4645, 1052 });
+        // Recall at ~22 min: completed legendary items so the best-build panel renders in --seed-demo.
+        // 6655 = Luden's Echo, 3157 = Zhonya's Hourglass, 3089 = Rabadon's Deathcap (optional, varies per game).
+        // All pass the completed-item predicate (SR-only, gold≥2000, no into[], not Boots/Consumable/Trinket).
+        if (overrideCompletedItems is { Length: > 0 })
+            AddBack(22, overrideCompletedItems);
 
         var tl = new TimelineDto(
             new TimelineMetadata(matchId, parts.Select(p => p.Puuid).ToList()),

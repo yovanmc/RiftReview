@@ -10,6 +10,8 @@
             TrueBrush="{StaticResource WinBrush}"
             FalseBrush="{StaticResource TextMutedBrush}"/>
         <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+        <conv:NullToCollapsedConverter x:Key="NullToCollapsed"/>
+        <conv:InverseBoolToVisibilityConverter x:Key="InverseBoolToVis"/>
     </UserControl.Resources>
 
     <Grid Background="{StaticResource PanelBgBrush}">
@@ -97,6 +99,48 @@
                                             <TextBlock Text="{Binding Deaths}"
                                                        Foreground="{StaticResource TextMutedBrush}"
                                                        FontSize="11"/>
+                                        </StackPanel>
+
+                                        <!-- Best build panel (hidden until BestBuild is set) -->
+                                        <StackPanel Margin="0,8,0,0"
+                                                    Visibility="{Binding BestBuild, Converter={StaticResource NullToCollapsed}}">
+                                            <TextBlock Text="{Binding BestBuild.Summary}"
+                                                       Foreground="{StaticResource AccentBrush}"
+                                                       FontSize="11"
+                                                       FontWeight="SemiBold"
+                                                       Margin="0,0,0,4"/>
+
+                                            <!-- Has-build state: item list -->
+                                            <ItemsControl ItemsSource="{Binding BestBuild.Items}"
+                                                          Visibility="{Binding BestBuild.HasBuild, Converter={StaticResource BoolToVis}}">
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <Grid Margin="0,2,0,0">
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="*"/>
+                                                                <ColumnDefinition Width="Auto"/>
+                                                            </Grid.ColumnDefinitions>
+                                                            <TextBlock Grid.Column="0"
+                                                                       Text="{Binding ItemName}"
+                                                                       Foreground="{StaticResource TextPrimaryBrush}"
+                                                                       FontSize="11"
+                                                                       TextTrimming="CharacterEllipsis"/>
+                                                            <TextBlock Grid.Column="1"
+                                                                       Text="{Binding Caption}"
+                                                                       Foreground="{StaticResource TextMutedBrush}"
+                                                                       FontSize="11"
+                                                                       Margin="8,0,0,0"/>
+                                                        </Grid>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+
+                                            <!-- Empty/insufficient/offline state -->
+                                            <TextBlock Text="{Binding BestBuild.EmptyMessage}"
+                                                       Foreground="{StaticResource TextMutedBrush}"
+                                                       FontSize="11"
+                                                       FontStyle="Italic"
+                                                       Visibility="{Binding BestBuild.HasBuild, Converter={StaticResource InverseBoolToVis}}"/>
                                         </StackPanel>
                                     </StackPanel>
                                 </Border>
