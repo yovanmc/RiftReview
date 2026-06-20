@@ -26,9 +26,27 @@ public static class DemoSeeder
             103,103,103,103,103,103,103,103,103,103,103,103,
             157,157,157,157,157,157,157,157, 7, 238, 99, 142
         };
+
+        // Varied lane opponents for Ahri (i=0..23) so the Matchups page renders richly.
+        // 4 distinct opponents with different game counts and win rates:
+        //   vs 238 (Zed):     i=0..7   → 2W/6L (25%) — unfavorable, renders red
+        //   vs 134 (Syndra):  i=8..14  → 5W/2L (71%) — favorable, renders green
+        //   vs 61  (Orianna): i=15..20 → 3W/3L (50%) — neutral
+        //   vs 99  (Lux):     i=21..23 → 1W/2L (33%) — thin sample, muted
+        int[] ahriOppPlan = { 238,238,238,238,238,238,238,238,
+                               134,134,134,134,134,134,134,
+                                61, 61, 61, 61, 61, 61,
+                                99, 99, 99 };
+        bool[] ahriWinPlan = { false,false,true ,false,false,true ,false,false,  // vs Zed:    2W 6L
+                                true ,true ,false,true ,true ,true ,false,        // vs Syndra: 5W 2L
+                                true ,false,true ,false,true ,false,             // vs Ori:    3W 3L
+                                false,true ,false };                              // vs Lux:    1W 2L
+
         for (int i = 0; i < plan.Length; i++)
         {
-            var (match, tl) = BuildGame(i, baseCreation - i * 86_400_000L, plan[i]);
+            int?  overrideOpp = i < 24 ? ahriOppPlan[i] : null;
+            bool? overrideWin = i < 24 ? ahriWinPlan[i] : null;
+            var (match, tl) = BuildGame(i, baseCreation - i * 86_400_000L, plan[i], overrideOpp, overrideWin);
             var s = MatchExtractor.Summarize(match, "ME");
             var cs10 = TimelineExtractor.CsAtMinute(tl, s.MyParticipantId, 10);
             var g15 = TimelineExtractor.GoldDiffAtMinute(tl, s.MyParticipantId, s.OpponentParticipantId, 15);
@@ -40,10 +58,11 @@ public static class DemoSeeder
         }
     }
 
-    private static (MatchDto, TimelineDto) BuildGame(int i, long gameCreation, int myChamp)
+    private static (MatchDto, TimelineDto) BuildGame(int i, long gameCreation, int myChamp,
+        int? overrideOppChamp = null, bool? overrideWin = null)
     {
-        bool win = (i % 3) != 0;                         // mix of wins/losses: 0=loss,1=win,2=win,3=loss,...
-        int oppChamp = MidChamps[(i + 3) % MidChamps.Length];
+        bool win = overrideWin ?? (i % 3) != 0;          // mix of wins/losses: 0=loss,1=win,2=win,3=loss,...
+        int oppChamp = overrideOppChamp ?? MidChamps[(i + 3) % MidChamps.Length];
         int durationS = 1500 + (i % 5) * 150;
         int frames = durationS / 60 + 1;
         int deathCount = 1 + (i % 3);
