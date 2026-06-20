@@ -49,6 +49,10 @@ public sealed partial class DeepDiveViewModel : ObservableObject
     [ObservableProperty] private IReadOnlyList<ChartSeries> _goldSeries = Array.Empty<ChartSeries>();
     [ObservableProperty] private IReadOnlyList<ChartSeries> _csSeries   = Array.Empty<ChartSeries>();
 
+    // Vision & objectives
+    [ObservableProperty] private VisionStats _vision = new(0, 0, 0, 0);
+    [ObservableProperty] private IReadOnlyList<ObjectiveRowVm> _objectives = Array.Empty<ObjectiveRowVm>();
+
     public void Load(MatchRow selected)
     {
         var puuid = _db.GetMeta("puuid");
@@ -101,6 +105,14 @@ public sealed partial class DeepDiveViewModel : ObservableObject
                 csSeries.Add(new ChartSeries(rankPts, RankBaselineBrush, Dashed: true));
             }
             CsSeries = csSeries;
+
+            var vo = TimelineExtractor.BuildVisionObjectives(tl, summary.MyParticipantId, summary.MyTeamId);
+            Vision = vo.Vision;
+            Objectives = vo.Objectives.Select(o => new ObjectiveRowVm(
+                o.Label,
+                o.TeamTotal == 0 ? "none taken" : $"{o.Participated} / {o.TeamTotal}",
+                o.TeamTotal == 0 ? "" : ((double)o.Participated / o.TeamTotal).ToString("P0"))).ToList();
+
             HasData = true;
         }
         catch (Exception ex) when (ex is JsonException or InvalidOperationException)
@@ -144,5 +156,9 @@ public sealed partial class DeepDiveViewModel : ObservableObject
         DeathMinutes = Array.Empty<double>();
         GoldSeries = Array.Empty<ChartSeries>();
         CsSeries   = Array.Empty<ChartSeries>();
+        Vision = new(0, 0, 0, 0);
+        Objectives = Array.Empty<ObjectiveRowVm>();
     }
 }
+
+public sealed record ObjectiveRowVm(string Label, string Detail, string Percent);
