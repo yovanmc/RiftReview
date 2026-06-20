@@ -98,6 +98,8 @@ public partial class App : Application
                 s.AddTransient<ViewModels.SettingsViewModel>();
                 s.AddTransient<SettingsView>();
                 s.AddTransient<SessionHealthView>();
+                s.AddTransient<ViewModels.ClimbViewModel>();
+                s.AddTransient<ClimbView>();
 
                 // AppShell is the top-level FluentWindow shell
                 s.AddSingleton<AppShell>();

@@ -40,6 +40,7 @@ public partial class AppShell : FluentWindow
             "trends"    => typeof(TrendsView),
             "matchups"  => typeof(MatchupsView),
             "sessions"  => typeof(SessionHealthView),
+            "climb"     => typeof(ClimbView),
             "settings"  => typeof(SettingsView),
             _ => typeof(ReviewView),
         };

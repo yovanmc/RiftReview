@@ -87,6 +87,13 @@
                         <ui:SymbolIcon Symbol="HeartPulse24"/>
                     </ui:NavigationViewItem.Icon>
                 </ui:NavigationViewItem>
+
+                <ui:NavigationViewItem Content="Climb"
+                                       TargetPageType="{x:Type views:ClimbView}">
+                    <ui:NavigationViewItem.Icon>
+                        <ui:SymbolIcon Symbol="ArrowTrendingLines24"/>
+                    </ui:NavigationViewItem.Icon>
+                </ui:NavigationViewItem>
             </ui:NavigationView.MenuItems>
 
             <ui:NavigationView.FooterMenuItems>
