@@ -44,13 +44,16 @@ public sealed partial class MainViewModel : ObservableObject
     [ObservableProperty] private bool _isBusy;
     [ObservableProperty] private string _statusMessage = "Press Sync to pull your recent matches.";
     [ObservableProperty] private bool _isError;
+    private bool _namesReady;
 
     public bool IsEmpty => Matches.Count == 0;
 
     // NOTE: the View calls InitializeAsync() from its Loaded handler so Data Dragon names load and the list refreshes.
     public async Task InitializeAsync()
     {
-        try { await _ddragon.EnsureLoadedAsync(); } catch { /* names fall back to placeholders offline */ }
+        if (_namesReady) return;   // names already loaded; don't Reload (would clobber a ShowMatch deep-dive)
+        try { await _ddragon.EnsureLoadedAsync(); _namesReady = true; }
+        catch { /* offline — leave _namesReady false so we retry on the next load */ }
         Reload();
         SetIdleStatus();
     }
@@ -85,6 +88,18 @@ public sealed partial class MainViewModel : ObservableObject
     partial void OnSelectedMatchChanged(MatchListItemViewModel? value)
     {
         if (value is not null) DeepDive.Load(value.Row);
+    }
+
+    // Open any stored game in the shared deep-dive. Used by the Matchups page to drill into a game.
+    // Works for games outside the recent-20 rail (DeepDive.Load fetches blobs by id); the rail simply
+    // won't highlight an off-list game.
+    public void ShowMatch(string matchId)
+    {
+        var row = _db.GetMatch(matchId);
+        if (row is null) return;
+        var inList = Matches.FirstOrDefault(m => m.MatchId == matchId);
+        if (inList is not null) { SelectedMatch = inList; }   // fires OnSelectedMatchChanged -> DeepDive.Load
+        else { SelectedMatch = null; DeepDive.Load(row); }
     }
 
     private void Reload()
