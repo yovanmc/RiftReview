@@ -41,6 +41,19 @@ public class TimelineExtractorVisionTests
         Assert.Equal(1, r.Vision.ControlWardsPlaced);
         Assert.Equal(4, r.Vision.VisionProxy);
     }
+
+    [Fact]
+    public void Objectives_credit_my_team_only_and_count_my_participation()
+    {
+        var r = TimelineExtractor.BuildVisionObjectives(VoTl(), myParticipantId: 3, myTeamId: 100);
+        ObjectiveParticipation O(string label) => r.Objectives.Single(o => o.Label == label);
+        Assert.Equal((2, 2), (O("Dragons").Participated, O("Dragons").TeamTotal));
+        Assert.Equal((1, 1), (O("Rift Herald").Participated, O("Rift Herald").TeamTotal));
+        Assert.Equal((0, 0), (O("Baron").Participated, O("Baron").TeamTotal));
+        Assert.Equal((1, 2), (O("Towers").Participated, O("Towers").TeamTotal));
+        Assert.Equal((1, 1), (O("Inhibitors").Participated, O("Inhibitors").TeamTotal));
+        Assert.DoesNotContain(r.Objectives, o => o.Label == "Void Grubs");
+    }
 }
 
 public class TimelineExtractorTests
