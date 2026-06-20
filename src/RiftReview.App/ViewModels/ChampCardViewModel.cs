@@ -1,9 +1,10 @@
 using System.Collections.Generic;
+using CommunityToolkit.Mvvm.ComponentModel;
 using RiftReview.Core.Analysis;
 
 namespace RiftReview.App.ViewModels;
 
-public sealed class ChampCardViewModel
+public sealed partial class ChampCardViewModel : ObservableObject
 {
     private readonly ChampStat _s;
     public ChampCardViewModel(ChampStat s, string name) { _s = s; ChampionName = name; }
@@ -29,5 +30,6 @@ public sealed class ChampCardViewModel
     public IReadOnlyList<int?> Trend => _s.TrendCs10;
 
     /// <summary>Set after construction by ChampPoolViewModel's async build-loading pass.</summary>
-    public BestBuildViewModel? BestBuild { get; set; }
+    [ObservableProperty]
+    private BestBuildViewModel? _bestBuild;
 }
