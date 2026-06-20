@@ -14,4 +14,7 @@
   <ItemGroup>
     <InternalsVisibleTo Include="RiftReview.Core.Tests" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Data/rank-baselines.json" />
+  </ItemGroup>
 </Project>

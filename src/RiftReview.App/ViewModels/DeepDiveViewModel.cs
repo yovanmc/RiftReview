@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Text.Json;
 using System.Windows.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -18,8 +19,9 @@ public sealed partial class DeepDiveViewModel : ObservableObject
     // Static frozen brushes — safe to create off-UI-thread (SolidColorBrush.Freeze() is thread-safe).
     private static readonly Brush LaneBrush     = Frozen(0xC8, 0xAA, 0x6E); // Hextech Gold (vs lane)
     private static readonly Brush TeamBrush     = Frozen(0x5A, 0xA9, 0xE6); // blue (vs team)
-    private static readonly Brush CsLineBrush   = Frozen(0xC8, 0xAA, 0x6E); // gold (your CS pace)
-    private static readonly Brush BaselineBrush = Frozen(0x8A, 0x8A, 0x8A); // gray dashed baseline
+    private static readonly Brush CsLineBrush      = Frozen(0xC8, 0xAA, 0x6E); // gold (your CS pace)
+    private static readonly Brush BaselineBrush    = Frozen(0x8A, 0x8A, 0x8A); // gray dashed — own-role trailing avg
+    private static readonly Brush RankBaselineBrush = Frozen(0x5A, 0xA9, 0xE6); // blue dashed — rank average
 
     private static Brush Frozen(byte r, byte g, byte b)
     {
@@ -72,17 +74,33 @@ public sealed partial class DeepDiveViewModel : ObservableObject
             var champ = _ddragon?.ChampionName(summary.MyChampionId) ?? $"Champ {summary.MyChampionId}";
             Header = $"{champ} · {summary.MyTeamPosition} · {(summary.Win ? "Win" : "Loss")} · {summary.Kills}/{summary.Deaths}/{summary.Assists}";
 
+            // Resolve rank CS/min baseline for the current match's role + tier.
+            var rankTable = RiftReview.Core.Data.RankBaselineLoader.Load();
+            var soloSnap = _db.GetLpSnapshots()
+                .Where(s => s.QueueType == "RANKED_SOLO_5x5")
+                .OrderByDescending(s => s.TakenUtc)
+                .FirstOrDefault();
+            double? rankCsPerMin = soloSnap == null ? null
+                : RiftReview.Core.Analysis.RankBaselineProvider.Resolve(
+                    rankTable, summary.MyTeamPosition, soloSnap.Tier, "csPerMin");
+
             // Assemble chart series for XAML binding.
             GoldSeries = new List<ChartSeries>
             {
                 new(dd.GoldDiffVsTeam, TeamBrush),
                 new(dd.GoldDiffVsLane, LaneBrush),  // lane drawn on top of team
             };
-            CsSeries = new List<ChartSeries>
+            var csSeries = new List<ChartSeries>
             {
                 new(dd.CsPerMinute, CsLineBrush),
                 new(csBaseline, BaselineBrush, Dashed: true),
             };
+            if (rankCsPerMin is double r)
+            {
+                var rankPts = dd.CsPerMinute.Select(p => new ChartPoint(p.Minute, r)).ToList();
+                csSeries.Add(new ChartSeries(rankPts, RankBaselineBrush, Dashed: true));
+            }
+            CsSeries = csSeries;
             HasData = true;
         }
         catch (Exception ex) when (ex is JsonException or InvalidOperationException)

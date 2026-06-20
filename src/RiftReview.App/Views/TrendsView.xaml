@@ -149,6 +149,22 @@
                                FontWeight="SemiBold"
                                Margin="0,0,0,8"/>
 
+                    <!-- Compare mode toggle + rank tier selector -->
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,8" VerticalAlignment="Center">
+                        <RadioButton Content="Rank" GroupName="CompareMode" IsChecked="{Binding IsRankMode, Mode=TwoWay}" Margin="0,0,8,0"/>
+                        <RadioButton Content="Own"  GroupName="CompareMode" IsChecked="{Binding IsOwnMode,  Mode=TwoWay}"/>
+                        <ComboBox ItemsSource="{Binding Tiers}" SelectedItem="{Binding CompareTier, Mode=TwoWay}"
+                                  Visibility="{Binding RankSelectorVisible, Converter={StaticResource BoolToVis}}"
+                                  Width="140" Margin="12,0,0,0"/>
+                    </StackPanel>
+
+                    <!-- Baseline provenance (always visible; BaselineProvenance is always set when data loads) -->
+                    <TextBlock Text="{Binding BaselineProvenance}"
+                               Foreground="{StaticResource TextMutedBrush}"
+                               FontSize="11"
+                               FontStyle="Italic"
+                               Margin="0,0,0,8"/>
+
                     <ListBox ItemsSource="{Binding Metrics}"
                              SelectedItem="{Binding SelectedMetric, Mode=TwoWay}"
                              Background="Transparent"
@@ -164,7 +180,7 @@
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
 
-                                    <!-- Left: DisplayName + Current -->
+                                    <!-- Left: DisplayName + Current + baseline delta -->
                                     <StackPanel Grid.Column="0" VerticalAlignment="Center">
                                         <TextBlock Text="{Binding DisplayName}"
                                                    Foreground="{StaticResource TextPrimaryBrush}"
@@ -173,11 +189,39 @@
                                         <TextBlock Text="{Binding Current}"
                                                    Foreground="{StaticResource TextMutedBrush}"
                                                    FontSize="11"/>
+                                        <!-- Delta vs baseline: visible only when HasBaseline -->
+                                        <StackPanel Orientation="Horizontal"
+                                                    Visibility="{Binding HasBaseline, Converter={StaticResource BoolToVis}}">
+                                            <TextBlock Text="{Binding DeltaVsBaseline}"
+                                                       FontSize="11"
+                                                       FontWeight="SemiBold"
+                                                       Margin="0,0,4,0">
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding BaselineIsGood}" Value="True">
+                                                                <Setter Property="Foreground" Value="{StaticResource WinBrush}"/>
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding BaselineIsBad}" Value="True">
+                                                                <Setter Property="Foreground" Value="{StaticResource LossBrush}"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
+                                            <TextBlock Text="{Binding BaselineLabel}"
+                                                       Foreground="{StaticResource TextMutedBrush}"
+                                                       FontSize="10"
+                                                       VerticalAlignment="Center"/>
+                                        </StackPanel>
                                     </StackPanel>
 
                                     <!-- Center: Sparkline -->
                                     <controls:Sparkline Grid.Column="1"
                                                         Values="{Binding Series}"
+                                                        Baseline="{Binding BaselineValue}"
+                                                        BaselineBrush="{StaticResource TextMutedBrush}"
                                                         Height="28"
                                                         Margin="8,0"/>
 
@@ -242,6 +286,8 @@
                                            VerticalAlignment="Center"/>
                             </DockPanel>
                             <controls:Sparkline Values="{Binding Series}"
+                                                Baseline="{Binding BaselineValue}"
+                                                BaselineBrush="{StaticResource TextMutedBrush}"
                                                 Height="120"/>
                         </StackPanel>
                     </Border>

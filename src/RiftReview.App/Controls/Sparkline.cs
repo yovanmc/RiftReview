@@ -28,6 +28,26 @@ public sealed class Sparkline : FrameworkElement
         set => SetValue(ValuesProperty, value);
     }
 
+    public static readonly DependencyProperty BaselineProperty = DependencyProperty.Register(
+        nameof(Baseline), typeof(double?), typeof(Sparkline),
+        new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender));
+
+    public double? Baseline
+    {
+        get => (double?)GetValue(BaselineProperty);
+        set => SetValue(BaselineProperty, value);
+    }
+
+    public static readonly DependencyProperty BaselineBrushProperty = DependencyProperty.Register(
+        nameof(BaselineBrush), typeof(Brush), typeof(Sparkline),
+        new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender));
+
+    public Brush? BaselineBrush
+    {
+        get => (Brush?)GetValue(BaselineBrushProperty);
+        set => SetValue(BaselineBrushProperty, value);
+    }
+
     private static readonly Pen GoldPen = MakePen();
     private static Pen MakePen()
     {
@@ -58,5 +78,16 @@ public sealed class Sparkline : FrameworkElement
         }
         geo.Freeze();
         dc.DrawGeometry(null, GoldPen, geo);
+
+        if (Baseline is double b && BaselineBrush is Brush bb)
+        {
+            double yb = h - ((b - min) / range) * h;
+            if (yb >= 0 && yb <= h) // only draw when the baseline falls within the rendered band
+            {
+                var pen = new Pen(bb, 1) { DashStyle = new DashStyle(new double[] { 3, 3 }, 0) };
+                pen.Freeze();
+                dc.DrawLine(pen, new Point(0, yb), new Point(w, yb));
+            }
+        }
     }
 }

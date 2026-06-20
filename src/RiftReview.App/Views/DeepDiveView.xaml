@@ -80,7 +80,7 @@
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
                     <TextBlock Grid.Row="0"
-                               Text="CS/min — gold = you, dashed = same-role baseline"
+                               Text="CS/min — gold = you, gray dashed = same-role avg, blue dashed = rank avg"
                                Foreground="{StaticResource TextMutedBrush}"
                                FontSize="11"
                                Margin="0,0,0,4"/>
