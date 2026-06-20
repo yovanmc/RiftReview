@@ -83,6 +83,7 @@ public partial class App : Application
                         sp.GetRequiredService<IHttpClientFactory>().CreateClient(),
                         Path.Combine(appData, "ddragon")));
 
+                s.AddSingleton<RiftReview.App.Services.NavigationService>();
                 s.AddSingleton<ViewModels.MainViewModel>();
 
                 // Pages (transient — NavigationView resolves a fresh instance each navigation)

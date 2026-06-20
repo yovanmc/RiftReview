@@ -7,12 +7,13 @@ namespace RiftReview.App;
 
 public partial class AppShell : FluentWindow
 {
-    public AppShell(IServiceProvider sp)
+    public AppShell(IServiceProvider sp, RiftReview.App.Services.NavigationService nav)
     {
         InitializeComponent();
         // Wire DI: NavigationView.SetServiceProvider resolves page instances from the DI container
         // when navigating to TargetPageType destinations.
         RootNavigation.SetServiceProvider(sp);
+        nav.NavigationRequested += t => RootNavigation.Navigate(t, null);
         Loaded += OnLoaded;
     }
 
