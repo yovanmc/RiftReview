@@ -24,3 +24,21 @@ public sealed record ObjectiveParticipation(
 
 public sealed record VisionObjectivesResult(
     VisionStats Vision, IReadOnlyList<ObjectiveParticipation> Objectives);
+
+/// One inflection window on the TEAM gold-diff curve. Favorable = my team's lead grew.
+public sealed record SwingPoint(
+    double StartMinute, double EndMinute,
+    double StartGold, double EndGold,
+    double Delta, bool Favorable);
+
+/// Team gold-diff (signed; + = my team ahead) at the minute I died.
+public sealed record DeathContext(double Minute, double GoldDiff);
+
+/// A recall, inferred from a cluster of my ITEM_PURCHASED events. ItemCount = items bought that trip.
+public sealed record BackEvent(double Minute, int ItemCount);
+
+public sealed record CausalityResult(
+    SwingPoint? Swing,                       // null = no decisive swing
+    IReadOnlyList<DeathContext> Deaths,
+    IReadOnlyList<BackEvent> Backs,
+    double? TurningPointLagMinutes);         // min from preceding back to swing start; null if N/A
