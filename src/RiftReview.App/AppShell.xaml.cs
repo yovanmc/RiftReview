@@ -29,6 +29,7 @@ public partial class AppShell : FluentWindow
         {
             "champions" => typeof(ChampPoolView),
             "trends"    => typeof(TrendsView),
+            "matchups"  => typeof(MatchupsView),
             "settings"  => typeof(SettingsView),
             _ => typeof(ReviewView),
         };
