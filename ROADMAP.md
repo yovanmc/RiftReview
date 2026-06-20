@@ -30,7 +30,7 @@ Repo: github.com/yovanmc/RiftReview · Specs: `docs/superpowers/specs/` · Plans
 | 3 | Matchups | ✅ Merged | `docs/superpowers/plans/2026-06-19-riftreview-m3.md` | — | per-champ vs each enemy-laner aggregates; drill into deep-dive |
 | 4 | Session Health | ✅ Merged | `docs/superpowers/plans/2026-06-19-riftreview-m4.md` | — | sessions + loss-streak/decay tilt guard; cross-page banner (singleton VM) |
 | 5 | Climb | ✅ Merged | `docs/superpowers/plans/2026-06-19-riftreview-m5.md` | — | current rank + ranked streaks + net-LP-per-snapshot segments; RankLadder |
-| 6 | You-vs-rank on graphs | 📝 Plan ready | `docs/superpowers/plans/2026-06-20-riftreview-m6.md` | — | **execute next** — rank baseline on charts + sparklines + Rank⇄Own toggle + measured-baseline methodology (research items 1–9) |
+| 6 | You-vs-rank on graphs | ✅ Merged | `docs/superpowers/plans/2026-06-20-riftreview-m6.md` | #1 | rank baseline on Trends sparklines + deep-dive CS-pace chart; Rank⇄Own toggle + per-tier selector + signed delta badges + provenance; sparse never-fabricate seed table |
 | 7 | Vision + objectives | [ ] Not started | — | — | wards placed/cleared + vision-score proxy + objective participation from timeline events already fetched (items 10–12); confirm timeline ward/objective events are stored first |
 | 8 | Timeline causality | [ ] Not started | — | — | "where the game turned" swing marker + game-state-at-death context + back-timing/item-spike lag (items 13–15) |
 | 9 | Build analysis + discipline | [ ] Not started | — | — | own-best-build per champ (item 17 only — NO external build data) + number-under-every-verdict audit + no-composite-score non-goal + optional timeline mini-score (items 16–20) |
@@ -59,3 +59,24 @@ Repo: github.com/yovanmc/RiftReview · Specs: `docs/superpowers/specs/` · Plans
   M6 Task 4 adds the actual second (baseline) line to the control.
 - **WPF-UI FluentWindow title-bar trap** (M4→fix, PR 9e18569): `ui:TitleBar` must be a
   first-class top row of the window Grid; the M6 screenshot gate asserts caption-button presence.
+- **2026-06-20 — M6 shipped (PR #1, all 10 plan tasks).** Rank baseline now renders on Trends
+  sparklines (dashed gray line + signed delta badge) and on the deep-dive CS-pace chart (blue
+  dashed "rank avg" line beside gold=you + gray dashed=own-trailing). Rank⇄Own toggle, per-tier
+  selector, and provenance label live. Suite 123/123 (Core 99, App 24).
+  - **Never-fabricate is structural:** absent `(role,tier,metric)` cell → `RankBaselineProvider.Resolve`
+    returns null → `HasBaseline=false` → no line/badge/number. The embedded seed
+    `src/RiftReview.Core/Data/rank-baselines.json` is SPARSE — only `cs10`/`csPerMin` for laners
+    (TOP/MID/ADC/JUNGLE); SUPPORT and every non-CS metric (winRate/gold15/kda/deaths/pre15/kp/dmg)
+    have no rank cell, so in Rank mode only **CS @ 10** shows a rank delta. Owner extends the JSON
+    (embedded resource) to seed more metrics later.
+  - **No Core record change was needed:** `MetricTrend` already carried `Current`/`Direction`/`Unit`/
+    `RollingSeries`, so the plan's flagged "may need to add Dir/Unit/CurrentValue" risk didn't fire.
+  - **Sparkline.OnRender scaling vars are `w`/`h`/`min`/`range`** (range = max-min clamped ≥1e-6);
+    the baseline line reuses them so it lines up with the series.
+  - **M6 screenshot harness = `.m6shots/`** (reusable for M7/M8): launch Debug exe with
+    `--seed-demo --page trends` (the `--page <review|champions|trends|matchups|sessions|climb|settings>`
+    hook is read in `AppShell.OnLoaded`), set `HKCU:\Software\Microsoft\Avalon.Graphics\DisableHWAcceleration=1`
+    (restore after), capture via `.m2shots/Capturer/out/Capturer.exe` (PrintWindow PW_RENDERFULLCONTENT).
+    **DeepDiveView is embedded in ReviewView (not a nav page)** — reach it via UIAutomation
+    `SelectionItemPattern.Select()` on the first match ListItem. No `--capture`/`--autostart`/`--done-signal`
+    hooks exist (those are VideoTriage-only).
