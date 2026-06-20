@@ -1,0 +1,10 @@
+{
+  "meta": { "source": "community CS/min heuristics", "patch": "16.12", "approximate": true },
+  "cells": {
+    "TOP":    { "IRON": {"cs10":45,"csPerMin":4.5}, "BRONZE": {"cs10":50,"csPerMin":5.0}, "SILVER": {"cs10":55,"csPerMin":5.5}, "GOLD": {"cs10":60,"csPerMin":6.0}, "PLATINUM": {"cs10":65,"csPerMin":6.5}, "EMERALD": {"cs10":68,"csPerMin":6.8}, "DIAMOND": {"cs10":72,"csPerMin":7.2} },
+    "MID":    { "IRON": {"cs10":45,"csPerMin":4.5}, "BRONZE": {"cs10":50,"csPerMin":5.0}, "SILVER": {"cs10":55,"csPerMin":5.5}, "GOLD": {"cs10":60,"csPerMin":6.0}, "PLATINUM": {"cs10":65,"csPerMin":6.5}, "EMERALD": {"cs10":68,"csPerMin":6.8}, "DIAMOND": {"cs10":72,"csPerMin":7.2} },
+    "ADC":    { "IRON": {"cs10":45,"csPerMin":4.5}, "BRONZE": {"cs10":50,"csPerMin":5.0}, "SILVER": {"cs10":55,"csPerMin":5.5}, "GOLD": {"cs10":60,"csPerMin":6.0}, "PLATINUM": {"cs10":65,"csPerMin":6.5}, "EMERALD": {"cs10":68,"csPerMin":6.8}, "DIAMOND": {"cs10":72,"csPerMin":7.2} },
+    "JUNGLE": { "IRON": {"cs10":40,"csPerMin":4.0}, "BRONZE": {"cs10":45,"csPerMin":4.5}, "SILVER": {"cs10":50,"csPerMin":5.0}, "GOLD": {"cs10":55,"csPerMin":5.5}, "PLATINUM": {"cs10":58,"csPerMin":5.8}, "EMERALD": {"cs10":60,"csPerMin":6.0}, "DIAMOND": {"cs10":64,"csPerMin":6.4} },
+    "SUPPORT": { "IRON": {}, "BRONZE": {}, "SILVER": {}, "GOLD": {}, "PLATINUM": {}, "EMERALD": {}, "DIAMOND": {} }
+  }
+}
