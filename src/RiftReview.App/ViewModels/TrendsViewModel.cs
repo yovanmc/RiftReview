@@ -95,9 +95,6 @@ public sealed partial class TrendsViewModel : ObservableObject
         if (solo.Count == 0) { HasLp = false; LpHeadline = ""; return; }
         var latest = solo[^1];   // GetLpSnapshots orders oldest→newest
         HasLp      = true;
-        LpHeadline = $"{Cap(latest.Tier)} {latest.Division} · {latest.LeaguePoints} LP";
+        LpHeadline = RankLadder.Format(latest.Tier, latest.Division, latest.LeaguePoints);
     }
-
-    private static string Cap(string s) =>
-        string.IsNullOrEmpty(s) ? s : char.ToUpper(s[0]) + s[1..].ToLower();
 }
