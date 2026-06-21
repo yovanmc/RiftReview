@@ -22,6 +22,9 @@ public sealed partial class DeepDiveViewModel : ObservableObject
     private static readonly Brush CsLineBrush      = Frozen(0xC8, 0xAA, 0x6E); // gold (your CS pace)
     private static readonly Brush BaselineBrush    = Frozen(0x8A, 0x8A, 0x8A); // gray dashed — own-role trailing avg
     private static readonly Brush RankBaselineBrush = Frozen(0x5A, 0xA9, 0xE6); // blue dashed — rank average
+    private static readonly Brush GoodBadgeBrush    = Frozen(0x5F, 0xBF, 0x6F); // delta in your favour
+    private static readonly Brush BadBadgeBrush      = Frozen(0xE0, 0x57, 0x4C); // delta against you
+    private static readonly Brush NeutralBadgeBrush  = Frozen(0x8A, 0x8A, 0x8A); // no baseline yet
 
     private static Brush Frozen(byte r, byte g, byte b)
     {
@@ -52,6 +55,10 @@ public sealed partial class DeepDiveViewModel : ObservableObject
     // Vision & objectives
     [ObservableProperty] private VisionStats _vision = new(0, 0, 0, 0);
     [ObservableProperty] private IReadOnlyList<ObjectiveRowVm> _objectives = Array.Empty<ObjectiveRowVm>();
+
+    // By game phase (M10)
+    [ObservableProperty] private bool _hasPhaseBreakdown;
+    [ObservableProperty] private IReadOnlyList<PhaseRowVm> _phaseRows = Array.Empty<PhaseRowVm>();
 
     // Swing & causality (M8)
     [ObservableProperty] private bool _hasCausality;
@@ -85,8 +92,13 @@ public sealed partial class DeepDiveViewModel : ObservableObject
             CsCurve = dd.CsPerMinute;
             DeathMinutes = dd.DeathMinutes;
             HasLaneOpponent = dd.HasLaneOpponent;
-            var csBaseline = BuildBaseline(selected, puuid);
+            var (csBaseline, phaseBaseline) = BuildBaselines(selected, puuid);
             CsBaseline = csBaseline;
+
+            var phaseStats = TimelineExtractor.BuildPhaseBreakdown(
+                tl, summary.MyParticipantId, summary.MyTeamId, dd.GoldDiffVsTeam);
+            PhaseRows = BuildPhaseRows(phaseStats, phaseBaseline);
+            HasPhaseBreakdown = PhaseRows.Count > 0;
 
             var champ = _ddragon?.ChampionName(summary.MyChampionId) ?? $"Champ {summary.MyChampionId}";
             Header = $"{champ} · {summary.MyTeamPosition} · {(summary.Win ? "Win" : "Loss")} · {summary.Kills}/{summary.Deaths}/{summary.Assists}";
@@ -164,9 +176,11 @@ public sealed partial class DeepDiveViewModel : ObservableObject
         }
     }
 
-    private IReadOnlyList<ChartPoint> BuildBaseline(MatchRow selected, string puuid)
+    private (IReadOnlyList<ChartPoint> Cs, IReadOnlyList<PhaseBaseline> Phases) BuildBaselines(
+        MatchRow selected, string puuid)
     {
         var curves = new List<IReadOnlyList<ChartPoint>>();
+        var phaseGames = new List<IReadOnlyList<PhaseStat>>();
         foreach (var m in _db.RecentMatches(rankedOnly: false, limit: 20)
                  .Where(m => m.MyTeamPosition == selected.MyTeamPosition && m.MatchId != selected.MatchId))
         {
@@ -180,11 +194,13 @@ public sealed partial class DeepDiveViewModel : ObservableObject
                 var mtl = JsonSerializer.Deserialize<TimelineDto>(tj, Json)!;
                 var mdd = TimelineExtractor.BuildDeepDive(mtl, ms.MyParticipantId, ms.OpponentParticipantId);
                 curves.Add(mdd.CsPerMinute);
+                phaseGames.Add(TimelineExtractor.BuildPhaseBreakdown(
+                    mtl, ms.MyParticipantId, ms.MyTeamId, mdd.GoldDiffVsTeam));
             }
             catch (Exception ex) when (ex is JsonException or InvalidOperationException)
             { /* skip a match whose stored blobs can't be parsed/summarized */ }
         }
-        return BaselineCalculator.Average(curves);
+        return (BaselineCalculator.Average(curves), PhaseBaselineCalculator.Average(phaseGames));
     }
 
     private void Clear()
@@ -201,6 +217,8 @@ public sealed partial class DeepDiveViewModel : ObservableObject
         CsSeries   = Array.Empty<ChartSeries>();
         Vision = new(0, 0, 0, 0);
         Objectives = Array.Empty<ObjectiveRowVm>();
+        HasPhaseBreakdown = false;
+        PhaseRows = Array.Empty<PhaseRowVm>();
         HasCausality = false;
         HasSwing = false;
         SwingText = "";
@@ -213,6 +231,51 @@ public sealed partial class DeepDiveViewModel : ObservableObject
         HasLag = false;
         TurningPointLag = "";
     }
+
+    private static IReadOnlyList<PhaseRowVm> BuildPhaseRows(
+        IReadOnlyList<PhaseStat> stats, IReadOnlyList<PhaseBaseline> baseline)
+    {
+        var rows = new List<PhaseRowVm>();
+        foreach (var s in stats)
+        {
+            var b = baseline.FirstOrDefault(x => x.Label == s.Label);
+            var (gTxt, gBrush) = Badge(s.GoldDiffDelta, b?.GoldDiffDelta, higherIsGood: true, SignedInt);
+            var (cTxt, cBrush) = Badge(s.CsPerMinute, b?.CsPerMinute, higherIsGood: true, Signed1);
+            var (dTxt, dBrush) = Badge(s.Deaths, b?.Deaths, higherIsGood: false, Signed1);
+
+            string kp = s.KillParticipation is double k ? k.ToString("P0") : "—";
+            string kpTxt = ""; Brush kpBrush = NeutralBadgeBrush;
+            if (s.KillParticipation is double kk)
+                (kpTxt, kpBrush) = Badge(kk * 100,
+                    b?.KillParticipation is double bk ? bk * 100 : (double?)null,
+                    higherIsGood: true, v => SignedInt(v) + " pts");
+
+            string deaths = s.Deaths + (s.DeathsWhileBehind > 0 ? $" ({s.DeathsWhileBehind} behind)" : "");
+
+            rows.Add(new PhaseRowVm(
+                s.Label, RangeLabel(s.Label),
+                SignedInt(s.GoldDiffDelta), gTxt, gBrush,
+                s.CsPerMinute.ToString("0.0"), cTxt, cBrush,
+                deaths, dTxt, dBrush,
+                kp, kpTxt, kpBrush));
+        }
+        return rows;
+    }
+
+    private static string RangeLabel(string label) =>
+        label switch { "Early" => "0–10", "Mid" => "10–20", _ => "20+" };
+
+    private static (string text, Brush brush) Badge(
+        double cur, double? baseline, bool higherIsGood, Func<double, string> fmt)
+    {
+        if (baseline is not double bv) return ("", NeutralBadgeBrush);
+        double d = cur - bv;
+        bool good = higherIsGood ? d >= 0 : d <= 0;
+        return (fmt(d), good ? GoodBadgeBrush : BadBadgeBrush);
+    }
+
+    private static string SignedInt(double v) => (v >= 0 ? "+" : "") + Math.Round(v).ToString("0");
+    private static string Signed1(double v) => (v >= 0 ? "+" : "") + v.ToString("0.0");
 
     // 14.0 -> "14:00", 14.5 -> "14:30"
     private static string Clock(double minute)
@@ -232,3 +295,9 @@ public sealed partial class DeepDiveViewModel : ObservableObject
 public sealed record ObjectiveRowVm(string Label, string Detail, string Percent);
 public sealed record DeathContextVm(string Minute, string Gold, bool Ahead);
 public sealed record BackVm(string Text);
+public sealed record PhaseRowVm(
+    string Label, string Range,
+    string GoldDelta,  string GoldBadge,   Brush GoldBadgeBrush,
+    string CsPerMin,   string CsBadge,     Brush CsBadgeBrush,
+    string Deaths,     string DeathsBadge, Brush DeathsBadgeBrush,
+    string Kp,         string KpBadge,     Brush KpBadgeBrush);
