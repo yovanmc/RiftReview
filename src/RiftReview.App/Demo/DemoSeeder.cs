@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Text.Json;
 using RiftReview.Core.Analysis;
 using RiftReview.Core.Data;
@@ -260,6 +261,27 @@ public static class DemoSeeder
         // All pass the completed-item predicate (SR-only, gold≥2000, no into[], not Boots/Consumable/Trinket).
         if (overrideCompletedItems is { Length: > 0 })
             AddBack(22, overrideCompletedItems);
+
+        // M10: player-credited team kills (enemy victims 6–10, my killers 1–5) spread across
+        // phases so kill-participation renders in --seed-demo. Vary by game index i so the
+        // per-phase KP baseline is non-constant. Deaths (pid 3 as victim) are untouched.
+        void AddTeamKill(int minute, int killerPid, int victimPid, int[] assists)
+        {
+            if (minute >= frames) return;
+            frameList[minute].Events.Add(new EventDto(
+                "CHAMPION_KILL", 60_000L * minute, killerPid, victimPid,
+                AssistingParticipantIds: assists.Length > 0 ? assists.ToList() : null));
+        }
+
+        AddTeamKill(4,  3, 8, new int[0]);          // early: my kill
+        AddTeamKill(7,  1, 6, new[] { 3 });         // early: my assist
+        if (i % 2 == 0) AddTeamKill(9, 2, 7, new int[0]); // early: team kill (varies KP by game)
+        AddTeamKill(12, 3, 9, new int[0]);          // mid: my kill
+        AddTeamKill(15, 4, 10, new[] { 3, 5 });     // mid: my assist
+        AddTeamKill(18, 5, 6, new int[0]);          // mid: team kill (no me)
+        AddTeamKill(22, 3, 8, new[] { 2 });         // late: my kill
+        AddTeamKill(26, 1, 7, new[] { 3 });         // late: my assist
+        if (i % 2 == 1) AddTeamKill(30, 2, 9, new int[0]); // late: team kill (varies)
 
         var tl = new TimelineDto(
             new TimelineMetadata(matchId, parts.Select(p => p.Puuid).ToList()),
