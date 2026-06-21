@@ -39,9 +39,44 @@ Repo: github.com/yovanmc/RiftReview · Specs: `docs/superpowers/specs/` · Plans
 | 7 | Vision + objectives | ✅ Merged | `docs/superpowers/plans/2026-06-20-riftreview-m7.md` | #2 | deep-dive Vision & objectives section: exact wards placed/cleared/control + labeled vision proxy + objective participation (dragons/herald/baron/towers/inhibitors, Void Grubs if present); on-demand from stored timeline blob (NO schema migration). Suite 126. |
 | 8 | Timeline causality | ✅ Merged | `docs/superpowers/plans/2026-06-20-riftreview-m8.md` | #3 | "where the game turned" team-gold-diff swing marker (+ translucent band on chart) + game-state-at-death context + back-timing cadence (recall clusters; NO external item data) + turning-point lag; on-demand from timeline blob (NO migration); EventDto +2 fields. Suite 133. |
 | 9 | Build analysis + discipline | ✅ Merged | `docs/superpowers/plans/2026-06-20-riftreview-m9.md` | #4 | own-best-build per champ (item 17, own-games-only; Data Dragon item.json supplies names + completed-item filter) on Champions practicing cards + number-under-every-verdict audit (Session-Health decay reasons get deltas) + no-composite-score non-goal enshrined. Timeline mini-score (item 20) DEFERRED. On-demand from timeline_json (NO migration). Suite 155. |
-| 10 | By game phase (timeline mini-score) | 📝 Plan ready | `docs/superpowers/plans/2026-06-20-riftreview-m10.md` | — | item 20 scoped + planned (autonomous run): deep-dive "By game phase" card — Early[0,10)/Mid[10,20)/Late[20,end] × {gold-diff Δ, CS/min, deaths(+behind), kill participation}, each a raw number + signed delta vs own same-role average; never-fabricate (phase not reached → absent; <3 prior games → no badge). KP = new CHAMPION_KILL extraction. Pure `BuildPhaseBreakdown` + `PhaseBaselineCalculator` piggyback the existing 20-game baseline loop (zero extra timeline I/O); NO schema change. Layout A (phase rows). Spec: `docs/superpowers/specs/2026-06-20-riftreview-m10-phase-breakdown-design.md`. |
+| 10 | By game phase (timeline mini-score) | ✅ Merged | `docs/superpowers/plans/2026-06-20-riftreview-m10.md` | #5 | item 20 SHIPPED: deep-dive "By game phase" card — Early[0,10)/Mid[10,20)/Late[20,end] × {gold-diff Δ, CS/min, deaths(+behind), kill participation}, each a raw number + signed delta vs own same-role average; never-fabricate (phase not reached → absent; <3 prior games → no badge). KP = new CHAMPION_KILL extraction. Pure `BuildPhaseBreakdown` + `PhaseBaselineCalculator` piggyback the existing 20-game baseline loop (zero extra timeline I/O); NO schema change. Layout A (phase rows). Suite 166 (Core 142, App 24). Spec: `docs/superpowers/specs/2026-06-20-riftreview-m10-phase-breakdown-design.md`. **M6–M10 competitive-research expansion COMPLETE — no milestone queued.** |
 
 ## Decision log & gotchas
+- **2026-06-21 — M10 shipped (PR #5, all plan tasks; autonomous run).** Item 20 (timeline mini-score)
+  landed as a **"By game phase"** card in the deep-dive (between Vision and the gold chart). Per phase —
+  **Early [0,10) · Mid [10,20) · Late [20,end]** (Late inclusive of the final minute) — four decomposed
+  numbers, each with a signed delta vs the player's **own same-role average**: gold-diff Δ, CS/min,
+  deaths (+ how many while behind), kill participation. Suite **166** (Core 142, App 24). Computed **on
+  demand** from `timeline_json` — **no migration**. **This completes the M6–M10 competitive-research
+  expansion; nothing is queued after it.**
+  - **All math is PURE + unit-tested:** `TimelineExtractor.BuildPhaseBreakdown(tl, myPid, myTeamId,
+    teamGoldDiffSeries)` → `IReadOnlyList<PhaseStat>` (a phase is emitted only if `gameEnd > phaseStart`;
+    partial last phase allowed) + `PhaseBaselineCalculator.Average(priorGames, minGames:3)` →
+    `IReadOnlyList<PhaseBaseline>` (per-metric null when <3 samples; never fabricate). 11 new Core tests.
+  - **Gold-Δ reuses the displayed `dd.GoldDiffVsTeam` series** (passed in) so it can't drift from the
+    chart — same anti-drift discipline as M8's `TeamGoldDiffSeries`. New private `ValueAtOrBefore` helper
+    (largest `Minute ≤ t`) drives gold/CS boundary lookups; CS/min = cumulative-CS delta ÷ phase duration.
+  - **KP denominator = ENEMY deaths** (`TeamOfNullable(VictimId) != myTeamId`), NOT killer-side counting —
+    robust to `killerId == 0` (tower/execute). Numerator = my kills + my assists; `null` (UI "—") when the
+    team scored no kills in the phase.
+  - **Zero extra timeline I/O:** the deep-dive's existing 20-game same-role baseline loop (`BuildBaseline`)
+    was refactored to `BuildBaselines` returning BOTH the (unchanged) CS-baseline curve AND the per-phase
+    baseline — the prior-game timelines are loaded once. `BuildDeepDive` left untouched (exact-value tested).
+  - **`DeepDiveViewModel.Load` is synchronous** — new `[ObservableProperty]` props (`HasPhaseBreakdown`,
+    `PhaseRows`) assigned inline like `CsBaseline`; the M9 background-INPC-collapse trap does NOT apply here.
+    Badge colour is a frozen `Brush` carried on `PhaseRowVm` (good=green/bad=red/neutral=gray); an empty
+    badge string renders nothing (no NullToCollapsed converter exists in `DeepDiveView.xaml`).
+  - **Demo seeder gotcha (same class as M8 recalls / M9 purchases):** the demo only ever emitted
+    `CHAMPION_KILL` with the player as VICTIM, so KP would render "—" everywhere. Added `AddTeamKill`
+    (enemy victims 6–10, my killers 1–5) spread across phases, ~60% crediting pid 3, varied by game index
+    `i` for a non-constant baseline. Never-fabricate Late-baseline case is **unit-tested**, not forced in
+    the demo (all demo games are 25–35 min → all reach Late).
+  - **`.m10shots`** clones the **M8 review-page** harness (`--page review`, UIAutomation
+    `SelectionItemPattern.Select()` first match, DisableHWAcceleration set/restore, `.m2shots` Capturer).
+    The card sits high but below the default fold → **tall variant** (`run_capture_tall.ps1`) frames all
+    three rows. `.gitignore` needed an explicit `.m10shots/*.png` (the existing `.m?shots/*.png` only
+    matches single-digit milestone folders). Screenshot verdict PASS; rendered numbers cross-checked
+    against the demo formulas (linear demo curves → flat-looking gold/CS deltas are a demo artifact).
 - **2026-06-20 — M9 shipped (PR #4, all plan tasks; autonomous run).** Champions page gained a **Best
   build** panel on the "Currently Practicing" cards: per champ (dominant role), the completed items you
   build most often in YOUR games, each with its own `N games · X% WR` caption. Suite **155** (Core 131,
