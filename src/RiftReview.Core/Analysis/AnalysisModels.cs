@@ -42,3 +42,27 @@ public sealed record CausalityResult(
     IReadOnlyList<DeathContext> Deaths,
     IReadOnlyList<BackEvent> Backs,
     double? TurningPointLagMinutes);         // min from preceding back to swing start; null if N/A
+
+/// One game phase for one match. All metrics exact (no baseline applied here).
+/// KillParticipation is null when the player's team scored no kills in the phase (never fabricate).
+public sealed record PhaseStat(
+    string Label,            // "Early" | "Mid" | "Late"
+    double StartMinute,      // 0, 10, 20
+    double EndMinute,        // capped at game end (partial phases allowed)
+    double GoldDiffDelta,    // team gold-diff change across the phase (+ = my team gained)
+    double CsPerMinute,      // CS gained in the phase / phase duration (minutes)
+    int Deaths,              // my deaths in the phase
+    int DeathsWhileBehind,   // subset of Deaths where team gold-diff < 0 at the death
+    int Kills,               // my kills in the phase
+    int Assists,             // my assists in the phase
+    int TeamKills,           // my team's kills in the phase (KP denominator)
+    double? KillParticipation); // (Kills+Assists)/TeamKills, null if TeamKills == 0
+
+/// Per-phase own same-role baseline. Each metric is independently null when fewer than
+/// `minGames` prior games contributed a value for it (never fabricate).
+public sealed record PhaseBaseline(
+    string Label,
+    double? GoldDiffDelta,
+    double? CsPerMinute,
+    double? Deaths,
+    double? KillParticipation);

@@ -60,6 +60,7 @@ ddragon-cache/
 
 # ---- Local screenshot-verification scratch (throwaway PNGs; scripts are committed) ----
 .m?shots/*.png
+.m10shots/*.png
 
 # ---- OS noise ----
 Thumbs.db

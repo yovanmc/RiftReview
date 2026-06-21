@@ -31,6 +31,7 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
@@ -152,8 +153,89 @@
                 </StackPanel>
             </Border>
 
-            <!-- Gold diff chart -->
+            <!-- By game phase (M10) -->
             <Border Grid.Row="3"
+                    Background="{StaticResource CardBgBrush}"
+                    BorderBrush="{StaticResource HairlineBrush}"
+                    BorderThickness="0,0,0,1"
+                    Margin="0,0,0,2"
+                    Padding="12,8"
+                    Visibility="{Binding HasPhaseBreakdown, Converter={StaticResource BoolToVis}}">
+                <StackPanel>
+                    <Grid Margin="0,0,0,6">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="By game phase"
+                                   Foreground="{StaticResource AccentBrush}"
+                                   FontSize="13" FontWeight="SemiBold"/>
+                        <TextBlock Grid.Column="1" Text="vs your same-role average · raw where no baseline"
+                                   Foreground="{StaticResource TextMutedBrush}" FontSize="10"
+                                   VerticalAlignment="Center"/>
+                    </Grid>
+
+                    <Grid Margin="0,0,0,2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="64"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Phase"    Foreground="{StaticResource TextMutedBrush}" FontSize="11"/>
+                        <TextBlock Grid.Column="1" Text="Gold Δ"   Foreground="{StaticResource TextMutedBrush}" FontSize="11"/>
+                        <TextBlock Grid.Column="2" Text="CS/min"   Foreground="{StaticResource TextMutedBrush}" FontSize="11"/>
+                        <TextBlock Grid.Column="3" Text="Deaths"   Foreground="{StaticResource TextMutedBrush}" FontSize="11"/>
+                        <TextBlock Grid.Column="4" Text="KP"       Foreground="{StaticResource TextMutedBrush}" FontSize="11"/>
+                    </Grid>
+
+                    <ItemsControl ItemsSource="{Binding PhaseRows}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border BorderBrush="{StaticResource HairlineBrush}" BorderThickness="0,1,0,0" Padding="0,4">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="64"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Grid.Column="0">
+                                            <TextBlock Text="{Binding Label}" Foreground="{StaticResource TextPrimaryBrush}" FontSize="12"/>
+                                            <TextBlock Text="{Binding Range}" Foreground="{StaticResource TextMutedBrush}" FontSize="10"/>
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="1">
+                                            <TextBlock Text="{Binding GoldDelta}" Foreground="{StaticResource TextPrimaryBrush}" FontSize="14"/>
+                                            <TextBlock Text="{Binding GoldBadge}" Foreground="{Binding GoldBadgeBrush}" FontSize="10"/>
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="2">
+                                            <TextBlock Text="{Binding CsPerMin}" Foreground="{StaticResource TextPrimaryBrush}" FontSize="14"/>
+                                            <TextBlock Text="{Binding CsBadge}" Foreground="{Binding CsBadgeBrush}" FontSize="10"/>
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="3">
+                                            <TextBlock Text="{Binding Deaths}" Foreground="{StaticResource TextPrimaryBrush}" FontSize="14"/>
+                                            <TextBlock Text="{Binding DeathsBadge}" Foreground="{Binding DeathsBadgeBrush}" FontSize="10"/>
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="4">
+                                            <TextBlock Text="{Binding Kp}" Foreground="{StaticResource TextPrimaryBrush}" FontSize="14"/>
+                                            <TextBlock Text="{Binding KpBadge}" Foreground="{Binding KpBadgeBrush}" FontSize="10"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <TextBlock Text="No flavor grades — every number is your raw value with its delta vs your own same-role average; blank where you have fewer than 3 prior games."
+                               Foreground="{StaticResource TextMutedBrush}" FontSize="10"
+                               TextWrapping="Wrap" Margin="0,6,0,0"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Gold diff chart -->
+            <Border Grid.Row="4"
                     Background="{StaticResource CardBgBrush}"
                     BorderBrush="{StaticResource HairlineBrush}"
                     BorderThickness="0,0,0,1"
@@ -180,7 +262,7 @@
             </Border>
 
             <!-- CS/min chart -->
-            <Border Grid.Row="4"
+            <Border Grid.Row="5"
                     Background="{StaticResource CardBgBrush}"
                     Padding="12,8">
                 <Grid>

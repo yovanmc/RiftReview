@@ -79,6 +79,87 @@ public static class TimelineExtractor
             : tl.Info.Frames.OrderBy(f => Math.Abs(f.Timestamp - target)).First();
     }
 
+    // ---- M10: per-phase breakdown (item 20 "timeline mini-score") ----
+    public static IReadOnlyList<PhaseStat> BuildPhaseBreakdown(
+        TimelineDto tl, int myParticipantId, int myTeamId,
+        IReadOnlyList<ChartPoint> teamGoldDiffSeries)
+    {
+        var frames = tl.Info.Frames;
+        if (frames.Count == 0) return Array.Empty<PhaseStat>();
+        double gameEnd = frames[^1].Timestamp / 60000.0;
+
+        // Cumulative CS for my pid at each frame minute (string-keyed participant frames).
+        var csCumulative = new List<ChartPoint>();
+        foreach (var f in frames)
+        {
+            if (!f.ParticipantFrames.TryGetValue(myParticipantId.ToString(), out var mine)) continue;
+            csCumulative.Add(new ChartPoint(f.Timestamp / 60000.0,
+                mine.MinionsKilled + mine.JungleMinionsKilled));
+        }
+
+        var kills = frames.SelectMany(f => f.Events)
+            .Where(e => e.Type == "CHAMPION_KILL")
+            .Select(e => (Minute: e.Timestamp / 60000.0, e.KillerId, e.VictimId, e.AssistingParticipantIds))
+            .ToList();
+
+        var defs = new (string Label, double Start, double End)[]
+        {
+            ("Early", 0, 10),
+            ("Mid", 10, 20),
+            ("Late", 20, double.PositiveInfinity),
+        };
+
+        var result = new List<PhaseStat>();
+        foreach (var (label, start, end) in defs)
+        {
+            if (gameEnd <= start) continue;                 // phase not reached
+            double effEnd = Math.Min(end, gameEnd);
+            double duration = effEnd - start;
+            if (duration <= 0) continue;
+            bool isLate = double.IsPositiveInfinity(end);
+
+            double goldDelta = ValueAtOrBefore(teamGoldDiffSeries, effEnd)
+                             - ValueAtOrBefore(teamGoldDiffSeries, start);
+            double csPerMin = (ValueAtOrBefore(csCumulative, effEnd)
+                             - ValueAtOrBefore(csCumulative, start)) / duration;
+
+            bool InPhase(double m) => isLate ? (m >= start && m <= gameEnd) : (m >= start && m < end);
+
+            int deaths = 0, deathsBehind = 0, myKills = 0, myAssists = 0, teamKills = 0;
+            foreach (var k in kills)
+            {
+                if (!InPhase(k.Minute)) continue;
+                if (k.VictimId == myParticipantId)
+                {
+                    deaths++;
+                    if (ValueAtOrBefore(teamGoldDiffSeries, k.Minute) < 0) deathsBehind++;
+                }
+                if (TeamOfNullable(k.VictimId) is int vt && vt != myTeamId) teamKills++; // enemy died
+                if (k.KillerId == myParticipantId) myKills++;
+                if (k.AssistingParticipantIds is { } a && a.Contains(myParticipantId)) myAssists++;
+            }
+
+            double? kp = teamKills > 0 ? (myKills + myAssists) / (double)teamKills : null;
+            result.Add(new PhaseStat(label, start, effEnd, goldDelta, csPerMin,
+                deaths, deathsBehind, myKills, myAssists, teamKills, kp));
+        }
+        return result;
+    }
+
+    // Value of the series point with the largest Minute <= t (0 if the series is empty;
+    // the first point's value if t precedes the series). Series is ascending by Minute.
+    private static double ValueAtOrBefore(IReadOnlyList<ChartPoint> series, double t)
+    {
+        if (series.Count == 0) return 0;
+        double val = series[0].Value;
+        foreach (var p in series)
+        {
+            if (p.Minute <= t) val = p.Value;
+            else break;
+        }
+        return val;
+    }
+
     // ---- M8: timeline causality (swing / death-context / back-timing) ----
     private const int  SwingWindowFrames = 3;     // ~3 min (frames are 1-min); rolling window width
     private const double SwingEpsilonGold = 1.0;  // |Δ| below this => no decisive swing
