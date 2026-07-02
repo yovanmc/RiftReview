@@ -1,5 +1,7 @@
 # RiftReview
 
+[![CI](https://github.com/yovanmc/RiftReview/actions/workflows/ci.yml/badge.svg)](https://github.com/yovanmc/RiftReview/actions/workflows/ci.yml)
+
 Personal, single-user, read-only, non-commercial Windows desktop app for self-coaching at League of Legends. It pulls **your own** match history from the official Riot API into a local SQLite store and shows a post-game review: a single-game deep-dive (gold differential vs lane & enemy team with death markers, CS/min vs your own same-role baseline) plus a cross-game trend strip (W/L, deaths, CS@10, gold-diff@15).
 
 Built with **.NET 10 / WPF / WPF-UI / CommunityToolkit.Mvvm / Microsoft.Data.Sqlite**. Black-glass theme + Hextech Gold accent.
