@@ -70,3 +70,9 @@ dotnet test RiftReview.slnx
 ## Use
 
 Personal project, not for commercial use. Respects the Riot Games API terms of service.
+
+## How this was built
+
+This repo was designed, specified, and reviewed by me, and implemented through my multi-agent development workflow: AI subagents execute written plans, with adversarial review gates (plan critique, code review, test verification) between phases. Every architectural decision is mine, and the process is left visible in the history and `docs/superpowers/` on purpose.
+
+The productized form of that workflow is [backend-harness](https://github.com/yovanmc/backend-harness). If you're evaluating my work: ask me why the rate limiter keeps a 3-second safety margin under Riot's 120-second window — I'll defend the design from first principles.
