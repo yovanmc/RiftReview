@@ -39,9 +39,31 @@ Repo: github.com/yovanmc/RiftReview · Specs: `docs/superpowers/specs/` · Plans
 | 7 | Vision + objectives | ✅ Merged | `docs/superpowers/plans/2026-06-20-riftreview-m7.md` | #2 | deep-dive Vision & objectives section: exact wards placed/cleared/control + labeled vision proxy + objective participation (dragons/herald/baron/towers/inhibitors, Void Grubs if present); on-demand from stored timeline blob (NO schema migration). Suite 126. |
 | 8 | Timeline causality | ✅ Merged | `docs/superpowers/plans/2026-06-20-riftreview-m8.md` | #3 | "where the game turned" team-gold-diff swing marker (+ translucent band on chart) + game-state-at-death context + back-timing cadence (recall clusters; NO external item data) + turning-point lag; on-demand from timeline blob (NO migration); EventDto +2 fields. Suite 133. |
 | 9 | Build analysis + discipline | ✅ Merged | `docs/superpowers/plans/2026-06-20-riftreview-m9.md` | #4 | own-best-build per champ (item 17, own-games-only; Data Dragon item.json supplies names + completed-item filter) on Champions practicing cards + number-under-every-verdict audit (Session-Health decay reasons get deltas) + no-composite-score non-goal enshrined. Timeline mini-score (item 20) DEFERRED. On-demand from timeline_json (NO migration). Suite 155. |
-| 10 | By game phase (timeline mini-score) | ✅ Merged | `docs/superpowers/plans/2026-06-20-riftreview-m10.md` | #5 | item 20 SHIPPED: deep-dive "By game phase" card — Early[0,10)/Mid[10,20)/Late[20,end] × {gold-diff Δ, CS/min, deaths(+behind), kill participation}, each a raw number + signed delta vs own same-role average; never-fabricate (phase not reached → absent; <3 prior games → no badge). KP = new CHAMPION_KILL extraction. Pure `BuildPhaseBreakdown` + `PhaseBaselineCalculator` piggyback the existing 20-game baseline loop (zero extra timeline I/O); NO schema change. Layout A (phase rows). Suite 166 (Core 142, App 24). Spec: `docs/superpowers/specs/2026-06-20-riftreview-m10-phase-breakdown-design.md`. **M6–M10 competitive-research expansion COMPLETE — no milestone queued.** |
+| 10 | By game phase (timeline mini-score) | ✅ Merged | `docs/superpowers/plans/2026-06-20-riftreview-m10.md` | #5 | item 20 SHIPPED: deep-dive "By game phase" card — Early[0,10)/Mid[10,20)/Late[20,end] × {gold-diff Δ, CS/min, deaths(+behind), kill participation}, each a raw number + signed delta vs own same-role average; never-fabricate (phase not reached → absent; <3 prior games → no badge). KP = new CHAMPION_KILL extraction. Pure `BuildPhaseBreakdown` + `PhaseBaselineCalculator` piggyback the existing 20-game baseline loop (zero extra timeline I/O); NO schema change. Layout A (phase rows). Suite 166 (Core 142, App 24). Spec: `docs/superpowers/specs/2026-06-20-riftreview-m10-phase-breakdown-design.md`. **M6–M10 competitive-research expansion COMPLETE.** |
+| 11 | Lane-opponent diff | [ ] Not started | — | — | Gold **and XP** diff vs the direct lane opponent across the game, in the deep-dive. FIRST task: verify per-participant `xp` + lane-opponent resolution against stored `timeline_json` frames (believed present in match-v5 participantFrames — UNVERIFIED 2026-07-03) |
+| 12 | Head-to-head stat panel | [ ] Not started | — | — | Per-game scoreboard vs laner: damage dealt, KP, gold earned, damage to towers, vision, CS — deltas highlighted. Data from stored match/timeline JSON only |
+| 13 | Timeline explorer | [ ] Not started | — | — | Pick any metric(s), rendered across game time in the deep-dive. Also builds the time-axis plumbing M17 (scrubber) needs |
+| U1 | Usage window (~3 weeks) | [ ] Not started | — | — | Owner-locked completeness bar = M11–M13 (2026-07-03). Owner reviews after every session; blockers fixed immediately, everything else logged as the M14 backlog. Reserve-style usage-before-features gate |
+| 14 | Usage-fed fixes (perf + bugs) | [ ] Not started | — | — | Backlog = the U1 log. Speculative perf/bug work before U1 was DECLINED (owner 2026-07-03 — no observed defects yet) |
+| 15 | Map foundation | [ ] Not started | — | — | Rift map render + timeline→map coordinate transform (verify empirically) + death/kill locations with phase filter. MUST verify position-data granularity (believed 60s participant frames + exact-time events) and map-asset source/licensing before M17 is planned |
+| 16 | Ward map + position trail | [ ] Not started | — | — | Ward placed/cleared locations; per-minute own-position trail (roam timing, lane presence) |
+| 17 | Scrubber v1 — the dream | [ ] Not started | — | — | Timeline scrubber moving all 10 players frame by frame + event pins at exact timestamps. Expectation owner-accepted 2026-07-03: minute-frame board states, NOT a smooth replay (bound by Riot data granularity, verified in M15) |
 
 ## Decision log & gotchas
+- **2026-07-03 — Vision scoping (owner-grilled, M11–M17 + U1 queued).** Owner's product vision: an
+  analysis workbench that eases post-game review — query recent games, click in, explore lane diffs
+  (gold/XP), big stat gaps, trends, all against the game's timeline and map. Decisions: (1) **soul =
+  explorer-first** — the app is a self-serve data workbench; auto-callouts are a possible later layer,
+  NOT queued. (2) **Completeness bar for daily use = M11+M12+M13** (owner-picked minimal set), then U1
+  usage window; map explicitly NOT required for usage. (3) **Scrubber (M17) is the owner's dream
+  milestone** — kept on the roadmap, sequenced last because M13/M15/M16 are its foundation (time-axis
+  plumbing, map render + coordinate transform, position plumbing). (4) **Data-granularity caveat
+  accepted:** participant positions are believed 60s-frame-only (events carry exact ts+coords) —
+  M15 verifies against stored blobs; scrubber v1 = board-state stepper + event pins, not smooth replay.
+  (5) **DECLINED: speculative perf/bug milestone** before real usage (owner has no observed defects);
+  M14 is fed by the U1 log instead. (6) Repo hygiene noted: `.m2shots/.m3shots/.m4shots` show as
+  untracked in `git status` despite "scripts committed" notes — reconcile (commit scripts or gitignore)
+  during M11.
 - **2026-06-21 — M10 shipped (PR #5, all plan tasks; autonomous run).** Item 20 (timeline mini-score)
   landed as a **"By game phase"** card in the deep-dive (between Vision and the gold chart). Per phase —
   **Early [0,10) · Mid [10,20) · Late [20,end]** (Late inclusive of the final minute) — four decomposed
