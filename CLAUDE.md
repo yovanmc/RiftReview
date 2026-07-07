@@ -2,6 +2,7 @@
 
 State lives in `ROADMAP.md` (canonical milestones + decision log). This file is the
 how-to-work-here layer — read ROADMAP.md for what's being built; read this for how to build it.
+**Read `NORTHSTAR.md` before planning anything here** — end-state vision, path phases, and locked owner decisions (North Star session 2026-07-07).
 
 ## What this is
 Single-user, local-only, post-game, data-honest League of Legends self-coach.
@@ -38,7 +39,8 @@ Secrets (owner-only, never agent-set): User Secrets in dev —
 - No `--capture`/`--autostart`/`--done-signal` hooks exist here (that's a different project's harness).
 
 ## Conventions & safety
-- No CI (`.github/workflows` absent) — the merge gate is local `dotnet test` + the screenshot
+- CI: GitHub Actions since 2026-07-02 (`.github/workflows/ci.yml` — restore → build `-warnaserror` → test,
+  windows-latest / .NET 10, on push/PR to master). The local merge gate is still `dotnet test` + the screenshot
   subagent verdict. Flow: plan doc in `docs/superpowers/plans/` → branch → PR →
   `--merge --delete-branch` from `master` (default branch is **master**, not main).
 - Commit author = repo default `yovanmc`; **never pass `--author`**. End commit messages with
