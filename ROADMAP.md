@@ -59,19 +59,13 @@ Repo: github.com/yovanmc/RiftReview · Specs: `docs/superpowers/specs/` · Plans
 - **No external/recommended-build or live-overlay/draft-scouting data:** item 16 (recommended-build comparison against aggregators) and any live-game overlay or draft-scouting integration are permanently out of scope. Data Dragon is used only for item names + the completed-item filter; all win-rate signal is own-games-only.
 - **Never fabricate:** sparse baselines stay sparse (absent cell → no number, not a made-up default); own-games-only builds require ≥3 games or show "not enough games yet."
 
-## Shipped history (M1–M10, condensed)
+## Shipped history (condensed)
 Verbose per-milestone decision-log prose (gotchas, exact math, screenshot-harness detail) moved to
-`docs/roadmap-archive-2026-07.md` on 2026-07-07 — pointer table only below.
+`docs/roadmap-archive-2026-07.md` on 2026-07-07; older shipped rows (M1–M7) moved to
+`docs/ROADMAP-archive.md` on 2026-07-14 — three most recently merged below.
 
 | # | Title | PR | What shipped |
 |---|-------|----|----|
-| 1 | Review shell + nav | — | NavigationView shell; per-match deep-dive (gold-diff + CS-pace-vs-baseline + death markers) |
-| 2 | Trends | — | per-champ trailing-window trajectory across 8 metrics + verdicts; Sparkline (double-precision) |
-| 3 | Matchups | — | per-champ vs each enemy-laner aggregates; drill into deep-dive |
-| 4 | Session Health | — | sessions + loss-streak/decay tilt guard; cross-page banner (singleton VM) |
-| 5 | Climb | — | current rank + ranked streaks + net-LP-per-snapshot segments; RankLadder |
-| 6 | You-vs-rank on graphs | #1 | rank baseline on Trends sparklines + deep-dive CS-pace chart; sparse never-fabricate seed table. Suite 123. |
-| 7 | Vision + objectives | #2 | deep-dive Vision & objectives: exact wards + labeled vision proxy + objective participation; on-demand from timeline blob (no migration). Suite 126. |
 | 8 | Timeline causality | #3 | gold-diff swing marker + death context + back-timing cadence + turning-point lag; EventDto +2 fields. Suite 133. |
 | 9 | Build analysis + discipline | #4 | own-best-build per champ (Data Dragon item.json for names only) + number-under-every-verdict audit + no-composite-score non-goal enshrined. Suite 155. |
 | 10 | By game phase | #5 | deep-dive "By game phase" card (Early/Mid/Late × gold/CS/deaths/KP, own-role-baseline deltas). Suite 166. **M6–M10 competitive-research expansion COMPLETE.** |
@@ -79,6 +73,8 @@ Verbose per-milestone decision-log prose (gotchas, exact math, screenshot-harnes
 Full detail, gotchas, and math for each: `docs/roadmap-archive-2026-07.md`.
 
 ## Milestones (queued)
+Older shipped milestones (full detail): [docs/ROADMAP-archive.md](docs/ROADMAP-archive.md)
+
 | # | Title | Status | Plan | PR | Notes |
 |---|-------|--------|------|----|-------|
 | F0 | Friction + key strategy | [ ] Not started | — | — | Inserted before M11 (North Star, 2026-07-07). Deploy packaged build to `C:\Self Apps\RiftReview\`; one-action sync-day key workflow; investigate Riot personal-product key persistence (**UNVERIFIED**) — if unavailable, script re-keying to a single prompt |
