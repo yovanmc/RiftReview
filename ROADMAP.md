@@ -27,13 +27,45 @@ stages, gated on real usage of the workbench.
   gated on sustained workbench usage + the owner explicitly asking for it.
 
 **Locked decisions:**
-- **Completeness bar KEPT by owner call** — M11 (lane gold+XP diff) + M12 (head-to-head) + M13
-  (timeline explorer) ship before the U1 usage window, chosen knowingly against the critique that
-  this bar predates any real review of M6–M10.
-- **The honesty tripwire:** if M11–M13 land and real usage still doesn't happen within the U1
-  window, the completeness bar was never the blocker. The next move is NOT M15–M17 — it's a
-  re-grill of the project (is the friction elsewhere? has play interest moved?), written down
-  before building anything else.
+- **⚠ SUPERSEDED 2026-08-16 (owner-ruled) — completeness bar M11–M13 is CUT from the pre-usage path.**
+  The 2026-07-03 lock ("M11+M12+M13 ship before U1") is replaced by the plan-of-record below: real-game
+  test → F0-real → B5 → REC post-game card on manual sync → U1. M11–M13 are re-decided by the U1 log,
+  not before it. Recorded as a divergence from the owner-locked bar; ruled by the owner in the
+  Free-Reign pass (`C:\Agent Zone\FreeReign-2026-08\_RULINGS-2026-08-16.md`, RiftReview.md §9 as
+  amended by §0).
+- **The honesty tripwire (kept, re-aimed):** if the plan-of-record ships and real usage still doesn't
+  happen within U1, the friction was never the blocker — re-grill the project before building anything.
+
+**Project status: PARKED (2026-08-16, round 3 ruling) — planning only, no build.** The block below is
+the decided plan for un-parking; nothing in it is scheduled until the owner un-parks.
+
+## Plan-of-record for un-parking (2026-08-16; owner-approved direction; no build until un-parked)
+Source: `C:\Agent Zone\FreeReign-2026-08\RiftReview.md` §9 as amended by §0 (dissect pass 1). In order:
+0. **Real-game test (free, ~20 min, no code):** run the existing Debug build against the real DB and review
+   ONE real game (not `--seed-demo`). Write down: does the deep-dive clip? hitch on click? do M6–M10 say
+   anything about a remembered game? This can falsify everything below for free.
+1. **F0-real (S):** DPAPI key store + "Paste new key" field; drop `appsettings.json`/`AddJsonFile`/UserSecrets
+   dependency; publish; exe in `C:\Self Apps\RiftReview\`.
+2. **B5 (S):** async cancellable deep-dive load, cached baselines, `ScrollViewer`, ranked filter + sample size
+   on the baseline label, de-imperative the tilt banner.
+3. **B3 part 1 (S, HIGH — dissect twice):** WAL + `PRAGMA busy_timeout=5000` on every open + backup-before-migrate
+   via the SQLite online backup API (**UNVERIFIED overload in the pinned Microsoft.Data.Sqlite — confirm**) or
+   `wal_checkpoint(TRUNCATE)` under a `Global\RiftReview.Migrate` mutex + `integrity_check` on the copy.
+4. **REC post-game card (M) on MANUAL sync:** five tiles each with baseline + sample size, spine chart with
+   static event pins, capture strip, "what this game does not know" panel; workbench behind a button.
+5. **U1 (~3 weeks):** real games reviewed per week; blockers only. The read must distinguish "capture ran,
+   nothing to review" from "capture did not run" if a capture host exists.
+6. **B4 MCP read surface (S–M), in parallel with U1:** read-only `get_schema`/`query_data`-style with an
+   engine-level ATTACH-deny authorizer copied WITH its RED-first test (Reserve pattern); logs `tool_calls`
+   from day one.
+7. **B1 capture service — ONLY on trigger:** built only if U1 shows reviews happening but capture gaps are the
+   limiter, or a week of games is lost to a forgotten sync. Preconditions: B3 part 1 landed; additive
+   `SyncResult.PerMatchOutcomes` (§0 #1); GUI-held `Global\RiftReview.App` mutex so swaps refuse while the GUI
+   is open (§0 #2b); `capture_runs` crash reconciliation (§0 #7); exit code 3 = 30-min re-fire (§0 #8); for the
+   SCHEDULED variant the long-lived-key question is a precondition OR a consecutive-failure counter surfaces
+   amber after N failures (§0 #10). B6 (extend `ParticipantFrameDto`/`ParticipantDto`) rides with B1.
+8. **B3 part 2 (M):** rotation gated on off-site verification (§0 #4), NAS archive with SHA256, gap-watch.
+9. **Then** re-read the U1 log and choose between M11–M13, the phone card, and the map/scrubber arc.
 
 **Legend:** ✅ Merged · 📝 Plan ready (execute next) · 🔬 Researching/Planning · [ ] Not started (plan first)
 
@@ -79,10 +111,10 @@ Older shipped milestones (full detail): [docs/ROADMAP-archive.md](docs/ROADMAP-a
 | # | Title | Status | Plan | PR | Notes |
 |---|-------|--------|------|----|-------|
 | F0 | Friction + key strategy | [ ] Not started | — | — | Inserted before M11 (North Star, 2026-07-07). Deploy packaged build to `C:\Self Apps\RiftReview\`; one-action sync-day key workflow; investigate Riot personal-product key persistence (**UNVERIFIED**) — if unavailable, script re-keying to a single prompt |
-| 11 | Lane-opponent diff | [ ] Not started | — | — | Gold **and XP** diff vs the direct lane opponent across the game, in the deep-dive. FIRST task: verify per-participant `xp` + lane-opponent resolution against stored `timeline_json` frames (believed present in match-v5 participantFrames — UNVERIFIED 2026-07-03) |
-| 12 | Head-to-head stat panel | [ ] Not started | — | — | Per-game scoreboard vs laner: damage dealt, KP, gold earned, damage to towers, vision, CS — deltas highlighted. Data from stored match/timeline JSON only |
-| 13 | Timeline explorer | [ ] Not started | — | — | Pick any metric(s), rendered across game time in the deep-dive. Also builds the time-axis plumbing M17 (scrubber) needs |
-| U1 | Usage window (~3 weeks) | [ ] Not started | — | — | Owner-locked completeness bar = M11–M13 (2026-07-03). Owner reviews after every session; blockers fixed immediately, everything else logged as the M14 backlog. Reserve-style usage-before-features gate |
+| 11 | Lane-opponent diff | [ ] Deferred post-U1 (2026-08-16) | — | — | Gold **and XP** diff vs the direct lane opponent across the game, in the deep-dive. FIRST task: verify per-participant `xp` + lane-opponent resolution against stored `timeline_json` frames (believed present in match-v5 participantFrames — UNVERIFIED 2026-07-03) |
+| 12 | Head-to-head stat panel | [ ] Deferred post-U1 (2026-08-16) | — | — | Per-game scoreboard vs laner: damage dealt, KP, gold earned, damage to towers, vision, CS — deltas highlighted. Data from stored match/timeline JSON only |
+| 13 | Timeline explorer | [ ] Deferred post-U1 (2026-08-16) | — | — | Pick any metric(s), rendered across game time in the deep-dive. Also builds the time-axis plumbing M17 (scrubber) needs |
+| U1 | Usage window (~3 weeks) | [ ] Not started | — | — | Bar = plan-of-record steps 0–4 (2026-08-16 ruling; M11–M13 no longer gate U1). Owner reviews after every session; blockers fixed immediately, everything else logged as the M14 backlog. Reserve-style usage-before-features gate |
 | 14 | Usage-fed fixes (perf + bugs) | [ ] Not started | — | — | Backlog = the U1 log. Speculative perf/bug work before U1 was DECLINED (owner 2026-07-03 — no observed defects yet) |
 | 15 | Map foundation | [ ] Not started | — | — | Rift map render + timeline→map coordinate transform (verify empirically) + death/kill locations with phase filter. MUST verify position-data granularity (believed 60s participant frames + exact-time events) and map-asset source/licensing before M17 is planned |
 | 16 | Ward map + position trail | [ ] Not started | — | — | Ward placed/cleared locations; per-minute own-position trail (roam timing, lane presence) |
