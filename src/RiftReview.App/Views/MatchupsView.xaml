@@ -10,7 +10,7 @@
             FalseBrush="{StaticResource LossBrush}"/>
         <BooleanToVisibilityConverter x:Key="BoolToVis"/>
 
-        <!-- Gold pill chip style for champ selector — copied verbatim from TrendsView.xaml -->
+        <!-- Gold pill chip style for the champ selector. Duplicated in TrendsView.xaml: change both. -->
         <Style x:Key="ChampChipContainerStyle" TargetType="ListBoxItem">
             <Setter Property="Margin" Value="0,0,6,6"/>
             <Setter Property="Padding" Value="12,4"/>
@@ -51,7 +51,6 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- ═══════════════ HEADER ═══════════════ -->
         <StackPanel Grid.Row="0" Margin="20,16,20,12">
 
             <TextBlock Text="Matchups"
@@ -69,7 +68,6 @@
                        HorizontalAlignment="Center"
                        Margin="0,8,0,0"/>
 
-            <!-- Champion chip selector (hidden when empty) -->
             <StackPanel>
                 <StackPanel.Style>
                     <Style TargetType="StackPanel">
@@ -102,7 +100,6 @@
                     </ListBox.ItemsPanel>
                 </ListBox>
 
-                <!-- Min games filter -->
                 <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
                     <TextBlock Text="min games"
                                Foreground="{StaticResource TextMutedBrush}"
@@ -126,7 +123,6 @@
             </StackPanel>
         </StackPanel>
 
-        <!-- ═══════════════ BODY: 2-column master–detail ═══════════════ -->
         <Grid Grid.Row="1">
             <Grid.Style>
                 <Style TargetType="Grid">
@@ -143,7 +139,6 @@
                 <ColumnDefinition Width="60*"/>
             </Grid.ColumnDefinitions>
 
-            <!-- ─── LEFT: opponent list ─── -->
             <Border Grid.Column="0"
                     BorderBrush="{StaticResource HairlineBrush}"
                     BorderThickness="0,1,1,0">
@@ -183,7 +178,6 @@
                                     </Style>
                                 </DockPanel.Style>
 
-                                <!-- Right: WinPercent + GamesLabel -->
                                 <StackPanel DockPanel.Dock="Right"
                                             Orientation="Horizontal"
                                             VerticalAlignment="Center">
@@ -211,7 +205,6 @@
                                                VerticalAlignment="Center"/>
                                 </StackPanel>
 
-                                <!-- Left: OpponentName -->
                                 <TextBlock Text="{Binding OpponentName}"
                                            Foreground="{StaticResource TextPrimaryBrush}"
                                            FontSize="13"
@@ -223,7 +216,6 @@
                 </ListBox>
             </Border>
 
-            <!-- ─── RIGHT: detail pane ─── -->
             <ScrollViewer Grid.Column="1"
                           VerticalScrollBarVisibility="Auto"
                           HorizontalScrollBarVisibility="Disabled">
@@ -238,7 +230,6 @@
                         </Style>
                     </StackPanel.Style>
 
-                    <!-- Heading -->
                     <StackPanel Margin="0,0,0,12">
                         <TextBlock FontSize="15"
                                    FontWeight="SemiBold"
@@ -273,9 +264,7 @@
                         </StackPanel>
                     </StackPanel>
 
-                    <!-- Metric tiles (UniformGrid 3 cols) -->
                     <UniformGrid Columns="3" Margin="0,0,0,16">
-                        <!-- Gold@15 -->
                         <Border Background="{StaticResource CardBgBrush}"
                                 BorderBrush="{StaticResource HairlineBrush}"
                                 BorderThickness="1"
@@ -292,7 +281,6 @@
                                            FontWeight="SemiBold"/>
                             </StackPanel>
                         </Border>
-                        <!-- CS@10 -->
                         <Border Background="{StaticResource CardBgBrush}"
                                 BorderBrush="{StaticResource HairlineBrush}"
                                 BorderThickness="1"
@@ -309,7 +297,6 @@
                                            FontWeight="SemiBold"/>
                             </StackPanel>
                         </Border>
-                        <!-- Deaths -->
                         <Border Background="{StaticResource CardBgBrush}"
                                 BorderBrush="{StaticResource HairlineBrush}"
                                 BorderThickness="1"
@@ -326,7 +313,6 @@
                                            FontWeight="SemiBold"/>
                             </StackPanel>
                         </Border>
-                        <!-- KDA -->
                         <Border Background="{StaticResource CardBgBrush}"
                                 BorderBrush="{StaticResource HairlineBrush}"
                                 BorderThickness="1"
@@ -343,7 +329,6 @@
                                            FontWeight="SemiBold"/>
                             </StackPanel>
                         </Border>
-                        <!-- Pre-15 -->
                         <Border Background="{StaticResource CardBgBrush}"
                                 BorderBrush="{StaticResource HairlineBrush}"
                                 BorderThickness="1"
@@ -362,14 +347,12 @@
                         </Border>
                     </UniformGrid>
 
-                    <!-- Games list header -->
                     <TextBlock Text="GAMES — click to open deep-dive"
                                Foreground="{StaticResource TextMutedBrush}"
                                FontSize="11"
                                FontWeight="SemiBold"
                                Margin="0,0,0,6"/>
 
-                    <!-- Games list -->
                     <ItemsControl ItemsSource="{Binding SelectedOpponent.GameRows}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
@@ -405,7 +388,6 @@
                                         </Style>
                                     </Button.Style>
                                     <DockPanel>
-                                        <!-- Result (colored) -->
                                         <TextBlock DockPanel.Dock="Left"
                                                    Text="{Binding Result}"
                                                    Foreground="{Binding Win, Converter={StaticResource WinResultBrush}}"
@@ -413,13 +395,11 @@
                                                    FontWeight="SemiBold"
                                                    Width="36"
                                                    VerticalAlignment="Center"/>
-                                        <!-- Date (right) -->
                                         <TextBlock DockPanel.Dock="Right"
                                                    Text="{Binding WhenLocal}"
                                                    Foreground="{StaticResource TextMutedBrush}"
                                                    FontSize="11"
                                                    VerticalAlignment="Center"/>
-                                        <!-- KDA + GoldDiff15 (center) -->
                                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                             <TextBlock Text="{Binding Kda}"
                                                        Foreground="{StaticResource TextMutedBrush}"

@@ -18,7 +18,6 @@
         <ScrollViewer VerticalScrollBarVisibility="Auto">
             <StackPanel Margin="20,16">
 
-                <!-- Header row: title + ranked toggle -->
                 <DockPanel Margin="0,0,0,16">
                     <TextBlock DockPanel.Dock="Left"
                                Text="Champion Pool"
@@ -37,7 +36,6 @@
                                   FontSize="12"/>
                 </DockPanel>
 
-                <!-- Currently Practicing section -->
                 <StackPanel Visibility="{Binding HasPracticing, Converter={StaticResource BoolToVis}}"
                             Margin="0,0,0,20">
                     <TextBlock Text="CURRENTLY PRACTICING"
@@ -61,7 +59,6 @@
                                         Margin="0,0,12,12"
                                         MinWidth="180">
                                     <StackPanel>
-                                        <!-- Champion name + win rate -->
                                         <DockPanel Margin="0,0,0,2">
                                             <TextBlock DockPanel.Dock="Right"
                                                        Text="{Binding WinRate}"
@@ -75,18 +72,15 @@
                                                        TextTrimming="CharacterEllipsis"/>
                                         </DockPanel>
 
-                                        <!-- Subtitle (games · role) -->
                                         <TextBlock Text="{Binding Subtitle}"
                                                    Foreground="{StaticResource TextMutedBrush}"
                                                    FontSize="11"
                                                    Margin="0,0,0,8"/>
 
-                                        <!-- Sparkline -->
                                         <controls:Sparkline Points="{Binding Trend}"
                                                             Height="38"
                                                             Margin="0,0,0,8"/>
 
-                                        <!-- Stats row -->
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Text="{Binding Kda}"
                                                        Foreground="{StaticResource TextMutedBrush}"
@@ -101,7 +95,6 @@
                                                        FontSize="11"/>
                                         </StackPanel>
 
-                                        <!-- Best build panel (hidden until BestBuild is set) -->
                                         <StackPanel Margin="0,8,0,0"
                                                     Visibility="{Binding BestBuild, Converter={StaticResource NullToCollapsed}}">
                                             <TextBlock Text="{Binding BestBuild.Summary}"
@@ -149,7 +142,6 @@
                     </ItemsControl>
                 </StackPanel>
 
-                <!-- All Champions section -->
                 <StackPanel>
                     <TextBlock Text="ALL CHAMPIONS"
                                Foreground="{StaticResource TextMutedBrush}"
@@ -165,7 +157,6 @@
                                HorizontalAlignment="Center"
                                Margin="0,24"/>
 
-                    <!-- Champion table -->
                     <ListView ItemsSource="{Binding AllChampions}"
                               Background="Transparent"
                               BorderThickness="0"

@@ -6,7 +6,7 @@ using RiftReview.Core.Riot.Dtos;
 namespace RiftReview.Core.Sync;
 
 // One-time, idempotent, local recompute of derived scalars (KP, damage share, pre-15 deaths)
-// for pre-M2 rows. Reads the immutable stored blobs only; never re-fetches or mutates raw source.
+// for rows stored before these metrics existed. Reads the immutable stored blobs only; never re-fetches or mutates raw source.
 public static class DerivedMetricsBackfill
 {
     private static readonly JsonSerializerOptions Json = new() { PropertyNameCaseInsensitive = true };

@@ -26,4 +26,4 @@ public sealed record EventDto(
     int? TeamId = null,
     List<int>? AssistingParticipantIds = null,
     int? ParticipantId = null,    // ITEM_PURCHASED / ITEM_SOLD use participantId (NOT killerId)
-    int? ItemId = null);          // ITEM_PURCHASED itemId (not rendered; reserved for future)
+    int? ItemId = null);          // ITEM_PURCHASED itemId

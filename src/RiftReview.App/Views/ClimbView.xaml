@@ -17,7 +17,6 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- ═══ HEADER ═══ -->
         <TextBlock Grid.Row="0"
                    Text="Climb"
                    Foreground="{StaticResource AccentBrush}"
@@ -25,16 +24,13 @@
                    FontWeight="SemiBold"
                    Margin="20,16,20,12"/>
 
-        <!-- ═══ BODY ═══ -->
         <ScrollViewer Grid.Row="1"
                       VerticalScrollBarVisibility="Auto"
                       HorizontalScrollBarVisibility="Disabled">
             <StackPanel Margin="20,0,20,20">
 
-                <!-- ─── Standing cards row ─── -->
                 <StackPanel Orientation="Horizontal" Margin="0,0,0,0">
 
-                    <!-- Solo tile -->
                     <Border CornerRadius="6"
                             Padding="16"
                             Margin="0,0,12,0"
@@ -74,7 +70,6 @@
                         </StackPanel>
                     </Border>
 
-                    <!-- Flex tile -->
                     <Border CornerRadius="6"
                             Padding="16"
                             Margin="0,0,12,0"
@@ -133,14 +128,12 @@
 
                 </StackPanel>
 
-                <!-- ─── Ranked momentum tile ─── -->
                 <Border Background="{StaticResource CardBgBrush}"
                         CornerRadius="6"
                         Padding="16"
                         Margin="0,16,0,0">
                     <StackPanel>
 
-                        <!-- Streak text (colored by StreakIsPositive) -->
                         <TextBlock Text="{Binding StreakText}"
                                    FontSize="16"
                                    FontWeight="SemiBold">
@@ -156,13 +149,11 @@
                             </TextBlock.Style>
                         </TextBlock>
 
-                        <!-- Longest streaks -->
                         <TextBlock Text="{Binding LongestStreaksText}"
                                    Foreground="{StaticResource TextMutedBrush}"
                                    FontSize="12"
                                    Margin="0,4,0,0"/>
 
-                        <!-- Recent-form strip -->
                         <ItemsControl ItemsSource="{Binding RecentForm}"
                                       Margin="0,8,0,0">
                             <ItemsControl.ItemsPanel>
@@ -184,7 +175,6 @@
                     </StackPanel>
                 </Border>
 
-                <!-- ─── LP history section ─── -->
                 <StackPanel Margin="0,16,0,0">
 
                     <TextBlock Text="LP HISTORY — RANKED SOLO"
@@ -200,7 +190,6 @@
                                TextWrapping="Wrap"
                                Margin="0,2,0,8"/>
 
-                    <!-- Segment rows -->
                     <ItemsControl ItemsSource="{Binding SoloSegments}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
@@ -213,7 +202,6 @@
                                             <ColumnDefinition Width="Auto"/>
                                         </Grid.ColumnDefinitions>
 
-                                        <!-- Left: WhenRange + RankRange -->
                                         <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="0,0,12,0">
                                             <TextBlock Text="{Binding WhenRange}"
                                                        Foreground="{StaticResource TextPrimaryBrush}"
@@ -224,7 +212,6 @@
                                                        Margin="0,2,0,0"/>
                                         </StackPanel>
 
-                                        <!-- Right: NetLpText (colored by IsGain) -->
                                         <TextBlock Grid.Column="1"
                                                    Text="{Binding NetLpText}"
                                                    FontSize="14"

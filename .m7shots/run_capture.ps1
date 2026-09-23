@@ -1,14 +1,12 @@
-# RiftReview M7 screenshot capture orchestration
+# Screenshot capture orchestration
 # Captures: deepdive.png (Review page, first match selected via UIAutomation)
 # Reuses Capturer.exe from .m2shots/Capturer/out/ and the DisableHWAcceleration registry workaround.
-# Adapted from .m6shots/run_capture.ps1 -- M7 only needs the deep-dive capture.
 
 $exe       = "C:\Agent Projects\RiftReview\src\RiftReview.App\bin\Debug\net10.0-windows\RiftReview.App.exe"
 $capturer  = "C:\Agent Projects\RiftReview\.m2shots\Capturer\out\Capturer.exe"
 $shots     = "C:\Agent Projects\RiftReview\.m7shots"
 $procName  = "RiftReview.App"
 
-# Ensure output directory exists
 if (-not (Test-Path $shots)) { New-Item -Path $shots -ItemType Directory -Force | Out-Null }
 
 # Registry plumbing (HKCU\Software\Microsoft\Avalon.Graphics DisableHWAcceleration)

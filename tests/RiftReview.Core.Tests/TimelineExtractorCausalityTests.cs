@@ -7,7 +7,6 @@ namespace RiftReview.Core.Tests;
 
 public class TimelineExtractorCausalityTests
 {
-    // Mirror the loader idiom used by TimelineExtractorTests (adjust if that file differs).
     private static TimelineDto Tl() => JsonSerializer.Deserialize<TimelineDto>(
         FixtureLoader.Read("causality_timeline.json"),
         new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;

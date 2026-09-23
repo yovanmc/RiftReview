@@ -202,7 +202,7 @@ public static class DemoSeeder
                 frameList[fm].Events.Add(new EventDto("CHAMPION_KILL", 60000L * fm, 8, 3));
         }
 
-        // M7: vision + objective events (attributed to ME = pid 3, team 100) so the deep-dive
+        // Vision + objective events (attributed to ME = pid 3, team 100) so the deep-dive
         // Vision & objectives section renders with realistic demo data. Minutes <= 24 so they
         // survive shorter demo games; the guard drops any that exceed this game's length.
         void AddEv(int minute, EventDto ev) { if (minute < frames) frameList[minute].Events.Add(ev); }
@@ -232,7 +232,7 @@ public static class DemoSeeder
         AddEv(15, new EventDto("BUILDING_KILL", 60000L * 15, KillerId: 8, VictimId: null,
             TeamId: 100, BuildingType: "TOWER_BUILDING", TowerType: "OUTER_TURRET", LaneType: "MID_LANE"));
 
-        // M8: synthetic recalls (clusters of ITEM_PURCHASED events) for the player so the
+        // Synthetic recalls (clusters of ITEM_PURCHASED events) for the player so the
         // back-timing feature renders in --seed-demo.  Each cluster = one "back" trip.
         // Minutes 2, 8, 14, 20 are all within the shortest game (25 frames, indices 0-25).
         // Minute 2 precedes the gold-diff curve's first significant swing, satisfying the
@@ -262,7 +262,7 @@ public static class DemoSeeder
         if (overrideCompletedItems is { Length: > 0 })
             AddBack(22, overrideCompletedItems);
 
-        // M10: player-credited team kills (enemy victims 6–10, my killers 1–5) spread across
+        // Player-credited team kills (enemy victims 6–10, my killers 1–5) spread across
         // phases so kill-participation renders in --seed-demo. Vary by game index i so the
         // per-phase KP baseline is non-constant. Deaths (pid 3 as victim) are untouched.
         void AddTeamKill(int minute, int killerPid, int victimPid, int[] assists)

@@ -79,7 +79,7 @@ public static class TimelineExtractor
             : tl.Info.Frames.OrderBy(f => Math.Abs(f.Timestamp - target)).First();
     }
 
-    // ---- M10: per-phase breakdown (item 20 "timeline mini-score") ----
+    // Per-phase breakdown (timeline mini-score).
     public static IReadOnlyList<PhaseStat> BuildPhaseBreakdown(
         TimelineDto tl, int myParticipantId, int myTeamId,
         IReadOnlyList<ChartPoint> teamGoldDiffSeries)
@@ -160,7 +160,7 @@ public static class TimelineExtractor
         return val;
     }
 
-    // ---- M8: timeline causality (swing / death-context / back-timing) ----
+    // Timeline causality: swing, death context, back-timing.
     private const int  SwingWindowFrames = 3;     // ~3 min (frames are 1-min); rolling window width
     private const double SwingEpsilonGold = 1.0;  // |Δ| below this => no decisive swing
     private const long BackClusterGapMs = 10_000; // purchases > 10s apart => a separate recall
@@ -169,7 +169,7 @@ public static class TimelineExtractor
     {
         var team = TeamGoldDiffSeries(tl, myParticipantId);   // signed: + = my team ahead
 
-        // Item 13: largest-magnitude rolling-window swing on the team gold-diff curve.
+        // Largest-magnitude rolling-window swing on the team gold-diff curve.
         SwingPoint? swing = null;
         if (team.Count >= 2)
         {
@@ -190,7 +190,7 @@ public static class TimelineExtractor
             if (swing is not null && Math.Abs(swing.Delta) < SwingEpsilonGold) swing = null;
         }
 
-        // Item 14: team gold-diff at each of my deaths.
+        // Team gold-diff at each of my deaths.
         var deaths = tl.Info.Frames
             .SelectMany(f => f.Events)
             .Where(e => e.Type == "CHAMPION_KILL" && e.VictimId == myParticipantId)
@@ -199,7 +199,7 @@ public static class TimelineExtractor
             .Select(m => new DeathContext(Math.Round(m, 2), NearestValue(team, m)))
             .ToList();
 
-        // Item 15: recalls = clusters of my ITEM_PURCHASED events.
+        // Recalls = clusters of my ITEM_PURCHASED events.
         var myPurchases = tl.Info.Frames
             .SelectMany(f => f.Events)
             .Where(e => e.Type == "ITEM_PURCHASED" && e.ParticipantId == myParticipantId)
@@ -232,7 +232,7 @@ public static class TimelineExtractor
     }
 
     // Team gold-diff curve (mirrors BuildDeepDive's team logic + its skip-rule, so the swing
-    // aligns with the displayed chart). Kept separate so the tested BuildDeepDive stays untouched.
+    // aligns with the displayed chart). Change both together.
     private static List<ChartPoint> TeamGoldDiffSeries(TimelineDto tl, int myParticipantId)
     {
         var line = new List<ChartPoint>();

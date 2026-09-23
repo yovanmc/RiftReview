@@ -3,7 +3,6 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:conv="clr-namespace:RiftReview.App.Converters">
     <UserControl.Resources>
-        <!-- Win/loss dot converter scoped to this view -->
         <conv:BoolToBrushConverter x:Key="WinDot"
             TrueBrush="{StaticResource WinBrush}"
             FalseBrush="{StaticResource LossBrush}" />
@@ -22,7 +21,6 @@
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
-            <!-- Title -->
             <TextBlock Grid.Row="0"
                        Text="Last 20 games"
                        Foreground="{StaticResource AccentBrush}"
@@ -30,7 +28,6 @@
                        FontSize="12"
                        Margin="0,0,0,6"/>
 
-            <!-- W/L dots -->
             <DockPanel Grid.Row="1" Margin="0,2">
                 <TextBlock DockPanel.Dock="Left"
                            Text="W/L"
@@ -53,7 +50,6 @@
                 </ItemsControl>
             </DockPanel>
 
-            <!-- Deaths -->
             <DockPanel Grid.Row="2" Margin="0,2">
                 <TextBlock DockPanel.Dock="Left"
                            Text="Deaths"
@@ -79,7 +75,6 @@
                 </ItemsControl>
             </DockPanel>
 
-            <!-- CS@10 -->
             <DockPanel Grid.Row="3" Margin="0,2">
                 <TextBlock DockPanel.Dock="Left"
                            Text="CS@10"
@@ -105,7 +100,6 @@
                 </ItemsControl>
             </DockPanel>
 
-            <!-- Gold@15 -->
             <DockPanel Grid.Row="4" Margin="0,2">
                 <TextBlock DockPanel.Dock="Left"
                            Text="Gold@15"
