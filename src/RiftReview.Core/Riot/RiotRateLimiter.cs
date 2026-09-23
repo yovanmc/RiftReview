@@ -47,7 +47,6 @@ public sealed class RiotRateLimiter
                     continue;
                 }
 
-                // Evict expired timestamps from both windows
                 Trim(_short, now, ShortWindow);
                 Trim(_long, now, LongWindow);
 
@@ -66,7 +65,6 @@ public sealed class RiotRateLimiter
                     continue;
                 }
 
-                // Slot available — record the timestamp and return
                 _short.Enqueue(now);
                 _long.Enqueue(now);
                 return;
@@ -78,7 +76,6 @@ public sealed class RiotRateLimiter
         }
     }
 
-    // Remove entries that have slid out of the window.
     // A timestamp at exactly (now - window) is >= window old: it no longer
     // counts against the current window, so we evict it (>=, not >).
     private static void Trim(Queue<DateTimeOffset> q, DateTimeOffset now, TimeSpan w)

@@ -48,7 +48,7 @@ public sealed partial class MainViewModel : ObservableObject
 
     public bool IsEmpty => Matches.Count == 0;
 
-    // NOTE: the View calls InitializeAsync() from its Loaded handler so Data Dragon names load and the list refreshes.
+    // The View calls InitializeAsync() from its Loaded handler so Data Dragon names load and the list refreshes.
     public async Task InitializeAsync()
     {
         if (_namesReady) return;   // names already loaded; don't Reload (would clobber a ShowMatch deep-dive)

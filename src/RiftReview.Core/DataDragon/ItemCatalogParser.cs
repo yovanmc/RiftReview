@@ -42,14 +42,14 @@ public static class ItemCatalogParser
         return new Catalog(names, completed);
     }
 
-    // Drop 4 figured rules validated against the live file:
+    // Completed-item rules, validated against the live file:
     //   idStr.Length <= 4        -> drop 6-digit Arena/alt-mode variant ids (e.g. 323040)
     //   maps["11"] == true       -> Summoner's Rift only
     //   gold.total >= 2000       -> legendary price floor (cleanly separates legendaries from
     //                               components AND boots; highest non-legendary terminal item is 1250)
     //   not Consumable/Trinket/Boots tag
     //   into absent or empty     -> terminal item (every finished legendary has no `into`)
-    // NOTE: do NOT gate on gold.purchasable -- transform results (Muramana/Seraph's/Fimbulwinter) are
+    // Do NOT gate on gold.purchasable -- transform results (Muramana/Seraph's/Fimbulwinter) are
     // purchasable:false yet are real finished items; we want their PRECURSOR (which IS terminal+>=2000)
     // to count, and the predicate already does that.
     private static bool IsCompleted(string idStr, JsonElement it)

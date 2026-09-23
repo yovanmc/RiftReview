@@ -8,7 +8,7 @@
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis"/>
 
-        <!-- Gold pill chip style for champ selector ListBox items -->
+        <!-- Gold pill chip style for the champ selector. Duplicated in MatchupsView.xaml: change both. -->
         <Style x:Key="ChampChipContainerStyle" TargetType="ListBoxItem">
             <Setter Property="Margin" Value="0,0,6,6"/>
             <Setter Property="Padding" Value="12,4"/>
@@ -42,7 +42,6 @@
             </Setter>
         </Style>
 
-        <!-- Metric row style for the drill ListBox -->
         <Style x:Key="MetricRowContainerStyle" TargetType="ListBoxItem">
             <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
             <Setter Property="Padding" Value="0,6"/>
@@ -77,21 +76,18 @@
         <ScrollViewer VerticalScrollBarVisibility="Auto">
             <StackPanel Margin="20,16">
 
-                <!-- Header: title -->
                 <TextBlock Text="Improvement trends"
                            Foreground="{StaticResource AccentBrush}"
                            FontSize="18"
                            FontWeight="SemiBold"
                            Margin="0,0,0,6"/>
 
-                <!-- LP strip (only when LP data exists) -->
                 <TextBlock Text="{Binding LpHeadline}"
                            Visibility="{Binding HasLp, Converter={StaticResource BoolToVis}}"
                            Foreground="{StaticResource TextMutedBrush}"
                            FontSize="12"
                            Margin="0,0,0,16"/>
 
-                <!-- Preparing overlay text -->
                 <TextBlock Text="{Binding PrepareStatus}"
                            Visibility="{Binding IsPreparing, Converter={StaticResource BoolToVis}}"
                            Foreground="{StaticResource AccentBrush}"
@@ -108,7 +104,6 @@
                            TextWrapping="Wrap"
                            Margin="0,24"/>
 
-                <!-- Non-empty content -->
                 <StackPanel>
                     <StackPanel.Style>
                         <Style TargetType="StackPanel">
@@ -120,7 +115,6 @@
                         </Style>
                     </StackPanel.Style>
 
-                    <!-- Champion chip selector -->
                     <TextBlock Text="CHAMPION"
                                Foreground="{StaticResource TextMutedBrush}"
                                FontSize="11"
@@ -149,7 +143,6 @@
                                FontWeight="SemiBold"
                                Margin="0,0,0,8"/>
 
-                    <!-- Compare mode toggle + rank tier selector -->
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,8" VerticalAlignment="Center">
                         <RadioButton Content="Rank" GroupName="CompareMode" IsChecked="{Binding IsRankMode, Mode=TwoWay}" Margin="0,0,8,0"/>
                         <RadioButton Content="Own"  GroupName="CompareMode" IsChecked="{Binding IsOwnMode,  Mode=TwoWay}"/>
@@ -180,7 +173,6 @@
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
 
-                                    <!-- Left: DisplayName + Current + baseline delta -->
                                     <StackPanel Grid.Column="0" VerticalAlignment="Center">
                                         <TextBlock Text="{Binding DisplayName}"
                                                    Foreground="{StaticResource TextPrimaryBrush}"
@@ -189,7 +181,6 @@
                                         <TextBlock Text="{Binding Current}"
                                                    Foreground="{StaticResource TextMutedBrush}"
                                                    FontSize="11"/>
-                                        <!-- Delta vs baseline: visible only when HasBaseline -->
                                         <StackPanel Orientation="Horizontal"
                                                     Visibility="{Binding HasBaseline, Converter={StaticResource BoolToVis}}">
                                             <TextBlock Text="{Binding DeltaVsBaseline}"
@@ -217,7 +208,6 @@
                                         </StackPanel>
                                     </StackPanel>
 
-                                    <!-- Center: Sparkline -->
                                     <controls:Sparkline Grid.Column="1"
                                                         Values="{Binding Series}"
                                                         Baseline="{Binding BaselineValue}"
@@ -225,7 +215,6 @@
                                                         Height="28"
                                                         Margin="8,0"/>
 
-                                    <!-- Right: Verdict label + Delta -->
                                     <StackPanel Grid.Column="2" VerticalAlignment="Center" MinWidth="80">
                                         <TextBlock Text="{Binding Verdict}"
                                                    FontSize="11"
@@ -255,7 +244,6 @@
                         </ListBox.ItemTemplate>
                     </ListBox>
 
-                    <!-- Drill panel: larger sparkline for SelectedMetric -->
                     <Border Background="{StaticResource CardBgBrush}"
                             BorderBrush="{StaticResource HairlineBrush}"
                             BorderThickness="1"

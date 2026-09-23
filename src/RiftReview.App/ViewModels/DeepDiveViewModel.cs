@@ -56,11 +56,11 @@ public sealed partial class DeepDiveViewModel : ObservableObject
     [ObservableProperty] private VisionStats _vision = new(0, 0, 0, 0);
     [ObservableProperty] private IReadOnlyList<ObjectiveRowVm> _objectives = Array.Empty<ObjectiveRowVm>();
 
-    // By game phase (M10)
+    // By game phase
     [ObservableProperty] private bool _hasPhaseBreakdown;
     [ObservableProperty] private IReadOnlyList<PhaseRowVm> _phaseRows = Array.Empty<PhaseRowVm>();
 
-    // Swing & causality (M8)
+    // Swing & causality
     [ObservableProperty] private bool _hasCausality;
     [ObservableProperty] private bool _hasSwing;
     [ObservableProperty] private string _swingText = "";
@@ -113,7 +113,6 @@ public sealed partial class DeepDiveViewModel : ObservableObject
                 : RiftReview.Core.Analysis.RankBaselineProvider.Resolve(
                     rankTable, summary.MyTeamPosition, soloSnap.Tier, "csPerMin");
 
-            // Assemble chart series for XAML binding.
             GoldSeries = new List<ChartSeries>
             {
                 new(dd.GoldDiffVsTeam, TeamBrush),
@@ -138,7 +137,7 @@ public sealed partial class DeepDiveViewModel : ObservableObject
                 o.TeamTotal == 0 ? "none taken" : $"{o.Participated} / {o.TeamTotal}",
                 o.TeamTotal == 0 ? "" : ((double)o.Participated / o.TeamTotal).ToString("P0"))).ToList();
 
-            // Swing & causality (M8)
+            // Swing & causality
             var causality = TimelineExtractor.BuildCausality(tl, summary.MyParticipantId);
 
             if (causality.Swing is { } sw)

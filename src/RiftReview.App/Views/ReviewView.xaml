@@ -15,21 +15,18 @@
         <BooleanToVisibilityConverter x:Key="BoolToVis"/>
     </UserControl.Resources>
 
-    <!-- Main content: rail (300px) + right panel -->
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="300"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
-        <!-- LEFT RAIL -->
         <Border Grid.Column="0"
                 Background="{StaticResource PanelBgBrush}"
                 BorderBrush="{StaticResource HairlineBrush}"
                 BorderThickness="0,0,1,0">
             <DockPanel>
 
-                <!-- Header: Sync + Ranked toggle -->
                 <Border DockPanel.Dock="Top"
                         Background="{StaticResource CardBgBrush}"
                         BorderBrush="{StaticResource HairlineBrush}"
@@ -58,7 +55,6 @@
                     </StackPanel>
                 </Border>
 
-                <!-- Match list (with empty-state overlay) -->
                 <Grid DockPanel.Dock="Bottom">
                     <!-- Empty state hint — visible only when list is empty -->
                     <TextBlock Text="No matches yet — set your Riot key and press Sync."
@@ -101,7 +97,6 @@
                                         <RowDefinition Height="Auto"/>
                                         <RowDefinition Height="Auto"/>
                                     </Grid.RowDefinitions>
-                                    <!-- Row 1: champ + role -->
                                     <StackPanel Grid.Row="0" Orientation="Horizontal">
                                         <TextBlock Text="{Binding ChampionName}"
                                                    Foreground="{StaticResource TextPrimaryBrush}"
@@ -114,7 +109,6 @@
                                                    Foreground="{StaticResource TextMutedBrush}"
                                                    FontSize="13"/>
                                     </StackPanel>
-                                    <!-- Row 2: result (colored) + kda + time -->
                                     <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,2,0,0">
                                         <TextBlock Text="{Binding Result}"
                                                    Foreground="{Binding Win, Converter={StaticResource WinDotBrush}}"
@@ -141,7 +135,6 @@
             </DockPanel>
         </Border>
 
-        <!-- RIGHT PANEL: trend strip (auto) + deep-dive (*) -->
         <Grid Grid.Column="1">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>

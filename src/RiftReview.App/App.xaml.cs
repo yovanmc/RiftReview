@@ -101,7 +101,6 @@ public partial class App : Application
                 s.AddTransient<ViewModels.ClimbViewModel>();
                 s.AddTransient<ClimbView>();
 
-                // AppShell is the top-level FluentWindow shell
                 s.AddSingleton<AppShell>();
             })
             .Build();

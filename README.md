@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/yovanmc/RiftReview/actions/workflows/ci.yml/badge.svg)](https://github.com/yovanmc/RiftReview/actions/workflows/ci.yml)
 
-Personal, single-user, read-only, non-commercial Windows desktop app for self-coaching at League of Legends. It pulls **your own** match history from the official Riot API into a local SQLite store and shows a post-game review: a single-game deep-dive (gold differential vs lane & enemy team with death markers, CS/min vs your own same-role baseline) plus a cross-game trend strip (W/L, deaths, CS@10, gold-diff@15).
+Personal, single-user, read-only, non-commercial Windows desktop app for self-coaching at League of Legends. It pulls **your own** match history from the official Riot API into a local SQLite store and shows a post-game review: a single-game deep-dive (gold differential vs lane & enemy team with death markers, CS/min vs your own same-role baseline) plus a cross-game trend strip (W/L, deaths, CS@10, gold-diff@15). Further pages cover your champion pool, trends, matchups, session health and climb.
 
 Built with **.NET 10 / WPF / WPF-UI / CommunityToolkit.Mvvm / Microsoft.Data.Sqlite**. Black-glass theme + Hextech Gold accent.
 
@@ -28,7 +28,7 @@ Built with **.NET 10 / WPF / WPF-UI / CommunityToolkit.Mvvm / Microsoft.Data.Sql
 dotnet run --project src/RiftReview.App
 ```
 
-Press **Sync** to resolve your Riot ID → PUUID and pull your last ~20 matches (incremental — already-stored matches are skipped). Select a match in the left rail to open its deep-dive.
+Press **Sync** to resolve your Riot ID → PUUID and pull your recent matches, 150 by default and adjustable from 20 to 300 in Settings (incremental — already-stored matches are skipped). Select a match in the left rail to open its deep-dive.
 
 ### Demo mode (no key needed)
 

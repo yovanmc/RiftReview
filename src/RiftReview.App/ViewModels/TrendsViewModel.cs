@@ -70,9 +70,9 @@ public sealed partial class TrendsViewModel : ObservableObject
 
     public sealed record ChampChoice(int ChampionId, string Name);
 
-    // NOTE: the View calls InitializeWithBackfillAsync() (added in Task 11) from its Loaded handler;
-    // that runs the one-time backfill, ensures Data Dragon names, then calls Load(). The Task 8 test
-    // calls Load() directly (champ names fall back to placeholders when Data Dragon isn't loaded).
+    // The View calls InitializeWithBackfillAsync() from its Loaded handler: one-time backfill,
+    // then Data Dragon names, then Load(). Tests call Load() directly (champ names fall back to
+    // placeholders when Data Dragon isn't loaded).
     public void Load()
     {
         // Load baseline table and set provenance once

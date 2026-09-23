@@ -36,7 +36,6 @@
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
-            <!-- Header -->
             <Border Grid.Row="0"
                     Background="{StaticResource CardBgBrush}"
                     BorderBrush="{StaticResource HairlineBrush}"
@@ -48,7 +47,6 @@
                            FontWeight="SemiBold"/>
             </Border>
 
-            <!-- Swing & causality (M8) -->
             <Border Grid.Row="1"
                     Background="{StaticResource CardBgBrush}"
                     BorderBrush="{StaticResource HairlineBrush}"
@@ -61,13 +59,11 @@
                                Foreground="{StaticResource AccentBrush}"
                                FontSize="13" FontWeight="SemiBold" Margin="0,0,0,6"/>
 
-                    <!-- Item 13: where the game turned -->
                     <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
                         <TextBlock Text="Where the game turned: " Foreground="{StaticResource TextMutedBrush}"/>
                         <TextBlock Text="{Binding SwingText}" Foreground="{StaticResource TextPrimaryBrush}"/>
                     </StackPanel>
 
-                    <!-- Item 14: deaths in context -->
                     <ItemsControl ItemsSource="{Binding DeathContexts}" Margin="0,6,0,0">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
@@ -81,7 +77,6 @@
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
 
-                    <!-- Item 15: back-timing -->
                     <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
                         <TextBlock Text="Backs: " Foreground="{StaticResource TextMutedBrush}"/>
                         <TextBlock Text="{Binding BackSummary}" Foreground="{StaticResource TextPrimaryBrush}"/>
@@ -103,7 +98,6 @@
                 </StackPanel>
             </Border>
 
-            <!-- Vision & objectives -->
             <Border Grid.Row="2"
                     Background="{StaticResource CardBgBrush}"
                     BorderBrush="{StaticResource HairlineBrush}"
@@ -153,7 +147,6 @@
                 </StackPanel>
             </Border>
 
-            <!-- By game phase (M10) -->
             <Border Grid.Row="3"
                     Background="{StaticResource CardBgBrush}"
                     BorderBrush="{StaticResource HairlineBrush}"
@@ -234,7 +227,6 @@
                 </StackPanel>
             </Border>
 
-            <!-- Gold diff chart -->
             <Border Grid.Row="4"
                     Background="{StaticResource CardBgBrush}"
                     BorderBrush="{StaticResource HairlineBrush}"
@@ -261,7 +253,6 @@
                 </Grid>
             </Border>
 
-            <!-- CS/min chart -->
             <Border Grid.Row="5"
                     Background="{StaticResource CardBgBrush}"
                     Padding="12,8">

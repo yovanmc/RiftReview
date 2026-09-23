@@ -1,7 +1,6 @@
-# RiftReview M9 screenshot capture orchestration
+# Screenshot capture orchestration
 # Captures: champions.png (Champions page, "Currently Practicing" card with Best Build panel)
 # Reuses Capturer.exe from .m2shots/Capturer/out/ and the DisableHWAcceleration registry workaround.
-# Adapted from .m8shots/run_capture.ps1 -- M9 targets --page champions with --seed-demo.
 # No UIAutomation list-item selection needed -- Best Build panel is on the card at top of page.
 # Extended async wait (15s) for ChampPoolViewModel.InitializeAsync (DDragon versions+champion+item JSON fetch).
 
@@ -10,7 +9,6 @@ $capturer  = "C:\Agent Projects\RiftReview\.m2shots\Capturer\out\Capturer.exe"
 $shots     = "C:\Agent Projects\RiftReview\.m9shots"
 $procName  = "RiftReview.App"
 
-# Ensure output directory exists
 if (-not (Test-Path $shots)) { New-Item -Path $shots -ItemType Directory -Force | Out-Null }
 
 # Registry plumbing (HKCU\Software\Microsoft\Avalon.Graphics DisableHWAcceleration)

@@ -27,18 +27,14 @@ public sealed class ChartScaler
         _pad + (_maxY <= _minY ? 0 : (1 - (y - _minY) / (_maxY - _minY))) * (_h - 2 * _pad);
 }
 
-/// <summary>
-/// A single data series to render in a <see cref="LineChart"/>.
-/// </summary>
 public sealed record ChartSeries(IReadOnlyList<ChartPoint> Points, Brush Stroke, bool Dashed = false);
 
 /// <summary>
 /// Hand-rolled WPF line-chart control. Renders via OnRender — no template or XAML required.
-/// Visual output is verified at the Task 15 screenshot gate.
 /// </summary>
 public sealed class LineChart : FrameworkElement
 {
-    // ── Static chrome brushes / pens (frozen once, reused every render) ────────
+    // Chrome brushes and pens: frozen once, reused every render.
     private static readonly Brush ChromeBrush  = Freeze(new SolidColorBrush(Color.FromArgb(0x66, 0xFF, 0xFF, 0xFF)));
     private static readonly Brush LabelBrush   = Freeze(new SolidColorBrush(Color.FromArgb(0xAA, 0xFF, 0xFF, 0xFF)));
     private static readonly Pen   ZeroPen      = FreezePen(new Pen(ChromeBrush, 1));
@@ -47,8 +43,6 @@ public sealed class LineChart : FrameworkElement
     private static readonly Pen   DeathXPen    = FreezePen(new Pen(DeathBrush, 2));
 
     private const double Pad = 28;
-
-    // ── Dependency properties ──────────────────────────────────────────────────
 
     public static readonly DependencyProperty SeriesProperty = DependencyProperty.Register(
         nameof(Series), typeof(IReadOnlyList<ChartSeries>), typeof(LineChart),
@@ -100,8 +94,6 @@ public sealed class LineChart : FrameworkElement
         set => SetValue(SwingEndMinuteProperty, value);
     }
 
-    // ── Rendering ─────────────────────────────────────────────────────────────
-
     protected override void OnRenderSizeChanged(SizeChangedInfo info)
     {
         base.OnRenderSizeChanged(info);
@@ -142,14 +134,12 @@ public sealed class LineChart : FrameworkElement
             dc.DrawRectangle(swingBrush, null, new Rect(new Point(bx1, Pad), new Point(bx2, h - Pad)));
         }
 
-        // Zero gridline
         if (ShowZeroLine && minY <= 0 && maxY >= 0)
         {
             double zy = sc.Y(0);
             dc.DrawLine(ZeroPen, new Point(Pad, zy), new Point(w - Pad, zy));
         }
 
-        // Series polylines
         foreach (var s in series)
         {
             var geo = new StreamGeometry();
@@ -182,7 +172,6 @@ public sealed class LineChart : FrameworkElement
             }
         }
 
-        // Minimal axis labels
         DrawText(dc, Fmt(maxY), new Point(2, sc.Y(maxY) - 7), LabelBrush);
         DrawText(dc, Fmt(minY), new Point(2, sc.Y(minY) - 7), LabelBrush);
         DrawText(dc, $"{maxX:0}m", new Point(w - Pad, h - Pad + 4), LabelBrush);

@@ -7,14 +7,12 @@
         <ScrollViewer VerticalScrollBarVisibility="Auto">
             <StackPanel Margin="20,16">
 
-                <!-- Header -->
                 <TextBlock Text="Settings"
                            Foreground="{StaticResource AccentBrush}"
                            FontSize="18"
                            FontWeight="SemiBold"
                            Margin="0,0,0,24"/>
 
-                <!-- Match Depth section -->
                 <TextBlock Text="MATCH DEPTH"
                            Foreground="{StaticResource TextMutedBrush}"
                            FontSize="11"
@@ -43,7 +41,6 @@
                            FontSize="11"
                            Margin="0,0,0,24"/>
 
-                <!-- Trend Window section -->
                 <TextBlock Text="TREND WINDOW"
                            Foreground="{StaticResource TextMutedBrush}"
                            FontSize="11"
@@ -72,7 +69,6 @@
                            FontSize="11"
                            Margin="0,0,0,24"/>
 
-                <!-- Default Filter section -->
                 <TextBlock Text="DEFAULT FILTER"
                            Foreground="{StaticResource TextMutedBrush}"
                            FontSize="11"

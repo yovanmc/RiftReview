@@ -1,4 +1,4 @@
-# RiftReview M10 tall screenshot capture
+# Tall screenshot capture
 # Resizes the window to ~1120x1500 via UIAutomation TransformPattern before capture
 # so the gold-diff chart (* row) comes into view.
 # Writes: .m10shots/phase_tall.png
@@ -77,7 +77,6 @@ try {
     Write-Host "Waiting 6s for Review page init + match list to populate..."
     Start-Sleep -Seconds 6
 
-    # Load UIAutomation assemblies
     [Reflection.Assembly]::LoadWithPartialName('UIAutomationClient') | Out-Null
     [Reflection.Assembly]::LoadWithPartialName('UIAutomationTypes') | Out-Null
 

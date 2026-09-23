@@ -20,7 +20,7 @@ public sealed partial class MatchupsViewModel : ObservableObject
     private readonly MainViewModel _main;
     private readonly NavigationService _nav;
 
-    // Matchups are always ranked-only (locked design decision), so no SettingsStore dependency.
+    // Matchups are always ranked-only, so no SettingsStore dependency.
     public MatchupsViewModel(RiftReviewDb db, DataDragonClient ddragon, MainViewModel main, NavigationService nav)
     {
         _db = db; _ddragon = ddragon; _main = main; _nav = nav;
