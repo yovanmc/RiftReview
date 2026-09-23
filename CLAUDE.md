@@ -23,8 +23,9 @@ Secrets (owner-only, never agent-set): User Secrets in dev —
 (`"SET-VIA-USER-SECRETS"`) only; never commit a real `RGAPI-` key.
 
 ## Screenshot verification harness
-`.m<N>shots/` per-milestone folders (`.m2shots` through `.m10shots`). Capture scripts
-(`run_capture.ps1`, some with `run_capture_tall.ps1`) exist from `.m7shots` on. Pattern:
+`.m<N>shots/` per-milestone folders. `.m7shots` to `.m10shots` hold the committed capture scripts
+(`run_capture.ps1`, some with `run_capture_tall.ps1`). `.m2shots` to `.m6shots` and the Capturer
+build are untracked, main checkout only. Pattern:
 - Launch the Debug exe with `--seed-demo --page <review|champions|trends|matchups|sessions|climb|settings>`
   (hook lives in `AppShell.OnLoaded`).
 - Set `HKCU:\Software\Microsoft\Avalon.Graphics\DisableHWAcceleration=1`, capture, then restore it.
