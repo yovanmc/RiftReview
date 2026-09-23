@@ -26,16 +26,6 @@ public class RiotApiClientTests
     }
 
     [Fact]
-    public async Task GetSummoner_uses_platform_host()
-    {
-        var h = new StubHttpMessageHandler(_ =>
-            StubHttpMessageHandler.Json("{\"puuid\":\"P1\",\"summonerLevel\":321,\"profileIconId\":7}"));
-        var c = Make(h);
-        await c.GetSummonerByPuuidAsync("P1");
-        Assert.Contains("na1.api.riotgames.com", h.Requests[0].RequestUri!.ToString());
-    }
-
-    [Fact]
     public async Task Non2xx_throws_RiotApiException_with_status()
     {
         var h = new StubHttpMessageHandler(_ => StubHttpMessageHandler.Json("{}", HttpStatusCode.Forbidden));

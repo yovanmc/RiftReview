@@ -18,11 +18,10 @@ public sealed partial class ChampPoolViewModel : ObservableObject
 
     private readonly RiftReviewDb _db;
     private readonly DataDragonClient _ddragon;
-    private readonly SettingsStore _settings;
 
     public ChampPoolViewModel(RiftReviewDb db, DataDragonClient ddragon, SettingsStore settings)
     {
-        _db = db; _ddragon = ddragon; _settings = settings;
+        _db = db; _ddragon = ddragon;
         _rankedOnly = settings.DefaultRankedOnly;
     }
 

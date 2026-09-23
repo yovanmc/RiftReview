@@ -27,11 +27,6 @@ public sealed class RiotApiClient : IRiotApiClient
             $"{_regionalHost}/riot/account/v1/accounts/by-riot-id/{Uri.EscapeDataString(gameName)}/{Uri.EscapeDataString(tagLine)}",
             ct);
 
-    public Task<SummonerDto> GetSummonerByPuuidAsync(string puuid, CancellationToken ct = default)
-        => GetAsync<SummonerDto>(
-            $"{_platformHost}/lol/summoner/v4/summoners/by-puuid/{puuid}",
-            ct);
-
     public Task<List<string>> GetMatchIdsAsync(string puuid, int start, int count, CancellationToken ct = default)
         => GetAsync<List<string>>(
             $"{_regionalHost}/lol/match/v5/matches/by-puuid/{puuid}/ids?start={start}&count={count}",
