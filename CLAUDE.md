@@ -2,14 +2,14 @@
 
 State lives in `ROADMAP.md` (canonical milestones). This file is the
 how-to-work-here layer — read ROADMAP.md for what's being built; read this for how to build it.
-**Read `NORTHSTAR.md` before planning anything here** — end-state vision, path phases, and locked owner decisions.
+**Read `NORTHSTAR.md` before planning anything here** — end-state vision, path phases, and locked decisions.
 
 ## What this is
 Single-user, local-only, post-game, data-honest League of Legends self-coach.
 C#/.NET 10 WPF (+ WPF-UI), split into `RiftReview.Core` (no-WPF, testable) and `RiftReview.App`.
 SQLite (schema v3). Riot API only — no third-party aggregators. Public repo:
 github.com/yovanmc/RiftReview. Riot personal dev keys
-**expire ~daily** — real-key testing only works on the owner's machine; all agent work
+**expire ~daily** — real-key testing only works on Yovan's machine; all agent work
 uses `--seed-demo` synthetic data instead.
 
 ## Commands
@@ -18,7 +18,7 @@ dotnet build RiftReview.slnx -v minimal
 dotnet test RiftReview.slnx
 dotnet run --project src/RiftReview.App -- --seed-demo   # demo mode, no key needed
 ```
-Secrets (owner-only, never agent-set): User Secrets in dev —
+Secrets (Yovan sets them, never an agent): User Secrets in dev —
 `dotnet user-secrets set "Riot:ApiKey" "RGAPI-..."` — `appsettings.json` ships placeholders
 (`"SET-VIA-USER-SECRETS"`) only; never commit a real `RGAPI-` key.
 
@@ -34,14 +34,14 @@ build are untracked, main checkout only. Pattern:
   `SelectionItemPattern.Select()` on the first matching ListItem.
 - Use the `_tall` variant when the target card sits below the default capture fold (chart/band
   content especially).
-- **Gate**: a cheap subagent views the PNGs and returns a text verdict — never load PNGs into
+- **Gate**: a separate cheap model views the PNGs and returns a text verdict — never load PNGs into
   the controller session. PNGs are gitignored; the capture scripts ARE committed.
 - No `--capture`/`--autostart`/`--done-signal` hooks here (those belong to another project).
 
 ## Conventions & safety
 - CI: GitHub Actions (`.github/workflows/ci.yml`: restore → build `-warnaserror` → test,
   windows-latest / .NET 10, on push/PR to master). The local merge gate is `dotnet test` + the
-  screenshot subagent verdict. Flow: plan → branch → PR → `--merge --delete-branch` from
+  screenshot verdict. Flow: plan → branch → PR → `--merge --delete-branch` from
   `master` (default branch is **master**, not main).
 - Commit author = repo default `yovanmc`; **never pass `--author`**. End commit messages with
   the current model's `Co-Authored-By: Claude …` trailer.

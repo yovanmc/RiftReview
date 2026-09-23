@@ -1,11 +1,11 @@
 # RiftReview — North Star
 
 ## What this builds up to be (end-state vision)
-**RiftReview, finished, is the permanent record of the owner's League career and the instrument he reviews it with — eventually with a coaching layer on top.**
+**RiftReview, finished, is the permanent record of Yovan's League career and the instrument he reviews it with — eventually with a coaching layer on top.**
 
 Three stages, each gated on the one before it proving out in real use:
 1. **The workbench.** One-action post-session sync and a post-game card, then the explorer (M11 to M17): lane diffs, head-to-head, timeline causality, and the scrubber stepping all ten players across the map minute-by-minute with event pins. Data-honest to the end — a real number under every verdict, nothing fabricated, no composite scores.
-2. **Goals & trend tracking (after the workbench, post-usage).** The owner picks focus areas ("improve early warding"); the app tracks the relevant honest numbers across games and shows trajectory. It measures what the owner chose to work on — it still doesn't editorialize.
+2. **Goals & trend tracking (after the workbench, post-usage).** Yovan picks focus areas ("improve early warding"); the app tracks the relevant honest numbers across games and shows trajectory. It measures what Yovan chose to work on — it still doesn't editorialize.
 3. **The coaching layer (far horizon, named deliberately).** The app surfaces patterns itself ("you die between 10–14min in 40% of losses"). This is the auto-callout layer, **on record as the ultimate direction**, but it only gets built after stages 1–2 have sustained real usage, and it must inherit the data-honesty identity: pattern claims carry their sample sizes and never dress correlation as instruction.
 
 **Permanent record is an end-state requirement, not a vibe.** LP history and match detail are unrecoverable once missed, so the DB joins Curio-progress in the "irreplaceable personal data" tier: backup rotation, NAS archival, and gap-free capture become features. **Hard dependency this creates: continuous capture and daily-expiring dev keys don't coexist** — the Riot production/personal-product key investigation (an unverified item in the F0 friction milestone) is a prerequisite for the permanent-record ambition; if no longer-lived key exists, the fallback is a sync ritual robust enough that gaps stay rare.
@@ -26,19 +26,19 @@ What: scheduled or semi-automatic sync (headless sync mode + Task Scheduler, or 
 **Phase 3 — Map + scrubber (M15 → M16 → M17).** M15 opens with position-granularity + map-asset-licensing verification; scrubber v1 = board-state stepper + event pins, bounded by Riot's 60s-frame granularity (accepted). Why after U1: the dream earns its build through demonstrated usage.
 
 **Phase 4 — Goals & trend tracking.**
-What: owner-defined focus areas bound to metrics the workbench already computes; trajectory views with min-sample gates (no verdicts on 3 games). Why: cheapest path to "am I improving at the thing I chose" — reuses existing honest numbers, adds no new data source. How: a `focus_area` entity mapping to existing metric queries + a trend strip.
+What: user-defined focus areas bound to metrics the workbench already computes; trajectory views with min-sample gates (no verdicts on 3 games). Why: cheapest path to "am I improving at the thing I chose" — reuses existing honest numbers, adds no new data source. How: a `focus_area` entity mapping to existing metric queries + a trend strip.
 
 **Phase 5 — The coaching layer (far horizon).**
-What: pattern mining over the accumulated archive ("you die 10–14min in 40% of losses, n=32") — surfaced, sample-sized, never prescriptive beyond the statistic. Why last: it's only honest over a large archive, which Phase 2 is quietly building the whole time. Gate: sustained workbench usage + owner explicitly asking for it.
+What: pattern mining over the accumulated archive ("you die 10–14min in 40% of losses, n=32") — surfaced, sample-sized, never prescriptive beyond the statistic. Why last: it's only honest over a large archive, which Phase 2 is quietly building the whole time. Gate: sustained workbench usage + Yovan explicitly asking for it.
 
 ## North Star (operating identity)
-A **data-honest, explorer-first post-game self-coach** for an active League player. The owner plays several games a week, so the premise is alive. **Status: PARKED**, planning only, no build. Success metric: real games reviewed per week during and after U1 — not milestones shipped.
+A **data-honest, explorer-first post-game self-coach** for an active League player. Yovan plays several games a week, so the premise is alive. **Status: PARKED**, planning only, no build. Success metric: real games reviewed per week during and after U1 — not milestones shipped.
 
-## Owner decisions
+## Decisions
 1. **Premise confirmed:** actively playing, several games/week.
 2. **Usage before the explorer:** M11 (lane gold+XP diff), M12 (head-to-head) and M13 (timeline explorer) are off the pre-usage path. R0, F0, B5, B3a and REC ship before the U1 usage window, and the U1 log decides what follows.
 3. **Friction falls first (F0):**
-   - **Deploy milestone:** packaged build in `C:\Self Apps\RiftReview\` per the owner's own convention. "Usage" must not mean `dotnet run` from a dev tree.
+   - **Deploy milestone:** packaged build in `C:\Self Apps\RiftReview\` per Yovan's own convention. "Usage" must not mean `dotnet run` from a dev tree.
    - **Key workflow:** one-action sync-day flow. Investigate whether a registered Riot personal-product key outlives the daily dev key (**unverified** — investigation item, not a fact). If not, script the manual re-key to a single prompt.
 
 ## Roadmap (in order)
