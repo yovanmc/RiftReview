@@ -8,7 +8,7 @@ how-to-work-here layer — read ROADMAP.md for what's being built; read this for
 Single-user, local-only, post-game, data-honest League of Legends self-coach.
 C#/.NET 10 WPF (+ WPF-UI), split into `RiftReview.Core` (no-WPF, testable) and `RiftReview.App`.
 SQLite (schema v3). Riot API only — no third-party aggregators. Public repo:
-github.com/yovanmc/RiftReview. M1–M10 merged; nothing queued. Riot personal dev keys
+github.com/yovanmc/RiftReview. Riot personal dev keys
 **expire ~daily** — real-key testing only works on the owner's machine; all agent work
 uses `--seed-demo` synthetic data instead.
 
@@ -23,8 +23,8 @@ Secrets (owner-only, never agent-set): User Secrets in dev —
 (`"SET-VIA-USER-SECRETS"`) only; never commit a real `RGAPI-` key.
 
 ## Screenshot verification harness
-`.m<N>shots/` per-milestone folders (`.m1shots`…`.m10shots`), each with a `run_capture.ps1`
-(some also have `run_capture_tall.ps1`). Pattern:
+`.m<N>shots/` per-milestone folders (`.m2shots` through `.m10shots`). Capture scripts
+(`run_capture.ps1`, some with `run_capture_tall.ps1`) exist from `.m7shots` on. Pattern:
 - Launch the Debug exe with `--seed-demo --page <review|champions|trends|matchups|sessions|climb|settings>`
   (hook lives in `AppShell.OnLoaded`).
 - Set `HKCU:\Software\Microsoft\Avalon.Graphics\DisableHWAcceleration=1`, capture, then restore it.
@@ -39,7 +39,7 @@ Secrets (owner-only, never agent-set): User Secrets in dev —
 - No `--capture`/`--autostart`/`--done-signal` hooks exist here (that's a different project's harness).
 
 ## Conventions & safety
-- CI: GitHub Actions since 2026-07-02 (`.github/workflows/ci.yml` — restore → build `-warnaserror` → test,
+- CI: GitHub Actions (`.github/workflows/ci.yml`: restore → build `-warnaserror` → test,
   windows-latest / .NET 10, on push/PR to master). The local merge gate is still `dotnet test` + the screenshot
   subagent verdict. Flow: plan doc in `docs/superpowers/plans/` → branch → PR →
   `--merge --delete-branch` from `master` (default branch is **master**, not main).
