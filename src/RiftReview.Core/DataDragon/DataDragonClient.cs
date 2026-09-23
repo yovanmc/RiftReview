@@ -67,12 +67,9 @@ public sealed class DataDragonClient
     }
 
     public string ChampionName(int championId) => _names.TryGetValue(championId, out var n) ? n : $"Champ {championId}";
-    public string ChampionIconUrl(string iconBasename) => $"{Base}/cdn/{Version}/img/champion/{iconBasename}.png";
 
     public string ItemName(int itemId) =>
         _itemNames.TryGetValue(itemId, out var n) ? n : $"Item {itemId}";
-
-    public bool IsCompletedItem(int itemId) => _completedItems.Contains(itemId);
 
     public IReadOnlySet<int> CompletedItemIds => _completedItems;
 

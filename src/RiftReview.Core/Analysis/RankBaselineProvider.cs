@@ -4,9 +4,6 @@ namespace RiftReview.Core.Analysis;
 
 public static class RankBaselineProvider
 {
-    private static readonly string[] NonApexHighToLow =
-        { "DIAMOND", "EMERALD", "PLATINUM", "GOLD", "SILVER", "BRONZE", "IRON" };
-
     public static string CanonicalRole(string teamPosition) => (teamPosition ?? "").ToUpperInvariant() switch
     {
         "MIDDLE" or "MID" => "MID",

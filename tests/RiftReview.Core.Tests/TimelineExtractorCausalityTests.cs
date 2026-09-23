@@ -11,8 +11,6 @@ public class TimelineExtractorCausalityTests
         FixtureLoader.Read("causality_timeline.json"),
         new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
 
-    private static readonly JsonSerializerOptions Ci = new() { PropertyNameCaseInsensitive = true };
-
     [Fact]
     public void Swing_finds_largest_3min_window_and_sign()
     {
