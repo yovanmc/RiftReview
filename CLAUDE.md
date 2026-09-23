@@ -1,8 +1,8 @@
 # RiftReview — agent/developer runbook
 
-State lives in `ROADMAP.md` (canonical milestones + decision log). This file is the
+State lives in `ROADMAP.md` (canonical milestones). This file is the
 how-to-work-here layer — read ROADMAP.md for what's being built; read this for how to build it.
-**Read `NORTHSTAR.md` before planning anything here** — end-state vision, path phases, and locked owner decisions (North Star session 2026-07-07).
+**Read `NORTHSTAR.md` before planning anything here** — end-state vision, path phases, and locked owner decisions.
 
 ## What this is
 Single-user, local-only, post-game, data-honest League of Legends self-coach.
@@ -32,7 +32,7 @@ Secrets (owner-only, never agent-set): User Secrets in dev —
 - `DeepDiveView` is embedded in `ReviewView`, not its own nav page — reach it via UIAutomation
   `SelectionItemPattern.Select()` on the first matching ListItem.
 - Use the `_tall` variant when the target card sits below the default capture fold (chart/band
-  content especially — M8, M10 both needed it).
+  content especially).
 - **Gate**: a cheap subagent views the PNGs and returns a text verdict — never load PNGs into
   the controller session. PNGs are gitignored (`.m?shots/*.png`; the single-digit glob needed an
   explicit extra entry for `.m10shots`); the capture scripts themselves ARE committed.
@@ -51,15 +51,15 @@ Secrets (owner-only, never agent-set): User Secrets in dev —
   completed-item filter); never fabricate — sparse baselines stay sparse, own-games-only builds
   need ≥3 games or show "not enough games yet."
 
-## Cross-cutting gotchas (from the decision log)
-- **Background-thread `[ObservableProperty]` trap (M9):** any VM property set off the UI thread
+## Cross-cutting gotchas
+- **Background-thread `[ObservableProperty]` trap:** any VM property set off the UI thread
   after first render MUST be `[ObservableProperty]` on an `ObservableObject` — a plain
   `{get;set;}` never fires INPC, compiles fine, unit tests pass, but the UI silently never
   updates. Only the screenshot gate catches this.
-- **Demo seeder must emit matching synthetic events or panels render empty** — recurring across
-  M8 (recalls), M9 (item purchases), M10 (team kills for KP): a real DB feature with no demo-data
+- **Demo seeder must emit matching synthetic events or panels render empty** (recalls, item
+  purchases, team kills for KP): a real DB feature with no demo-data
   analog looks broken in every screenshot even though the logic is correct and unit-tested.
-- **On-demand-from-blob pattern:** M7–M10 all computed new metrics on demand from the stored
+- **On-demand-from-blob pattern:** deep-dive metrics are computed on demand from the stored
   `match_detail.timeline_json` blob rather than adding DB columns — no schema migration needed;
   keep following this pattern before reaching for a migration.
 - **`.gitignore` PNG glob is single-digit-milestone-specific** (`.m?shots/*.png`) — a new
@@ -67,5 +67,5 @@ Secrets (owner-only, never agent-set): User Secrets in dev —
 - **Riot timeline schema fields are optional/open-ended** — treat all event fields as optional
   and enum values as an open set (never throw on an unrecognized one); team invariant is
   1–5→100, 6–10→200.
-- **WPF-UI `FluentWindow` title-bar trap (M4):** `ui:TitleBar` must be a first-class top row of
+- **WPF-UI `FluentWindow` title-bar trap:** `ui:TitleBar` must be a first-class top row of
   the window `Grid`, not re-templated — the screenshot gate asserts caption-button presence.
