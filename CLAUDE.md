@@ -44,7 +44,7 @@ Test gate: `.github/workflows/ci.yml` · whole · ci · 1.5 min [V 2026-09-28 6f
 
 - CI: GitHub Actions (`.github/workflows/ci.yml`: restore → build `-warnaserror` → test,
   windows-latest / .NET 10, on push/PR to master). Merge also needs the screenshot verdict.
-  Flow: plan → branch → PR → `--merge --delete-branch` from
+  Flow: plan → branch → PR → checks green → `--merge --delete-branch` from
   `master` (default branch is **master**, not main).
 - Commit author = repo default `yovanmc`; **never pass `--author`**. End commit messages with
   the current model's `Co-Authored-By: Claude …` trailer.
