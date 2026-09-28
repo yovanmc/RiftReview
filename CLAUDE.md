@@ -39,9 +39,12 @@ build are untracked, main checkout only. Pattern:
 - No `--capture`/`--autostart`/`--done-signal` hooks here (those belong to another project).
 
 ## Conventions & safety
+
+Test gate: `.github/workflows/ci.yml` · whole · ci · 1.5 min [V 2026-09-28 6ffe5f91]
+
 - CI: GitHub Actions (`.github/workflows/ci.yml`: restore → build `-warnaserror` → test,
-  windows-latest / .NET 10, on push/PR to master). The local merge gate is `dotnet test` + the
-  screenshot verdict. Flow: plan → branch → PR → `--merge --delete-branch` from
+  windows-latest / .NET 10, on push/PR to master). Merge also needs the screenshot verdict.
+  Flow: plan → branch → PR → checks green → `--merge --delete-branch` from
   `master` (default branch is **master**, not main).
 - Commit author = repo default `yovanmc`; **never pass `--author`**. End commit messages with
   the current model's `Co-Authored-By: Claude …` trailer.
