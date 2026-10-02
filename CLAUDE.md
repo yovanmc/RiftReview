@@ -3,6 +3,7 @@
 State lives in `ROADMAP.md` (canonical milestones). This file is the
 how-to-work-here layer — read ROADMAP.md for what's being built; read this for how to build it.
 **Read `NORTHSTAR.md` before planning anything here** — end-state vision, path phases, and locked decisions.
+Map: read [docs/MAP.md](docs/MAP.md) before exploring. Working files go in `.scratch/`, never `docs/`.
 
 ## What this is
 Single-user, local-only, post-game, data-honest League of Legends self-coach.
@@ -23,11 +24,8 @@ Secrets (Yovan sets them, never an agent): User Secrets in dev —
 (`"SET-VIA-USER-SECRETS"`) only; never commit a real `RGAPI-` key.
 
 ## Screenshot verification harness
-`.m<N>shots/` per-milestone folders. `.m7shots` to `.m10shots` hold the committed capture scripts
-(`run_capture.ps1`, some with `run_capture_tall.ps1`). `.m2shots` to `.m6shots` and the Capturer
-build are untracked, main checkout only. Pattern:
-- Launch the Debug exe with `--seed-demo --page <review|champions|trends|matchups|sessions|climb|settings>`
-  (hook lives in `AppShell.OnLoaded`).
+Pattern:
+- Launch the Debug exe with `--seed-demo --page <review|champions|trends|matchups|sessions|climb|settings>`.
 - Set `HKCU:\Software\Microsoft\Avalon.Graphics\DisableHWAcceleration=1`, capture, then restore it.
 - Capture via `.m2shots/Capturer/out/Capturer.exe` (PrintWindow, `PW_RENDERFULLCONTENT`).
 - `DeepDiveView` is embedded in `ReviewView`, not its own nav page — reach it via UIAutomation
@@ -42,7 +40,7 @@ build are untracked, main checkout only. Pattern:
 
 Test gate: `.github/workflows/ci.yml` · whole · ci · 1.5 min [V 2026-09-28 6ffe5f91]
 
-- CI: GitHub Actions (`.github/workflows/ci.yml`: restore → build `-warnaserror` → test,
+- CI: GitHub Actions (restore → build `-warnaserror` → test,
   windows-latest / .NET 10, on push/PR to master). Merge also needs the screenshot verdict.
   Flow: plan → branch → PR → checks green → `--merge --delete-branch` from
   `master` (default branch is **master**, not main).
