@@ -27,7 +27,7 @@ Rules and commands live in CLAUDE.md, the end state in NORTHSTAR.md, open work i
 - To add a metric, start in `src/RiftReview.Core/Analysis/` (calculator plus its `*Models.cs`), tests in `tests/RiftReview.Core.Tests/`
 - To read new timeline events, start in `src/RiftReview.Core/Riot/Dtos/TimelineDtos.cs`, then `Analysis/TimelineExtractor.cs` and `AnalysisModels.cs`, fixtures in `tests/RiftReview.Core.Tests/Fixtures/`
 - To change a deep-dive card, start in `src/RiftReview.App/ViewModels/DeepDiveViewModel.cs` and `Views/DeepDiveView.xaml`, then `Demo/DemoSeeder.cs` so the demo shows it
-- To change Riot API calls, start in `src/RiftReview.Core/Riot/IRiotApiClient.cs`, `RiotApiClient.cs` and `Riot/Dtos/`, tests in `tests/RiftReview.Core.Tests/RiotApiClientTests.cs`; the fakes `PagingFakeClient` and `FakeRiotClient` in `SyncServiceTests.cs` implement the interface too
+- To change Riot API calls, start in `src/RiftReview.Core/Riot/IRiotApiClient.cs`, `RiotApiClient.cs` and `Riot/Dtos/`, tests in `tests/RiftReview.Core.Tests/RiotApiClientTests.cs`; all four fakes in `SyncServiceTests.cs` implement the interface too
 - To change item data, start in `src/RiftReview.Core/DataDragon/`, tests in `DataDragonClientTests.cs` and `ItemCatalogParserTests.cs`
 - To change rank baselines, start in `src/RiftReview.Core/Data/rank-baselines.json` and `RankBaselineLoader.cs`, then `Analysis/RankBaselineProvider.cs`
 - To change the schema, start in `src/RiftReview.Core/Data/RiftReviewDb.cs` (`LatestSchemaVersion`), with `Sync/DerivedMetricsBackfill.cs` for derived columns
