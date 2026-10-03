@@ -36,9 +36,9 @@ Rules and commands live in CLAUDE.md, the end state in NORTHSTAR.md, open work i
 
 ## Skip
 - `bin/` - and `obj/`, any depth
-- `.m2shots/` - untracked, main checkout only: `Capturer/out/Capturer.exe` and older captures through `.m6shots/`
 - `.m10shots/*.png` - capture output in every `.m<N>shots/` folder, gitignored
 - `.scratch/` - working files
 
 ## Docs
 - `docs/MAP.md` - this file
+- `docs/SCREENSHOTS.md` - screenshot verification harness: launch flags, capture scripts, capturer
