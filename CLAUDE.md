@@ -18,11 +18,11 @@ dotnet build RiftReview.slnx -v minimal
 dotnet test RiftReview.slnx
 dotnet run --project src/RiftReview.App -- --seed-demo   # demo mode, no key needed
 ```
-Yovan sets secrets via User Secrets (README, Setup). `appsettings.json` ships
+Yovan sets secrets via User Secrets (README, Setup), never an agent. `appsettings.json` ships
 `"SET-VIA-USER-SECRETS"` placeholders only. Commits carry placeholders, never a real `RGAPI-` key.
 
 ## Screenshot verification
-UI changes get a screenshot verdict from `--seed-demo` captures. Harness steps (launch flags,
+Every merge needs a screenshot verdict from `--seed-demo` captures. Harness steps (launch flags,
 software render, capture scripts, the `DeepDiveView` drill, `_tall` variants):
 [docs/SCREENSHOTS.md](docs/SCREENSHOTS.md).
 
@@ -31,7 +31,7 @@ software render, capture scripts, the `DeepDiveView` drill, `_tall` variants):
 Test gate: `.github/workflows/ci.yml` · whole · ci · 1.5 min [V 2026-09-28 6ffe5f91]
 
 - CI (`.github/workflows/ci.yml`): restore, build `-warnaserror`, test on windows-latest / .NET 10,
-  on push and PR to `master`. Merge also needs the screenshot verdict. Default branch is **master**.
+  on push and PR to `master`. Merge only after CI is green and the screenshot verdict is in. Default branch is **master**.
 - Non-goals (enforced, not aspirational): no single composite "RiftScore", so every verdict
   decomposes into named, individually-numbered components. No external or recommended-build
   comparison or live-overlay/draft-scouting data (Data Dragon supplies only item names and the

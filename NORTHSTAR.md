@@ -52,7 +52,7 @@ A **data-honest, explorer-first post-game self-coach** for an active League play
 **If the pre-U1 rows ship and real usage still does not happen within the U1 window, friction was never the blocker.** The next move at that point is NOT M11 to M17. It is a re-examination of the project (is the friction elsewhere? has play interest moved?). Write the answer down before building anything else.
 
 ## Hygiene backlog
-- `.m2shots` to `.m6shots` are untracked while CLAUDE.md documents the harness (roadmap row H).
+- The `.m2shots` capturer is absent from disk while docs/SCREENSHOTS.md documents the harness (roadmap row H).
 
 ## Non-goals (standing, reaffirmed)
 - Auto-callout coaching layer (possible later, not queued).

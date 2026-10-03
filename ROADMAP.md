@@ -39,6 +39,6 @@ Repo: github.com/yovanmc/RiftReview
 | H | Screenshot folder hygiene | [ ] | BACKLOG | — | `.m2shots`-`.m6shots` capture scripts are untracked. Commit them or gitignore the folders |
 
 ## Pointers
-- Vision and path phases: [NORTHSTAR.md](NORTHSTAR.md) · Commands, conventions, screenshot harness, gotchas and non-goals: [CLAUDE.md](CLAUDE.md)
+- Vision and path phases: [NORTHSTAR.md](NORTHSTAR.md) · Commands, conventions, gotchas and non-goals: [CLAUDE.md](CLAUDE.md) · Screenshot harness: [docs/SCREENSHOTS.md](docs/SCREENSHOTS.md)
 - Product shape: explorer-first self-serve workbench. Auto-callouts are a possible later layer, not queued
 - Riot API limits: league-v4 = current standing only (no historical per-game LP, Climb uses snapshot diffs). match-v5 timeline is the SOLE source of per-minute gold/CS + ward/objective/death events
