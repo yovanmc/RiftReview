@@ -9,23 +9,19 @@ public class ClimbCalculatorTests
         new("NA1_" + start, queue, start, 1800, "15.12", 103, "MIDDLE", win,
             5, 3, 7, 200, 70, 100, 8, 145, 100, 0.6, 0.25, 1);
 
-    [Fact]
-    public void Streaks_current_and_longest()
+    // The current streak is positive on a win streak and negative on a loss streak.
+    [Theory]
+    [InlineData(new[] { true, true, false, true, true, true }, 3, 3, 1)]
+    [InlineData(new[] { true, false, false }, -2, 1, 2)]
+    public void Streaks_current_and_longest(bool[] wins, int current, int longestWin, int longestLoss)
     {
-        var ms = new List<MatchRow> { R(0, true), R(1, true), R(2, false), R(3, true), R(4, true), R(5, true) };
+        var ms = wins.Select((win, i) => R(i, win)).ToList();
         var s = ClimbCalculator.Streaks(ms);
-        Assert.Equal(3, s.CurrentStreak);
-        Assert.Equal(3, s.LongestWinStreak);
-        Assert.Equal(1, s.LongestLossStreak);
-        Assert.Equal(6, s.RecentForm.Count);
-        Assert.True(s.RecentForm[^1]);
-    }
-
-    [Fact]
-    public void Streaks_current_negative_on_loss_streak()
-    {
-        var ms = new List<MatchRow> { R(0, true), R(1, false), R(2, false) };
-        Assert.Equal(-2, ClimbCalculator.Streaks(ms).CurrentStreak);
+        Assert.Equal(current, s.CurrentStreak);
+        Assert.Equal(longestWin, s.LongestWinStreak);
+        Assert.Equal(longestLoss, s.LongestLossStreak);
+        Assert.Equal(wins.Length, s.RecentForm.Count);
+        Assert.Equal(wins[^1], s.RecentForm[^1]);
     }
 
     [Fact]

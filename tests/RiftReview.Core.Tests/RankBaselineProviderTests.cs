@@ -32,15 +32,11 @@ public class RankBaselineProviderTests
     public void NormalizeTier_collapses_apex(string raw, string expected)
         => Assert.Equal(expected, RankBaselineProvider.NormalizeTier(raw));
 
-    [Fact]
-    public void Resolve_returns_seeded_value() =>
-        Assert.Equal(60.0, RankBaselineProvider.Resolve(Table(), "MIDDLE", "GOLD", "cs10"));
-
-    [Fact]
-    public void Resolve_returns_null_for_absent_metric() =>
-        Assert.Null(RankBaselineProvider.Resolve(Table(), "UTILITY", "GOLD", "cs10"));
-
-    [Fact]
-    public void Resolve_returns_null_for_unranked_tier() =>
-        Assert.Null(RankBaselineProvider.Resolve(Table(), "MIDDLE", "UNRANKED", "cs10"));
+    // A seeded value resolves. An absent metric or an unranked tier resolves to null.
+    [Theory]
+    [InlineData("MIDDLE", "GOLD", 60.0)]
+    [InlineData("UTILITY", "GOLD", null)]
+    [InlineData("MIDDLE", "UNRANKED", null)]
+    public void Resolve_returns_the_seeded_value_or_null(string role, string tier, double? expected) =>
+        Assert.Equal(expected, RankBaselineProvider.Resolve(Table(), role, tier, "cs10"));
 }
