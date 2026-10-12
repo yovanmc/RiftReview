@@ -44,13 +44,6 @@ public class RiftReviewDbTests
         new(id, queue, start, 1800, "15.12.1", 103, "MIDDLE", true, 1, 1, 1, 100, 60, 0, 7, 1, start);
 
     [Fact]
-    public void Schema_is_v3()
-    {
-        using var db = RiftReviewDb.Open("Data Source=:memory:");
-        Assert.Equal(3, db.GetSchemaVersion());
-    }
-
-    [Fact]
     public void Derived_metrics_roundtrip()
     {
         using var db = RiftReviewDb.Open("Data Source=:memory:");

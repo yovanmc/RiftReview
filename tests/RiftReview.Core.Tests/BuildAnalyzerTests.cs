@@ -19,13 +19,6 @@ public class BuildAnalyzerTests
     };
 
     [Fact]
-    public void Analyze_returns_correct_total_games()
-    {
-        var best = BuildAnalyzer.Analyze(103, "MIDDLE", FourMatches());
-        Assert.Equal(4, best.TotalGames);
-    }
-
-    [Fact]
     public void Analyze_item_6655_games3_wins2_wr_approx_0667()
     {
         var best = BuildAnalyzer.Analyze(103, "MIDDLE", FourMatches());
@@ -86,11 +79,12 @@ public class BuildAnalyzerTests
     }
 
     [Fact]
-    public void Analyze_returns_correct_champion_and_role()
+    public void Analyze_returns_correct_champion_role_and_total_games()
     {
         var best = BuildAnalyzer.Analyze(103, "MIDDLE", FourMatches());
         Assert.Equal(103, best.ChampionId);
         Assert.Equal("MIDDLE", best.Role);
+        Assert.Equal(4, best.TotalGames);
     }
 
     [Fact]
