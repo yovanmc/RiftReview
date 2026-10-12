@@ -18,34 +18,17 @@ public class BuildAnalyzerTests
         new MatchBuild(103, "MIDDLE", Win: true,  CompletedItems: new[] { 3089 }),
     };
 
-    [Fact]
-    public void Analyze_item_6655_games3_wins2_wr_approx_0667()
+    [Theory]
+    [InlineData(6655, 3, 2, 2.0 / 3.0)]
+    [InlineData(3089, 2, 2, 1.0)]
+    [InlineData(3157, 2, 1, 0.5)]
+    public void Analyze_counts_games_wins_and_win_rate_per_item(int itemId, int games, int wins, double winRate)
     {
         var best = BuildAnalyzer.Analyze(103, "MIDDLE", FourMatches());
-        var item = best.Items.Single(i => i.ItemId == 6655);
-        Assert.Equal(3, item.Games);
-        Assert.Equal(2, item.Wins);
-        Assert.Equal(2.0 / 3.0, item.WinRate, precision: 10);
-    }
-
-    [Fact]
-    public void Analyze_item_3089_games2_wins2_wr1()
-    {
-        var best = BuildAnalyzer.Analyze(103, "MIDDLE", FourMatches());
-        var item = best.Items.Single(i => i.ItemId == 3089);
-        Assert.Equal(2, item.Games);
-        Assert.Equal(2, item.Wins);
-        Assert.Equal(1.0, item.WinRate);
-    }
-
-    [Fact]
-    public void Analyze_item_3157_games2_wins1_wr05()
-    {
-        var best = BuildAnalyzer.Analyze(103, "MIDDLE", FourMatches());
-        var item = best.Items.Single(i => i.ItemId == 3157);
-        Assert.Equal(2, item.Games);
-        Assert.Equal(1, item.Wins);
-        Assert.Equal(0.5, item.WinRate);
+        var item = best.Items.Single(i => i.ItemId == itemId);
+        Assert.Equal(games, item.Games);
+        Assert.Equal(wins, item.Wins);
+        Assert.Equal(winRate, item.WinRate, precision: 10);
     }
 
     [Fact]

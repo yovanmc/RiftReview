@@ -9,30 +9,26 @@ public class ChampTrendCalculatorTests
         new("NA1_" + start, 420, start, 1800, "15.12", 103, "MIDDLE", win,
             5, deaths, 5, 200, cs10, 100, 8, 145, 100, 0.6, 0.25, 1);
 
-    [Fact]
-    public void Improving_cs10_when_recent_block_beats_prior_block()
-    {
-        // 20 games (N=10): prior 10 average cs10 = 60, recent 10 average = 75 -> improving
-        var games = new List<MatchRow>();
-        for (int i = 0; i < 10; i++) games.Add(Row(i, true, 60, 3));        // oldest (prior block)
-        for (int i = 10; i < 20; i++) games.Add(Row(i, true, 75, 3));       // newest (current block)
-        games.Reverse();                                                    // calculator expects newest-first
-        var t = ChampTrendCalculator.Build(games, n: 10);
-        var cs = t.Metrics.Single(m => m.Key == "cs10");
-        Assert.Equal(TrendVerdict.Improving, cs.Verdict);
-        Assert.Equal(75, cs.Current!.Value, 1);
-        Assert.Equal(60, cs.Prior!.Value, 1);
-    }
-
-    [Fact]
-    public void Deaths_down_reads_as_improving()
+    // 20 games (N=10): a prior block of 10 and a recent block of 10.
+    // cs10 60 -> 75 is improving, deaths 6 -> 3 is improving (lower is better),
+    // and cs10 70 -> 71 is steady because +1 is inside the deadband floor of 2.
+    [Theory]
+    [InlineData("cs10", 60, 75, 3, 3, TrendVerdict.Improving, 60.0, 75.0)]
+    [InlineData("deaths", 70, 70, 6, 3, TrendVerdict.Improving, 6.0, 3.0)]
+    [InlineData("cs10", 70, 71, 3, 3, TrendVerdict.Steady, 70.0, 71.0)]
+    public void Verdict_compares_the_recent_block_with_the_prior_block(
+        string key, int priorCs10, int recentCs10, int priorDeaths, int recentDeaths,
+        TrendVerdict verdict, double prior, double current)
     {
         var games = new List<MatchRow>();
-        for (int i = 0; i < 10; i++) games.Add(Row(i, true, 70, 6));   // prior: 6 deaths
-        for (int i = 10; i < 20; i++) games.Add(Row(i, true, 70, 3));  // recent: 3 deaths (better)
-        games.Reverse();
+        for (int i = 0; i < 10; i++) games.Add(Row(i, true, priorCs10, priorDeaths));      // oldest (prior block)
+        for (int i = 10; i < 20; i++) games.Add(Row(i, true, recentCs10, recentDeaths));   // newest (current block)
+        games.Reverse();                                                                    // calculator expects newest-first
         var t = ChampTrendCalculator.Build(games, n: 10);
-        Assert.Equal(TrendVerdict.Improving, t.Metrics.Single(m => m.Key == "deaths").Verdict);
+        var metric = t.Metrics.Single(m => m.Key == key);
+        Assert.Equal(verdict, metric.Verdict);
+        Assert.Equal(current, metric.Current!.Value, 1);
+        Assert.Equal(prior, metric.Prior!.Value, 1);
     }
 
     [Fact]
@@ -43,17 +39,6 @@ public class ChampTrendCalculatorTests
         games.Reverse();
         var t = ChampTrendCalculator.Build(games, n: 10);
         Assert.Equal(TrendVerdict.Building, t.Metrics.Single(m => m.Key == "cs10").Verdict);
-    }
-
-    [Fact]
-    public void Steady_within_deadband()
-    {
-        var games = new List<MatchRow>();
-        for (int i = 0; i < 10; i++) games.Add(Row(i, true, 70, 3));
-        for (int i = 10; i < 20; i++) games.Add(Row(i, true, 71, 3)); // +1 cs < floor(2) -> steady
-        games.Reverse();
-        var t = ChampTrendCalculator.Build(games, n: 10);
-        Assert.Equal(TrendVerdict.Steady, t.Metrics.Single(m => m.Key == "cs10").Verdict);
     }
 
     [Fact]
