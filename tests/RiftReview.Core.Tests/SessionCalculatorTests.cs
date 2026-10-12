@@ -40,23 +40,7 @@ public class SessionCalculatorTests
     }
 
     [Fact]
-    public void Detects_in_session_deaths_decay()
-    {
-        var games = new List<MatchRow>
-        {
-            G(0, true, deaths: 1), G(2400, false, deaths: 2),
-            G(4800, true, deaths: 7), G(7200, false, deaths: 9),
-        };
-        var s = SessionCalculator.BuildSessions(games)[0];
-        Assert.True(s.DecayPresent);
-        Assert.True(s.DeathsDelta > 0);
-        Assert.True(s.Severity >= TiltSeverity.Caution);
-        // reason must carry the delta number (e.g. "deaths climbing (+6.0/game)")
-        Assert.Contains(s.Reasons, r => r.Contains("deaths climbing (+"));
-    }
-
-    [Fact]
-    public void Deaths_decay_reason_includes_numeric_delta()
+    public void Detects_in_session_deaths_decay_and_the_reason_includes_numeric_delta()
     {
         // first half avg deaths = 1.0, second half avg deaths = 9.0 → delta = 8.0 ≥ threshold 1.5
         var games = new List<MatchRow>
@@ -65,7 +49,10 @@ public class SessionCalculatorTests
             G(4800, false, deaths: 9), G(7200, false, deaths: 9),
         };
         var s = SessionCalculator.BuildSessions(games)[0];
+        Assert.True(s.DecayPresent);
+        Assert.True(s.Severity >= TiltSeverity.Caution);
         Assert.True(s.DeathsDelta >= SessionCalculator.DeathsDecayThreshold);
+        Assert.Contains(s.Reasons, r => r.Contains("deaths climbing (+"));
         // reason must contain the positive delta in "+X.X/game" form
         var reason = s.Reasons.FirstOrDefault(r => r.StartsWith("deaths climbing"));
         Assert.NotNull(reason);

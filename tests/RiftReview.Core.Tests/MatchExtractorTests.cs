@@ -9,17 +9,11 @@ public class MatchExtractorTests
         FixtureLoader.Read("sample_match.json"), new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
 
     [Fact]
-    public void Summarize_sets_my_team_id_from_my_participant()
-    {
-        var s = MatchExtractor.Summarize(Match(), myPuuid: "ME");
-        Assert.Equal(100, s.MyTeamId);
-    }
-
-    [Fact]
-    public void Summarize_finds_me_and_lane_opponent()
+    public void Summarize_finds_me_my_team_and_lane_opponent()
     {
         var s = MatchExtractor.Summarize(Match(), myPuuid: "ME");
         Assert.Equal(3, s.MyParticipantId);
+        Assert.Equal(100, s.MyTeamId);
         Assert.Equal("MIDDLE", s.MyTeamPosition);
         Assert.Equal(8, s.OpponentParticipantId);
         Assert.True(s.Win);

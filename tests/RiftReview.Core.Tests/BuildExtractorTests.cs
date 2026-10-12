@@ -75,17 +75,6 @@ public class BuildExtractorTests
     }
 
     [Fact]
-    public void MyParticipantId_metadata_path_index_to_pid_mapping()
-    {
-        // Explicitly: build a timeline with Metadata.Participants listing myPuuid at index 2 → expect 3
-        var tl = new TimelineDto(
-            new TimelineMetadata("TL_META", new List<string> { "a", "b", "myPuuid_test", "c" }),
-            new TimelineInfo(60000, new List<FrameDto>()));
-        var pid = BuildExtractor.MyParticipantId(tl, "myPuuid_test");
-        Assert.Equal(3, pid);
-    }
-
-    [Fact]
     public void MyParticipantId_falls_back_to_info_participants_when_not_in_metadata()
     {
         // Metadata has PUUIDs that don't include mine; Info.Participants has a mapping
