@@ -61,6 +61,23 @@ public class SessionCalculatorTests
     }
 
     [Fact]
+    public void Deaths_decay_alone_raises_the_session_to_caution()
+    {
+        // alternating results keep endLoss and longest at 1 and the win rate at 0.5,
+        // so only the decay term can lift the severity above calm
+        var games = new List<MatchRow>
+        {
+            G(0, true, deaths: 1), G(2400, false, deaths: 2),
+            G(4800, true, deaths: 7), G(7200, false, deaths: 9),
+        };
+        var s = SessionCalculator.BuildSessions(games)[0];
+        Assert.True(s.DecayPresent);
+        Assert.Equal(1, s.EndLossStreak);
+        Assert.Equal(1, s.LongestLossStreak);
+        Assert.Equal(TiltSeverity.Caution, s.Severity);
+    }
+
+    [Fact]
     public void Cs10_decay_reason_includes_numeric_delta()
     {
         // first half cs@10 avg = 100, second half cs@10 avg = 60 → delta = 40 ≥ threshold 8
